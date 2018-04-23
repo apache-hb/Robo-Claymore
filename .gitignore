@@ -99,6 +99,6 @@ ENV/
 .mypy_cache/
 
 # stop my retarded ass from uploading my discord tag
-.json
-.cfg
-.log
+*.json
+*.cfg
+*.log
