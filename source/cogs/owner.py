@@ -1,13 +1,15 @@
 import discord
 from discord.ext import commands
 
+import json
+
 from .store import Store, style_embed
 
 class Owner:
     def __init__(self, bot):
         self.bot = bot
         print('Cog {} loaded'.format(self.__class__.__name__))
-    
+
     short = "Owner commands"
     description = "Only the owner of the bot and whitelisted users can use these commands"
     hidden = True
@@ -37,7 +39,9 @@ class Owner:
 
     @whitelist.command(name="add")
     async def _add(self, ctx, user: discord.Member):
-        pass
+        if user.id not in Store.whitelist:
+            Store.whitelist.append(user.id)
+            json.dump(Store.whitelist, open('cogs/store/whitelist.json', 'w'))
 
     @whitelist.command(name="remove")
     async def _remove(self, ctx, user: discord.Member):
@@ -61,7 +65,7 @@ class Owner:
 
     @commands.command(name="test")
     async def _test(self, ctx):
-        pass
+        await ctx.send(ctx.channel.permissions_for(ctx.author))
 
 def setup(bot):
     bot.add_cog(Owner(bot))

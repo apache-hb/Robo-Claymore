@@ -44,4 +44,6 @@ class Store:
 
     whitelist = json.load(open('cogs/store/whitelist.json'))
 
+    blacklist = json.load(open('cogs/store/blacklist.json'))
+
     
