@@ -94,11 +94,8 @@ if not os.path.isfile('./cogs/store/config.cfg'):
             
     reddit = ensure_bool_input('Would you like to enable reddit?', 'must be yes or no')
     
-    reddit_id = None
-    reddit_secret = None
-    reddit_username = None
-    reddit_password = None
-    reddit_message = None
+    #make everything none by default
+    reddit_id = reddit_secret = reddit_username = reddit_password = reddit_message = None
 
     if reddit:
         reddit_id = ensure_input('Please input your reddit id', 'You must enter an id')
@@ -113,6 +110,25 @@ if not os.path.isfile('./cogs/store/config.cfg'):
 
     if wolfram:
         wolfram_key = ensure_input('Please input your wolfram alpha id', 'you must enter an id')
+
+    #todo
+    # google
+    # twitter
+    # reddit
+    # urban dictionary
+    # wikipedia
+    # wikia fandom wikis
+    # random number stuff
+    # text fuckery
+    # tags
+    # quotes
+    # warframe
+    # blacklist
+    # discord email
+
+    # bot owner only
+    # block
+    # whitelist
 
     file.write('''[DISCORD]
 token = {discord_token}
@@ -222,9 +238,14 @@ async def on_member_leave(member):
 async def on_member_join(member):
     pass
 
-cogs = glob.glob('./cogs/*.py')
-cogs.remove('./cogs/store.py')
-cogs.remove('./cogs/__init__.py')
+cogs = []
+
+for a in glob.glob('./cogs/*.py'):
+    a = a.replace('./cogs/', '')
+    a = a.replace('.py', '')
+    a = 'cogs.' + a
+    if not a in ['cogs.store', 'cogs.__init__']:
+        cogs.append(a)
 
 failed_cogs = [
 
