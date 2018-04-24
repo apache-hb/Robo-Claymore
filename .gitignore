@@ -103,3 +103,7 @@ ENV/
 *.cfg
 *.log
 *.vscode
+
+.vscode/
+*.code-workspace
+.DS_Store
