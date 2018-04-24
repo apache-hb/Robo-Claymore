@@ -13,9 +13,12 @@ class Help:
 
     short = "Help me!"
     description = "Retrives a list of commands the bot has that the user can access"
+    blocked_roles = []
     hidden = False
 
     async def __local_check(self, ctx):
+        if ctx.bot.is_owner(ctx.author.id):
+            return True
         return True
 
     @commands.command(name="help")
@@ -27,14 +30,16 @@ class Help:
         elif command in ctx.bot.all_commands:
             await ctx.send(embed=self.command_help(ctx, command))
         else:
-            await ctx.send('No cog called {} found'.format(command))
+            await ctx.send('No cog or command called {} found'.format(command))
 
     def command_help(self, ctx, command: str):
-        target = ctx.bot.all_commands(command)
+        target = ctx.bot.all_commands.get(command)
         aliases = target.aliases
 
         if hasattr(target, 'description'): 
             description = target.description
+            if description =='':
+                description = 'None'
         else: 
             description = 'None'
 
@@ -56,7 +61,7 @@ class Help:
         target = ctx.bot.get_cog(cog)
         embed=style_embed(ctx, title='Information and subcommands in {}'.format(cog),
         description=target.description)
-        for command in target:
+        for command in ctx.bot.get_cog_commands(cog):
             if not command.hidden:
                 if hasattr(command, 'brief'):
                     embed.add_field(name=command.name, value=command.brief)
@@ -78,6 +83,14 @@ class Help:
         embed=style_embed(ctx, title='All cogs for bot {}'.format(ctx.bot.user.name))
         embed.add_field(name='All cogs', value=ret)
         return embed
+
+    @commands.command(name="request")
+    async def _request(self, ctx, *, message: str):
+        pass
+
+    @commands.command(name="report")
+    async def _report(self, ctx, *, message: str):
+        pass
 
 def setup(bot):
     bot.add_cog(Help(bot))

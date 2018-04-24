@@ -31,6 +31,8 @@ def add_guild(guild):
 
 class Store:
 
+    message_count = 0
+
     current_system = ''
 
     silent = False
@@ -39,5 +41,7 @@ class Store:
 
     config = configparser.ConfigParser()
     config.read('./store/config.cfg')
+
+    whitelist = json.load(open('cogs/store/whitelist.json'))
 
     
