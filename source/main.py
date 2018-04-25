@@ -13,6 +13,7 @@ from cogs.store import Store, pyout
 
 import glob
 import bs4
+
 import warnings
 warnings.filterwarnings('ignore', category=UserWarning, module='bs4')
 
@@ -217,15 +218,26 @@ bot.remove_command('help')
 
 @bot.event
 async def on_ready():
-    pyout('my name is: {}'.format(bot.user.name))
-    pyout('my id is: {}'.format(bot.user.id))
-    pyout('running with {} of the discord.py library'.format(discord.__version__))
+    pyout('\n+----------------------------------')
+    pyout('|my name is: {}#{}'.format(bot.user.name, bot.user.discriminator))
+    pyout('|my id is: {}'.format(bot.user.id))
+    pyout('+----------------------------------')
+    pyout('\nrunning with {} of the discord.py library'.format(discord.__version__))
     pyout('bot version: {}'.format(__version__))
     pyout('bot ready')
 
 @bot.event
 async def on_message(message):
     await bot.process_commands(message)
+
+@bot.event
+async def on_command_error(ctx, exe):
+    pass
+    
+@bot.event
+async def on_error(event, *args, **kwargs):
+    if isinstance(event, TimeoutError):
+        pyout('The bot timed out')
 
 @bot.event
 async def on_guild_join(guild):

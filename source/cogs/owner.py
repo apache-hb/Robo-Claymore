@@ -17,7 +17,7 @@ class Owner:
     async def __local_check(self, ctx):
         if ctx.bot.is_owner(ctx.author.id):
             return True
-        elif ctx.author.id in []:#todo, whitelist and blacklist
+        elif ctx.author.id in Store.whitelist:#todo, whitelist and blacklist
             return True
         await ctx.send('Fuck off')
         return False
@@ -29,8 +29,8 @@ class Owner:
         ret=''
         if Store.whitelist:
             for a in Store.whitelist:
-                user = ctx.bot.get_user_info(a)
-                ret+=user.name+'#'+user.discriminator+':('+user.id+')\n'
+                user = await ctx.bot.get_user_info(a)
+                ret+='{}#{}:({})\n'.format(user.name, user.discriminator, user.id)
         else:
             ret='There are no whitelisted users'
         embed.add_field(name='All users', value=ret)
@@ -38,13 +38,18 @@ class Owner:
 
 
     @whitelist.command(name="add")
-    async def _add(self, ctx, user: discord.Member):
+    async def _wl_add(self, ctx, *, user: discord.Member):
+        ret='User {} was already in the whitelist'.format(user.name)
         if user.id not in Store.whitelist:
             Store.whitelist.append(user.id)
-            json.dump(Store.whitelist, open('cogs/store/whitelist.json', 'w'))
+            json.dump(Store.whitelist, open('cogs/store/whitelist.json', 'w'), indent=4)
+            ret='User {} was added to the whitelist'.format(user.name)
+        embed=style_embed(ctx, title='New user added to whitelist')
+        embed.add_field(name='User', value=ret)
+        await ctx.send(embed=embed)
 
     @whitelist.command(name="remove")
-    async def _remove(self, ctx, user: discord.Member):
+    async def _wl_remove(self, ctx, user: discord.Member):
         pass
 
     @commands.group(invoke_without_command=True)
@@ -52,11 +57,11 @@ class Owner:
         pass
 
     @blacklist.command(name="add")
-    async def _add(self, ctx, user: discord.Member):
+    async def _bl_add(self, ctx, user: discord.Member):
         pass
 
     @blacklist.command(name="remove")
-    async def _removes(self, ctx, user: discord.Member):
+    async def _bl_remove(self, ctx, user: discord.Member):
         pass
 
     @commands.command(name="echo")
