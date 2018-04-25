@@ -72,14 +72,12 @@ class Help:
     def full_help(self, ctx):
         ret=''
         for cog in ctx.bot.cogs:
-            if hasattr(cog, 'hidden'):
-                if not cog.hidden:
+            cmd = ctx.bot.get_cog(cog)
+            try:
+                if not cmd.hidden:
                     ret+=cog+'\n'
-                    continue
+            except AttributeError:
                 ret+=cog+'\n'
-                continue
-            ret+=cog+'\n'
-            continue
         embed=style_embed(ctx, title='All cogs for bot {}'.format(ctx.bot.user.name))
         embed.add_field(name='All cogs', value=ret)
         return embed

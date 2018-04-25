@@ -230,9 +230,9 @@ async def on_ready():
 async def on_message(message):
     await bot.process_commands(message)
 
-@bot.event
-async def on_command_error(ctx, exe):
-    pass
+#@bot.event
+#async def on_command_error(ctx, exe):
+#    pass
     
 @bot.event
 async def on_error(event, *args, **kwargs):
