@@ -4,6 +4,8 @@ from discord.ext import commands
 import configparser
 import json
 
+import aiohttp
+
 import os
 import sys
 #this is the current directory
@@ -218,6 +220,10 @@ bot.remove_command('help')
 
 @bot.event
 async def on_ready():
+    async with aiohttp.ClientSession() as session:
+        async with session.get('https://api.warframestat.us/warframes') as resp:
+            pyout('Warframe frame data was aquired')
+            Store.frames = json.loads(await resp.text())
     pyout('\n+----------------------------------')
     pyout('|my name is: {}#{}'.format(bot.user.name, bot.user.discriminator))
     pyout('|my id is: {}'.format(bot.user.id))

@@ -39,6 +39,8 @@ class Store:
 
     default_color = 0xe00b3c
 
+    frames = []
+
     config = configparser.ConfigParser()
     config.read('./store/config.cfg')
 

@@ -71,6 +71,7 @@ class Owner:
     @commands.command(name="test")
     async def _test(self, ctx):
         await ctx.send(ctx.channel.permissions_for(ctx.author))
+        await ctx.message.add_reaction(':madurai:319586146499690496')
 
 def setup(bot):
     bot.add_cog(Owner(bot))

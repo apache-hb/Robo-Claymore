@@ -3,9 +3,6 @@ from discord.ext import commands
 
 from .store import style_embed
 
-class HiddenCog:
-    pass
-
 class Help:
     def __init__(self, bot):
         self.bot = bot
@@ -36,16 +33,16 @@ class Help:
         target = ctx.bot.all_commands.get(command)
         aliases = target.aliases
 
-        if hasattr(target, 'description'): 
+        try: 
             description = target.description
-            if description =='':
+            if description =='' or description is None:
                 description = 'None'
-        else: 
+        except AttributeError: 
             description = 'None'
 
-        if hasattr(target, 'usage'): 
+        try: 
             usage = target.usage
-        else: 
+        except AttributeError: 
             usage = 'None'
 
         if not aliases: 
@@ -63,9 +60,9 @@ class Help:
         description=target.description)
         for command in ctx.bot.get_cog_commands(cog):
             if not command.hidden:
-                if hasattr(command, 'brief'):
+                try:
                     embed.add_field(name=command.name, value=command.brief)
-                else:
+                except AttributeError:
                     embed.add_field(name=command.name, value='None')
         return embed
         
