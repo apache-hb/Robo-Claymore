@@ -184,6 +184,17 @@ def ensure_file(ensure: str, default: str):
 if ensure_file('./cogs/store/bot.log', 'logging file \n'):
     pyout('logfile was generated')
 
+if ensure_file('./cogs/store/direct.log', 'direct messages file \n'):
+    pyout('direct messages was generated')
+
+statistic_dict = {
+    "messages_processed": 0,
+    "commands_used": 0
+}
+
+if ensure_file('./cogs/store/statistics.json', json.dumps(statistic_dict, indent=4)):
+    pyout('statistics file was generated')
+
 if ensure_file('./cogs/store/symbiosis.json', '[]'):
     pyout('symbiosis file was generated')
 
@@ -232,18 +243,33 @@ async def on_ready():
     pyout('bot version: {}'.format(__version__))
     pyout('bot ready')
 
+try:
+    current_stats = json.load(open('./cogs/store/statistics.json'))
+except json.decoder.JSONDecodeError:
+    ensure_file('./cogs/store/statistics.json', statistic_dict)
+    pyout('The statistics file was corrupted so the file has been reset')
+
+async def is_direct(message):
+    return isinstance(message.channel, discord.channel.DMChannel) and message.author.id != message.channel.me.id and not message.content.startswith(config['DISCORD']['prefix'])
+
+def save_stats():
+    f=open('./cogs/store/statistics.json', 'w')
+    f.write(json.dumps(current_stats, indent=4))
+    f.close()
+
 @bot.event
 async def on_message(message):
+    current_stats['messages_processed'] += 1
     await bot.process_commands(message)
+    if message.content.startswith(config['DISCORD']['prefix']):
+        current_stats['commands_used'] += 1
+    save_stats()
+    if await is_direct(message):
+        pyout(message.author.name + 'says in direct messages ' + message.content)
 
 #@bot.event
 #async def on_command_error(ctx, exe):
 #    pass
-    
-@bot.event
-async def on_error(event, *args, **kwargs):
-    if isinstance(event, TimeoutError):
-        pyout('The bot timed out')
 
 @bot.event
 async def on_guild_join(guild):

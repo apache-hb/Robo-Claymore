@@ -53,6 +53,7 @@ class Warframe:
                     embed.add_field(name='More info', value=j[0]['url'])
                     embed.add_field(name='Minimum MR rank', value=j[0]['mr'])
                     embed.add_field(name='Type', value=j[0]['type'])
+                    
                     try:
                         embed.add_field(name='Base damage', 
                         value='Total of {full}, comprised of {pun} Puncture, {imp} Impact and {sla} Slash'.format(
@@ -63,6 +64,7 @@ class Warframe:
                     except KeyError:
                         embed.add_field(name='Base damage',
                         value=j[0]['damage'])
+                    
                     if j[0]['type'] == 'Melee':
                         if j[0]['polarities']:
                             embed.add_field(name='Default polarities', value=', '.join(j[0]['polarities']))
@@ -85,7 +87,12 @@ class Warframe:
                             pass
                         
                         embed.add_field(name='Accuracy', value=j[0]['accuracy'])
-                        embed.add_field(name='Maximum ammo capacity', value=j[0]['ammo'])
+
+                        try:
+                            embed.add_field(name='Maximum ammo capacity', value=j[0]['ammo'])
+                        except KeyError:
+                            pass
+                            
                         embed.add_field(name='Magazine capacity', value=j[0]['magazine'])
                         embed.add_field(name='Reload speed', value=j[0]['reload'])
                         embed.add_field(name='Projectile type', value=j[0]['projectile'])
@@ -177,7 +184,17 @@ class Warframe:
                     pass
                 await ctx.send(embed=embed)
 
+    @warframe.command(name="alerts")
+    async def _alerts(self, ctx):
+        pass
 
+    @warframe.command(name="baro")
+    async def _baro(self, ctx):
+        pass
+
+    @warframe.command(name="darvo")
+    async def _darvo(self, ctx):
+        pass
 
     @warframe.command(name="cetustime")
     async def _cetustime(self, ctx):

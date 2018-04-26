@@ -26,12 +26,17 @@ def pyout(message: str):
         print(message)
     return Store.silent
     
+def qlog(message: str):
+    f = open('cogs/store/direct.log', 'w')
+    f.write(message)
+    f.close()
+
 def add_guild(guild):
     pass
 
 class Store:
 
-    message_count = 0
+    total_messages = 0
 
     current_system = ''
 
