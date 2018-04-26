@@ -205,21 +205,71 @@ class Warframe:
         except AttributeError:
             pass
 
-    @warframe.command(name="worldstate")
-    async def _worldstate(self, ctx):
-        pass
-
     @warframe.command(name="alerts")
     async def _alerts(self, ctx):
-        pass
+        try:
+            async with aiohttp.ClientSession() as session:
+                async with session.get('https://api.warframestat.us/pc/alerts') as resp:
+                    j = json.loads(await resp.text())
+                    embed = style_embed(ctx, title='Currently running alerts')
+                    b=0
+                    for a in j:
+                        b+=1
+                        embed.add_field(name='Alert {}'.format(b),
+                        value='Location: {loc}, Mission type: {mis}, Faction: {fac}'.format(
+                            loc=a['mission']['node'],
+                            mis=a['mission']['type'],
+                            fac=a['mission']['faction']
+                        ))
+                        embed.add_field(name='Information', 
+                        value='Rewards: {reward}, Expires in: {exp}'.format(
+                            reward=a['mission']['reward']['asString'],
+                            exp=a['eta']
+                        ))
+                    await ctx.send(embed=embed)
+
+        except AttributeError:
+            pass
 
     @warframe.command(name="baro")
     async def _baro(self, ctx):
-        pass
+        try:
+            async with aiohttp.ClientSession() as session:
+                async with session.get('https://api.warframestat.us/pc/voidTrader') as resp:
+                    j = json.loads(await resp.text())
+                    embed = style_embed(ctx, title='Current Baro Ki\'Teer info')
+                    if not j['active']:
+                        embed.add_field(name='BaroKi\'teer', value='Is currently not visiting, he will be back in {}'.format(
+                            j['startString']
+                        ))
+                        return await ctx.send(embed=embed)
+                    embed.add_field(name='Location', value=j['location'])
+                    embed.add_field(name='Current inventory', value=', '.join(j['inventory']))
+                    await ctx.send(embed=embed)
+        except AttributeError:
+            pass
 
     @warframe.command(name="darvo")
     async def _darvo(self, ctx):
-        pass
+        try:
+            async with aiohttp.ClientSession() as session:
+                async with session.get('https://api.warframestat.us/pc/dailyDeals') as resp:
+                    j = json.loads(await resp.text())
+                    embed = style_embed(ctx, title='Current Darvo Deal', 
+                    description='Could i interest you in some half price life support?')
+                    embed.add_field(name='Item', value=j[0]['item'])
+                    embed.add_field(name='Discount', 
+                    value='Original price: {org}, Percentage discount: {dis}%, Current price: {cur}'.format(
+                        org=j[0]['originalPrice'],
+                        dis=j[0]['discount'],
+                        cur=j[0]['salePrice']
+                    ))
+                    embed.add_field(name='Amount sold',
+                    value=str(j[0]['sold']))
+                    embed.add_field(name='Time left', value=j[0]['eta'])
+                    await ctx.send(embed=embed)
+        except AttributeError:
+            pass
 
     @warframe.command(name="cetustime")
     async def _cetustime(self, ctx):
