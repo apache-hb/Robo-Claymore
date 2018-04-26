@@ -1,5 +1,4 @@
 import json
-import configparser
 
 import sys
 import os
@@ -27,7 +26,7 @@ def pyout(message: str):
     return Store.silent
     
 def qlog(message: str):
-    f = open('cogs/store/direct.log', 'w')
+    f = open('cogs/store/direct.log', 'a')
     f.write(message)
     f.close()
 
@@ -46,8 +45,7 @@ class Store:
 
     frames = []
 
-    config = configparser.ConfigParser()
-    config.read('./store/config.cfg')
+    config = json.load(open('cogs/store/config.json'))
 
     whitelist = json.load(open('cogs/store/whitelist.json'))
 

@@ -9,30 +9,29 @@ if Store.current_system == 'mac':
 import praw
 import prawcore
 
-import configparser
+import json
 
-config = configparser.ConfigParser()
-config.read('cogs/store/config.cfg')
+config = json.load(open('cogs/store/config.json'))
 
 class Reddit:
     def __init__(self, bot):
         self.bot = bot
-        if config['REDDIT']['enabled'] == 'True':
-            self.reddit_client = praw.Reddit(client_id = config['REDDIT']['id'],
-                client_secret = config['REDDIT']['secret'],
-                password = config['REDDIT']['password'],
-                username = config['REDDIT']['username'],
-                user_agent = config['REDDIT']['message'])
+        if not config['reddit']['id'] is None:
+            self.reddit_client = praw.reddit(client_id = config['reddit']['id'],
+                client_secret = config['reddit']['secret'],
+                password = config['reddit']['password'],
+                username = config['reddit']['username'],
+                user_agent = config['reddit']['message'])
             pyout('Praw loaded')
 
         pyout('Cog {} loaded'.format(self.__class__.__name__))
 
-    short = "Reddit interface"
+    short = "reddit interface"
     description = "Write posts to the RoboClaymore subreddit, or read posts from anywhere on reddit"
     hidden = True
 
     async def __local_check(self, ctx):
-        return config['REDDIT']['enabled'] == 'True'
+        return config['reddit']['enabled'] == 'True'
 
     @commands.group(invoke_without_command=True)
     async def reddit(self, ctx):

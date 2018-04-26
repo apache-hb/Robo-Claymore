@@ -1,7 +1,6 @@
 import discord
 from discord.ext import commands
 
-import configparser
 import json
 
 import aiohttp
@@ -11,7 +10,7 @@ import sys
 #this is the current directory
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
-from cogs.store import Store, pyout
+from cogs.store import Store, pyout, qlog
 
 import glob
 
@@ -48,7 +47,7 @@ def remove_file(file: str):
     except Exception as e: pyout(e)
 
 if args.reset is None:
-    remove_file('./cogs/store/config.cfg')
+    remove_file('./cogs/store/config.json')
 
 def strtobool(i: str):
     i = i.lower()
@@ -73,13 +72,13 @@ def ensure_bool_input(prompt: str, error: str):
         except Exception:
             continue
 
-if not os.path.isfile('./cogs/store/config.cfg'):
+if not os.path.isfile('./cogs/store/config.json'):
     if Store.silent:
         print('You have silent mode enabled, so the setup can not be completed')
         exit(2)
         #exit with code 2 for bad args
 
-    file = open('./cogs/store/config.cfg', 'w')
+    file = open('./cogs/store/config.json', 'w')
 
     print('Seeing as the config file cannot be found')
     print('I need you to input some tokens and keys for me to function properly')
@@ -130,44 +129,32 @@ if not os.path.isfile('./cogs/store/config.cfg'):
     # block
     # whitelist
 
-    file.write('''[DISCORD]
-token = {discord_token}
-prefix = {discord_prefix}
-activity = {discord_activity}
-    
-[REDDIT]
-enabled = {reddit_enabled}
-id = {reddit_id}
-secret = {reddit_secret}
-username = {reddit_username}
-password = {reddit_password}
-message = {reddit_message}
-    
-[WOLFRAM]
-enabled = {wolfram_enabled}
-key = {wolfram_key}'''.format(
-        discord_token=discord_token,
-        discord_prefix=discord_prefix,
-        discord_activity=discord_activity,
-        
-        reddit_enabled=reddit,
-        reddit_id=reddit_id,
-        reddit_secret=reddit_secret,
-        reddit_username=reddit_username,
-        reddit_password=reddit_password,
-        reddit_message=reddit_message,
+    bot_keys = {
+        "discord":  {
+            "token": discord_token,
+            "prefix": discord_prefix,
+            "activity": discord_activity
+        },
+        "reddit":   {
+            "id": reddit_id,
+            "secret": reddit_secret,
+            "username": reddit_username,
+            "password": reddit_password,
+            "message": reddit_message
+        },
+        "wolfram":  {
+            "key": wolfram_key
+        }
+    }
 
-        wolfram_enabled=wolfram,
-        wolfram_key=wolfram_key
-    ))
+    json.dump(bot_keys, file, indent=4)
     
     file.close()
     print('Config fully written')
     print('You can edit this at anytime by either reseting the config and running the wizard again')
     print('or you can edit the cofig files directly in cogs/store/config.cfg')
 
-config = configparser.ConfigParser()
-config.read('./cogs/store/config.cfg')
+config = json.load(open('cogs/store/config.json'))
 
 def ensure_file(ensure: str, default: str):
     if not os.path.isfile(ensure):
@@ -218,8 +205,8 @@ if ensure_file('./cogs/store/blocked.json', '[]'):
 if ensure_file('./cogs/store/whitelist.json', '[]'):
     pyout('whitelist file was generated')
 
-bot = commands.Bot(command_prefix=config['DISCORD']['prefix'],
-    activity=discord.Game(name=config['DISCORD']['activity']),
+bot = commands.Bot(command_prefix=config['discord']['prefix'],
+    activity=discord.Game(name=config['discord']['activity']),
     pm_help=None
 )
 
@@ -246,7 +233,7 @@ except json.decoder.JSONDecodeError:
     pyout('The statistics file was corrupted so the file has been reset')
 
 async def is_direct(message):
-    return isinstance(message.channel, discord.channel.DMChannel) and message.author.id != message.channel.me.id and not message.content.startswith(config['DISCORD']['prefix'])
+    return isinstance(message.channel, discord.channel.DMChannel) and message.author.id != message.channel.me.id and not message.content.startswith(config['discord']['prefix'])
 
 def save_stats():
     f=open('./cogs/store/statistics.json', 'w')
@@ -259,11 +246,12 @@ async def on_message(message):
     await bot.process_commands(message)
     save_stats()
     if await is_direct(message):
-        pyout(message.author.name + 'says in direct messages ' + message.content)
+        qlog(message.author.name + ' says ' + message.content + '\n')
 
 @bot.after_invoke
 async def after_any_command(ctx):
-    current_stats['commands_processed'] +=1
+    current_stats['commands_used'] +=1
+    save_stats()
 
 #@bot.event
 #async def on_command_error(ctx, exe):
@@ -306,7 +294,7 @@ if __name__ == '__main__':
         pyout(', '.join(failed_cogs))
 
     try:
-        bot.run(config['DISCORD']['token'])
+        bot.run(config['discord']['token'])
     except discord.errors.LoginFailure:
         print('The token you entered is either incorrect or expired')
         if not Store.silent:

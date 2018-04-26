@@ -10,8 +10,6 @@ class Help:
 
     short = "Help me!"
     description = "Retrives a list of commands the bot has that the user can access"
-    blocked_roles = []
-    hidden = False
 
     async def __local_check(self, ctx):
         if ctx.bot.is_owner(ctx.author.id):
