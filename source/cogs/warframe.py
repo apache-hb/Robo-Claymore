@@ -48,21 +48,58 @@ class Warframe:
                     for f in j:
                         a.append(f['name'])
                     if f:
-                        embed.add_field(name='Variants', value=', '.join(f))
+                        embed.add_field(name='Variants', value=', '.join(a))
                     embed.add_field(name='Name', value=j[0]['name'])
                     embed.add_field(name='More info', value=j[0]['url'])
                     embed.add_field(name='Minimum MR rank', value=j[0]['mr'])
                     embed.add_field(name='Type', value=j[0]['type'])
+                    try:
+                        embed.add_field(name='Base damage', 
+                        value='Total of {full}, comprised of {pun} Puncture, {imp} Impact and {sla} Slash'.format(
+                            full=j[0]['damage'],
+                            pun=j[0]['puncture'],
+                            imp=j[0]['impact'],
+                            sla=j[0]['slash']))
+                    except KeyError:
+                        embed.add_field(name='Base damage',
+                        value=j[0]['damage'])
                     if j[0]['type'] == 'Melee':
                         if j[0]['polarities']:
                             embed.add_field(name='Default polarities', value=', '.join(j[0]['polarities']))
                         embed.add_field(name='Attack speed', value=j[0]['speed'])
-                        embed.add_field(name='Base damage', value=j[0]['damage'])
                         embed.add_field(name='Slide damage', value=j[0]['slide'])
                         embed.add_field(name='Slam attack damage', value=j[0]['jump'])
                         embed.add_field(name='Wall attack damage', value=j[0]['wall'])
                         embed.add_field(name='Channeling efficiency', value=j[0]['channeling'])
                         embed.add_field(name='Default stance polarity', value=j[0]['stancePolarity'])
+                    elif j[0]['type'] in ['Primary', 'Secondary']:
+
+                        try:
+                            embed.add_field(name='Noise level', value=j[0]['noise'])
+                        except KeyError:
+                            pass
+                        
+                        try:
+                            embed.add_field(name='Firerate', value=j[0]['speed'])
+                        except KeyError:
+                            pass
+                        
+                        embed.add_field(name='Accuracy', value=j[0]['accuracy'])
+                        embed.add_field(name='Maximum ammo capacity', value=j[0]['ammo'])
+                        embed.add_field(name='Magazine capacity', value=j[0]['magazine'])
+                        embed.add_field(name='Reload speed', value=j[0]['reload'])
+                        embed.add_field(name='Projectile type', value=j[0]['projectile'])
+                        embed.add_field(name='Trigger type', value=j[0]['trigger'])
+                    
+                        try:
+                            embed.add_field(name='Flight speed', value=j[0]['flight'])
+                        except KeyError:
+                            pass
+                    
+                    embed.add_field(name='Critical chance', value=j[0]['crit_chance'])
+                    embed.add_field(name='Critical damage multiplier', value=j[0]['crit_mult'])
+                    embed.add_field(name='Status chance', value=j[0]['status_chance'])
+                    embed.add_field(name='Riven disposition', value=j[0]['riven_disposition'])
                     embed.set_thumbnail(url=j[0]['thumbnail'])
                     return await ctx.send(embed=embed)
                     
