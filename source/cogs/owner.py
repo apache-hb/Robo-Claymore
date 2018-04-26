@@ -3,12 +3,12 @@ from discord.ext import commands
 
 import json
 
-from .store import Store, style_embed
+from .store import Store, style_embed, pyout
 
 class Owner:
     def __init__(self, bot):
         self.bot = bot
-        print('Cog {} loaded'.format(self.__class__.__name__))
+        pyout('Cog {} loaded'.format(self.__class__.__name__))
 
     short = "Owner commands"
     description = "Only the owner of the bot and whitelisted users can use these commands"

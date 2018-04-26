@@ -12,7 +12,7 @@ import aiohttp
 class Warframe:
     def __init__(self, bot):
         self.bot = bot
-        print('Cog {} loaded'.format(self.__class__.__name__))
+        pyout('Cog {} loaded'.format(self.__class__.__name__))
 
     short = "Warframe info"
     description = "Get info about an item or event in warframe"

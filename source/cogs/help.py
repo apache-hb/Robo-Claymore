@@ -1,12 +1,12 @@
 import discord
 from discord.ext import commands
 
-from .store import style_embed
+from .store import style_embed, pyout
 
 class Help:
     def __init__(self, bot):
         self.bot = bot
-        print('Cog {} loaded'.format(self.__class__.__name__))
+        pyout('Cog {} loaded'.format(self.__class__.__name__))
 
     short = "Help me!"
     description = "Retrives a list of commands the bot has that the user can access"

@@ -257,11 +257,13 @@ def save_stats():
 async def on_message(message):
     current_stats['messages_processed'] += 1
     await bot.process_commands(message)
-    if message.content.startswith(config['DISCORD']['prefix']):
-        current_stats['commands_used'] += 1
     save_stats()
     if await is_direct(message):
         pyout(message.author.name + 'says in direct messages ' + message.content)
+
+@bot.after_invoke
+async def after_any_command(ctx):
+    current_stats['commands_processed'] +=1
 
 #@bot.event
 #async def on_command_error(ctx, exe):
