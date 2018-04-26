@@ -16,16 +16,6 @@ class Warframe:
 
     short = "Warframe info"
     description = "Get info about an item or event in warframe"
-    frames = []
-
-    @commands.command(hidden=True)
-    async def aquire_frames(self, ctx):
-        pyout('exec')
-        async with aiohttp.ClientSession() as session:
-            pyout('session')
-            async with session.get('https://api.warframestat.us/warframes') as resp:
-                pyout('Warframe frame data was aquired')
-                self.frames = json.loads(await resp.text())
 
     @commands.group(invoke_without_command=True)
     async def warframe(self, ctx):

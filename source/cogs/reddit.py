@@ -29,7 +29,7 @@ class Reddit:
 
     short = "Reddit interface"
     description = "Write posts to the RoboClaymore subreddit, or read posts from anywhere on reddit"
-    hidden = False
+    hidden = True
 
     async def __local_check(self, ctx):
         return config['REDDIT']['enabled'] == 'True'
