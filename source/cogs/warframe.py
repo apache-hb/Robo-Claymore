@@ -2,13 +2,12 @@ import discord
 from discord.ext import commands
 
 from .store import style_embed, pyout, Store
-from prettytable import PrettyTable
 
 import sys
 
+import time
 import json
 import aiohttp
-from bs4 import BeautifulSoup
 
 class Warframe:
     def __init__(self, bot):
@@ -17,8 +16,6 @@ class Warframe:
 
     short = "Warframe info"
     description = "Get info about an item or event in warframe"
-    hidden = True
-
     frames = []
 
     @commands.command(hidden=True)
@@ -86,13 +83,16 @@ class Warframe:
                         except KeyError:
                             pass
                         
-                        embed.add_field(name='Accuracy', value=j[0]['accuracy'])
+                        try:
+                            embed.add_field(name='Accuracy', value=j[0]['accuracy'])
+                        except KeyError:
+                            pass
 
                         try:
                             embed.add_field(name='Maximum ammo capacity', value=j[0]['ammo'])
                         except KeyError:
                             pass
-                            
+
                         embed.add_field(name='Magazine capacity', value=j[0]['magazine'])
                         embed.add_field(name='Reload speed', value=j[0]['reload'])
                         embed.add_field(name='Projectile type', value=j[0]['projectile'])
@@ -183,6 +183,31 @@ class Warframe:
                 except KeyError:
                     pass
                 await ctx.send(embed=embed)
+
+    @warframe.command(name="sortie")
+    async def _sortie(self, ctx):
+        try:
+            async with aiohttp.ClientSession() as session:
+                async with session.get('https://api.warframestat.us/pc/sortie') as resp:
+                    j = json.loads(await resp.text())
+                    embed = style_embed(ctx, title='Todays sorties')
+                    b=0
+                    for a in j['variants']:
+                        b+=1
+                        embed.add_field(name='Mission {}'.format(b), 
+                        value='Mission type: {mission}, Modifier: {mod}, Location: {loc}'.format(
+                            mission=a['missionType'],
+                            mod=a['modifier'],
+                            loc=a['node']
+                        ), inline=False)
+                    embed.set_footer(text='Sortie for {}'.format(time.time()))
+                    await ctx.send(embed=embed)
+        except AttributeError:
+            pass
+
+    @warframe.command(name="worldstate")
+    async def _worldstate(self, ctx):
+        pass
 
     @warframe.command(name="alerts")
     async def _alerts(self, ctx):

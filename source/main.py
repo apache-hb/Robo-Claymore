@@ -14,10 +14,6 @@ dir_path = os.path.dirname(os.path.realpath(__file__))
 from cogs.store import Store, pyout
 
 import glob
-import bs4
-
-import warnings
-warnings.filterwarnings('ignore', category=UserWarning, module='bs4')
 
 import argparse    
 parser = argparse.ArgumentParser(description='another discord bot to steal code from')
@@ -307,12 +303,17 @@ if __name__ == '__main__':
         pyout('These cogs failed')
         pyout(', '.join(failed_cogs))
 
-try:
-    bot.run(config['DISCORD']['token'])
-except discord.errors.HTTPException:
-    pyout('The token you entered is either incorrect or expired')
-    exit(5)
-except Exception as e:
-    pyout(e)
-    exit(5)
+    try:
+        bot.run(config['DISCORD']['token'])
+    except discord.errors.LoginFailure:
+        print('The token you entered is either incorrect or expired')
+        if not Store.silent:
+            pyout('The token you entered was either incorrect or expired, but because of silent mode you cannot complete the wizard')
+            pyout('Please restart the bot with silent mode enabled to continue')
+        else:
+            print('The bot is in silent mode, please restart with -r to reset the config and enter the correct token')
+        exit(5)
+    except Exception as e:
+        pyout(e)
+        exit(5)
 #if it errors exit with 5
