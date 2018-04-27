@@ -56,21 +56,13 @@ if Store.current_system == 'mac':
 
 #for url shortening
 import aiohttp
-import asyncio
 import async_timeout
-from bs4 import BeautifulSoup
-session = aiohttp.ClientSession()
 
 async def shorten_url(long_url: str):
-    url = "http://tinyurl.com/create.php?source=indexpage&url=" + long_url + "&submit=Make+TinyURL%21&alias="
-    async with async_timeout.timeout(10):
-        async with session.get(url) as response:
-            soup = BeautifulSoup(await response.text(), 'html.parser')
-            if "The custom alias" in soup.p.b.string:
-                return "url machine broke"
-            else:
-                return soup.find_all('div', {'class': 'indent'})[1].b.string
-
+    url = "http://tinyurl.com/api-create.php?url=" + long_url
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url, timeout=10) as response:
+            return await response.text()
 
 mime = MimeTypes()
 def is_embedable(url: str):

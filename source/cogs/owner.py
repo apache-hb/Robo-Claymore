@@ -101,6 +101,27 @@ class Owner:
         value='Cannot be removed from blacklist, because they are not in the blacklist')
         await ctx.send(embed=embed)
 
+    @commands.command(name="setgame")
+    async def _setgame(self, ctx, *, game: str):
+        await ctx.bot.change_presence(activity=discord.Game(name=game))
+        await ctx.send('Changed presence to {}'.format(game))
+
+    @commands.command(name="invite")
+    async def _invite(self, ctx):
+        pass
+
+    @commands.command(name="massdm")
+    async def _massdm(self, ctx, *, message: str='Good day fleshy mammal'):
+        pass
+
+    @commands.command(name="prod")
+    async def _prod(self, ctx, *, message: str='Barzoople'):
+        pass
+
+    @commands.command(name="serverlist")
+    async def _serverlist(self, ctx):
+        pass
+
     @commands.command(name="echo")
     async def _echo(self, ctx, *, msg: str):
         await ctx.send(msg)

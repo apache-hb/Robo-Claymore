@@ -54,6 +54,7 @@ class Reddit:
 
     @reddit.command(name="get")
     async def _get(self, ctx, target: str='all', search: str='top', index: int=1):
+        #keep the index within sane levels
         if not 0 <= index <= 100:
             return await ctx.send('Index ``{}`` is out of range, must be within 0 and 100'.format(index))
         try:
