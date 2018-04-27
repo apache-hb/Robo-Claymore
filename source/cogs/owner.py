@@ -19,7 +19,7 @@ class Owner:
             return True
         elif ctx.author.id in Store.whitelist:#todo, whitelist and blacklist
             return True
-        await ctx.send('Fuck off')
+        await ctx.send('Go away')
         return False
 
     @commands.group(invoke_without_command=True)
