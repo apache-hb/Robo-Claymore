@@ -21,13 +21,11 @@ class Warframe:
     async def warframe(self, ctx):
         embed=style_embed(ctx, title='All warframe subcommands')
         for a in self.warframe.walk_commands():
-            try:
-                embed.add_field(name=a.name, value=a.brief)
-            except AttributeError:
-                embed.add_field(name=a.name, value='Subcommand of Warframe')
+            embed.add_field(name=a.name, value=a.brief)
         await ctx.send(embed=embed)
 
-    @warframe.command(name="weaponinfo")
+    @warframe.command(name="weaponinfo",
+    brief="Get info about a weapon")
     async def _weaponinfo(self, ctx, *, item: str):
         async with aiohttp.ClientSession() as session:
             async with session.get('https://api.warframestat.us/weapons/search/{query}'.format(query=item.lower())) as resp:
@@ -95,7 +93,8 @@ class Warframe:
                 embed.set_thumbnail(url=j[0]['thumbnail'])
                 return await ctx.send(embed=embed)
 
-    @warframe.command(name="dropinfo")
+    @warframe.command(name="dropinfo",
+    brief="Get info about the drop rates and location of an item")
     async def _dropinfo(self, ctx, *, item: str):
         async with aiohttp.ClientSession() as session:
             async with session.get('https://api.warframestat.us/drops/search/{query}'.format(query=item.lower())) as resp:
@@ -116,7 +115,8 @@ class Warframe:
                 
                 await ctx.send(embed=embed)
 
-    @warframe.command(name="frameinfo")
+    @warframe.command(name="frameinfo",
+    brief="Get info and stats about a certain frame")
     async def _frameinfo(self, ctx, *, target: str):
         for frame in Store.frames:
             if target.lower() in frame['regex']:
@@ -158,7 +158,8 @@ class Warframe:
 
                 await ctx.send(embed=embed)
 
-    @warframe.command(name="sortie")
+    @warframe.command(name="sortie",
+    brief="todays sortie")
     async def _sortie(self, ctx):
         async with aiohttp.ClientSession() as session:
             async with session.get('https://api.warframestat.us/pc/sortie') as resp:
@@ -176,7 +177,8 @@ class Warframe:
                 embed.set_footer(text='Sortie for {}'.format(time.time()))
                 await ctx.send(embed=embed)
 
-    @warframe.command(name="alerts")
+    @warframe.command(name="alerts",
+    brief="ongoing alerts")
     async def _alerts(self, ctx):
         async with aiohttp.ClientSession() as session:
             async with session.get('https://api.warframestat.us/pc/alerts') as resp:
@@ -198,7 +200,8 @@ class Warframe:
                     ))
                 await ctx.send(embed=embed)
                 
-    @warframe.command(name="baro")
+    @warframe.command(name="baro",
+    brief="Baro Ki\'Teer, void trader")
     async def _baro(self, ctx):
         async with aiohttp.ClientSession() as session:
             async with session.get('https://api.warframestat.us/pc/voidTrader') as resp:
@@ -213,7 +216,8 @@ class Warframe:
                 embed.add_field(name='Current inventory', value=', '.join(j['inventory']))
                 await ctx.send(embed=embed)
 
-    @warframe.command(name="darvo")
+    @warframe.command(name="darvo",
+    brief="Todays darvo deal")
     async def _darvo(self, ctx):
         async with aiohttp.ClientSession() as session:
             async with session.get('https://api.warframestat.us/pc/dailyDeals') as resp:
@@ -232,7 +236,8 @@ class Warframe:
                 embed.add_field(name='Time left', value=j[0]['eta'])
                 await ctx.send(embed=embed)
 
-    @warframe.command(name="cetustime")
+    @warframe.command(name="cetustime",
+    brief="current time in the plains")
     async def _cetustime(self, ctx):
         async with aiohttp.ClientSession() as session:
             async with session.get('https://api.warframestat.us/pc/cetusCycle') as resp:
