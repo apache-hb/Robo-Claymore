@@ -108,7 +108,7 @@ class Owner:
 
     @commands.command(name="invite")
     async def _invite(self, ctx):
-        pass
+        await ctx.send('https://discordapp.com/oauth2/authorize?client_id={}&scope=bot&permissions=66321471'.format(ctx.bot.user.id))
 
     @commands.command(name="massdm")
     async def _massdm(self, ctx, *, message: str='Good day fleshy mammal'):
