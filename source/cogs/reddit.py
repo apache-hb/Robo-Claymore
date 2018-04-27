@@ -31,7 +31,10 @@ class Reddit:
     hidden = True
 
     async def __local_check(self, ctx):
-        return config['reddit']['enabled'] == 'True'
+        if config['reddit']['enabled'] == 'True':
+            return True
+        await ctx.send('Reddit has been disabled')
+        return False
 
     @commands.group(invoke_without_command=True)
     async def reddit(self, ctx):
