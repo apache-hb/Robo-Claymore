@@ -63,35 +63,25 @@ class Warframe:
                         embed.add_field(name='Default stance polarity', value=j[0]['stancePolarity'])
                     elif j[0]['type'] in ['Primary', 'Secondary']:
 
-                        try:
-                            embed.add_field(name='Noise level', value=j[0]['noise'])
-                        except KeyError:
-                            pass
+                        try: embed.add_field(name='Noise level', value=j[0]['noise'])
+                        except KeyError: pass
                         
-                        try:
-                            embed.add_field(name='Firerate', value=j[0]['speed'])
-                        except KeyError:
-                            pass
+                        try: embed.add_field(name='Firerate', value=j[0]['speed'])
+                        except KeyError: pass
                         
-                        try:
-                            embed.add_field(name='Accuracy', value=j[0]['accuracy'])
-                        except KeyError:
-                            pass
+                        try: embed.add_field(name='Accuracy', value=j[0]['accuracy'])
+                        except KeyError: pass
 
-                        try:
-                            embed.add_field(name='Maximum ammo capacity', value=j[0]['ammo'])
-                        except KeyError:
-                            pass
+                        try: embed.add_field(name='Maximum ammo capacity', value=j[0]['ammo'])
+                        except KeyError: pass
 
                         embed.add_field(name='Magazine capacity', value=j[0]['magazine'])
                         embed.add_field(name='Reload speed', value=j[0]['reload'])
                         embed.add_field(name='Projectile type', value=j[0]['projectile'])
                         embed.add_field(name='Trigger type', value=j[0]['trigger'])
                     
-                        try:
-                            embed.add_field(name='Flight speed', value=j[0]['flight'])
-                        except KeyError:
-                            pass
+                        try: embed.add_field(name='Flight speed', value=j[0]['flight'])
+                        except KeyError: pass
                     
                     embed.add_field(name='Critical chance', value=j[0]['crit_chance'])
                     embed.add_field(name='Critical damage multiplier', value=j[0]['crit_mult'])
@@ -144,10 +134,10 @@ class Warframe:
                 embed.add_field(name='Base armor', value=frame['armor'])
                 embed.add_field(name='Min/Max power', value=frame['power'])
                 embed.add_field(name='Base speed', value=frame['speed'])
-                try:
-                    embed.add_field(name='More info', value=frame['info'])
-                except KeyError:
-                    pass
+                
+                try: embed.add_field(name='More info', value=frame['info'])
+                except KeyError: pass
+
                 if not frame['aura'] =='':
                     embed.add_field(name='Default aura polarity', 
                     value=frame['aura'].replace('<:madurai:319586146499690496>', 
@@ -158,20 +148,15 @@ class Warframe:
                 'Maduri').replace('<:naramon:319586146478850048>', 
                 'Naramon').replace('<:vazarin:319586146269003778>', 'Varazin'))
 
-                try:
-                    embed.add_field(name='In game description', value=frame['description'])
-                except KeyError:
-                    pass
+                try: embed.add_field(name='In game description', value=frame['description'])
+                except KeyError: pass
 
-                try:
-                    embed.add_field(name='Main drop location', value=frame['location'])
-                except KeyError:
-                    pass
+                try: embed.add_field(name='Main drop location', value=frame['location'])
+                except KeyError: pass
 
-                try:
-                    embed.set_thumbnail(url=frame['thumbnail'])
-                except KeyError:
-                    pass
+                try: embed.set_thumbnail(url=frame['thumbnail'])
+                except KeyError: pass
+                    
                 await ctx.send(embed=embed)
 
     @warframe.command(name="sortie")
