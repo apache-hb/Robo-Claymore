@@ -1,6 +1,6 @@
 import discord
 from discord.ext import commands
-from .store import style_embed, is_embedable, shorten_url
+from .store import style_embed, is_embedable, shorten_url, pyout
 
 import xml.etree.ElementTree as ET
 import json
@@ -11,6 +11,8 @@ class Nsfw:
 		self.danbooru_thumbnail = 'https://tinyurl.com/ya9ug3la'
 		self.bot = bot
 		self.a = 0
+		pyout('Cog {} loaded'.format(self.__class__.__name__))
+
 	
 	@commands.command(name="danbooru")
 	async def _danbooru(self, ctx, *, tags: str=None):
@@ -129,4 +131,4 @@ class Nsfw:
 				await ctx.send(embed=embed)
 	
 def setup(bot):
-	await bot.add_cog(Nsfw(bot))
+	bot.add_cog(Nsfw(bot))

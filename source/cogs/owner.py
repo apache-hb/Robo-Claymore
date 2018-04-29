@@ -17,7 +17,7 @@ class Owner:
     async def __local_check(self, ctx):
         if ctx.bot.is_owner(ctx.author.id):
             return True
-        elif ctx.author.id in Store.whitelist:#todo, whitelist and blacklist
+        elif ctx.author.id in Store.whitelist:
             return True
         await ctx.send('Go away')
         return False
