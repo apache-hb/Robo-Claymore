@@ -1,6 +1,6 @@
 import discord
 from discord.ext import commands
-from .store import style_embed, is_embedable, shorten_url, pyout
+from .store import style_embed, is_embedable, shorten_url, pyout, Store
 
 import xml.etree.ElementTree as ET
 import json
@@ -13,7 +13,12 @@ class Nsfw:
 		self.a = 0
 		pyout('Cog {} loaded'.format(self.__class__.__name__))
 
-	
+	async def __local_check(self, ctx):
+		if ctx.bot.is_owner(ctx.author.id) or ctx.author.id in Store.whitelist:
+			return True
+		await ctx.send('Must be used in an nsfw channel')
+		return False
+
 	@commands.command(name="danbooru")
 	async def _danbooru(self, ctx, *, tags: str=None):
 		if tags is None:
@@ -48,13 +53,13 @@ class Nsfw:
 					
 				embed.set_footer(text='With tags {}'.format(
 				', '.join(tags[:5])),
-				url=self.danbooru_thumbnail)
+				icon_url=self.danbooru_thumbnail)
 					
 				if is_embedable(post['large_file_url']):
-					embed.set_image(post['large_file_url'])
+					embed.set_image(url=post['large_file_url'])
 					
 				embed.add_field(name='Image source',
-				value=shorten_url(post['large_file_url']))
+				value=await shorten_url(post['large_file_url']))
 				
 				await ctx.send(embed=embed)
 	
@@ -62,31 +67,45 @@ class Nsfw:
 	async def _rule34(self, ctx, *, tags: str=None):
 		if tags is None:
 			return await ctx.send('Due to current api limitations, you must request tags')
+		print('0')
+		url = 'https://rule34.xxx/index.php?page=dapi&s=post&q=index&tags={tags}'.format(
+			tags=tags.replace(' ', '%20')
+		)
 			
-			url = 'https://rule34.xxx/index.php?page=dapi&s=post&q=index&json=1&tags={tags}'.format(
-				tags=tags.replace(' ', '%20')
-			)
-			
-			async with aiohttp.ClientSession() as session:
-				async with session.get(url) as resp:
-					tree = ET.parse(await resp.text())
-					#todo find a way to get the image url from a json return to eliminate xml dependancy
-					root = tree.getroot()
-					
-					if root.posts == 0:
-						return await ctx.send('Nothing with tags {} found'.format(tags))
+		async with aiohttp.ClientSession() as session:
+			async with session.get(url) as resp:
+				root = ET.fromstring(await resp.text())
+				#todo find a way to get the image url from a json return to eliminate xml dependancy
+				print('1')
+				print(root)
+				if root == 0:
+					return await ctx.send('Nothing with tags {} found'.format(tags))
 
-					while True:
-						try:
-							post = root[self.a]
-							self.a+=1
-							break
-						except IndexError:
-							self.a = 0
+				while True:
+					try:
+						post = root[self.a]
+						self.a+=1
+						break
+					except IndexError:
+						self.a = 0
 
-					#todo alot of testing
-					tags = post.find('tags').text
-					file_url = post.find('file_url').text
+				info = post.attrib
+				#todo alot of testing
+				tags = info['tags']
+				file_url = info['file_url']
+
+				embed=style_embed(ctx, title='Image from gelbooru')
+				embed.add_field(name='Image source', value=await shorten_url(file_url))
+
+				if is_embedable(url=file_url):
+					embed.set_image(url=file_url)
+
+				formatted_tags = ''.join(tags)
+				formatted_tags = formatted_tags.split(' ')
+
+				embed.set_footer(text='With tags {}'.format(', '.join(formatted_tags[1:-1])))
+
+				await ctx.send(embed=embed)
 
 					#todo the rest of this
 	
@@ -123,10 +142,10 @@ class Nsfw:
 				embed.set_footer(text='With tags {}'.format(', '.join(tags[:5])))
 					
 				if is_embedable(post['file_url']):
-					embed.set_image(post['file_url'])
+					embed.set_image(url=post['file_url'])
 				
 				embed.add_field(name='Image source',
-				value=shorten_url(post['file_url']))
+				value=await shorten_url(post['file_url']))
 				
 				await ctx.send(embed=embed)
 	

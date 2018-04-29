@@ -31,17 +31,14 @@ class Help:
         target = ctx.bot.all_commands.get(command)
         aliases = target.aliases
 
-        try: 
-            description = target.description
-            if description =='' or description is None:
-                description = 'None'
-        except AttributeError: 
+        try: description = target.description
+        except AttributeError: description = 'None'
+        
+        if description == '':
             description = 'None'
 
-        try: 
-            usage = target.usage
-        except AttributeError: 
-            usage = 'None'
+        try: usage = target.usage
+        except AttributeError: usage = 'None'
 
         if not aliases: 
             aliases = ['None']
@@ -54,8 +51,13 @@ class Help:
 
     def cog_help(self, ctx, cog: str):
         target = ctx.bot.get_cog(cog)
+
+        try: description = target.description
+        except AttributeError: description = 'None'
+        
+
         embed=style_embed(ctx, title='Information and subcommands in {}'.format(cog),
-        description=target.description)
+        description=description)
         for command in ctx.bot.get_cog_commands(cog):
             if not command.hidden:
                 try:
