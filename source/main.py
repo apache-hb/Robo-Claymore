@@ -269,6 +269,16 @@ async def on_member_leave(member):
 async def on_member_join(member):
     pass
 
+@bot.command(name="load")
+async def _load(ctx, name: str):
+    if ctx.author.id in Store.whitelist or ctx.bot.is_owner(ctx.author.id):
+        try:
+            bot.load_extension('cogs.'+name)
+            return await ctx.send(name+ ' Loaded properly')
+        except Exception as e:
+            return await ctx.send(e)
+    return await ctx.send('Nope')
+        
 cogs = []
 
 for a in glob.glob('./cogs/*.py'):

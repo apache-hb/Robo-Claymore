@@ -24,9 +24,7 @@ class Nsfw:
 		if tags is None:
 			url = 'https://danbooru.donmai.us/posts.json?random=true'
 		else:
-			url = 'https://danbooru.donmai.us/posts.json?limit=50?tags=\"{tags}\"'.format(
-				tags=tags.split(' ')
-			)
+			url = 'https://danbooru.donmai.us/posts.json?limit=50?tags=\"{tags}\"'.format(tags=tags.split(' '))
 			
 		async with aiohttp.ClientSession() as session:
 			async with session.get(url) as resp:
@@ -67,17 +65,14 @@ class Nsfw:
 	async def _rule34(self, ctx, *, tags: str=None):
 		if tags is None:
 			return await ctx.send('Due to current api limitations, you must request tags')
-		print('0')
-		url = 'https://rule34.xxx/index.php?page=dapi&s=post&q=index&tags={tags}'.format(
-			tags=tags.replace(' ', '%20')
-		)
+
+		url = 'https://rule34.xxx/index.php?page=dapi&s=post&q=index&tags={tags}'.format(tags=tags.replace(' ', '%20'))
 			
 		async with aiohttp.ClientSession() as session:
 			async with session.get(url) as resp:
 				root = ET.fromstring(await resp.text())
 				#todo find a way to get the image url from a json return to eliminate xml dependancy
-				print('1')
-				print(root)
+
 				if root == 0:
 					return await ctx.send('Nothing with tags {} found'.format(tags))
 
@@ -114,9 +109,7 @@ class Nsfw:
 		if tags is None:
 			return await ctx.send('Due to current api limitations, you must request tags')
 		
-		url = 'https://gelbooru.com/index.php?page=dapi&s=post&q=index&json=1&tags={tags}'.format(
-			tags=tags.replace(' ', '%20')
-		)
+		url = 'https://gelbooru.com/index.php?page=dapi&s=post&q=index&json=1&tags={tags}'.format(tags=tags.replace(' ', '%20'))
 		
 		async with aiohttp.ClientSession() as session:
 			async with session.get(url) as resp:
