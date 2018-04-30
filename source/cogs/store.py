@@ -11,6 +11,8 @@ from mimetypes import MimeTypes
 
 #keep this file as minimal as possible
 
+dir_path = dir_path = os.path.dirname(os.path.realpath(__file__))
+
 def style_embed(ctx, title: str, description: str='', color: int=None):
     if color is None:
         try: color = ctx.guild.me.color

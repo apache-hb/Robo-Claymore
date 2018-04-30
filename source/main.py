@@ -110,11 +110,9 @@ if not os.path.isfile('./cogs/store/config.json'):
     # quotes
     # warframe
     # blacklist
-    # discord email
 
     # bot owner only
     # block
-    # whitelist
 
     bot_keys = {
         "discord":  {
