@@ -91,18 +91,6 @@ if not os.path.isfile('./cogs/store/config.json'):
     if discord_activity == '':
         discord_activity = '{}help'.format(discord_prefix)
             
-    reddit = ensure_bool_input('Would you like to enable reddit?', 'must be yes or no')
-    
-    #make everything none by default
-    reddit_id = reddit_secret = reddit_username = reddit_password = reddit_message = None
-
-    if reddit:
-        reddit_id = ensure_input('Please input your reddit id', 'You must enter an id')
-        reddit_secret = ensure_input('Please input your reddit secret', 'You must enter a secret')
-        reddit_username = ensure_input('What is your reddit username?', 'you must enter a username')
-        reddit_password = ensure_input('What is your reddit password', 'you must enter a password')
-        reddit_message = ensure_input('What would you like your reddit bots description to be?', 'you must enter a description')
-
     wolfram = ensure_bool_input('Would you like to enable this bots wolfram access?', 'must be yes or no')
     
     wolfram_key = None
@@ -113,7 +101,6 @@ if not os.path.isfile('./cogs/store/config.json'):
     #todo
     # google
     # twitter
-    # reddit
     # urban dictionary
     # wikipedia
     # wikia fandom wikis
@@ -134,13 +121,6 @@ if not os.path.isfile('./cogs/store/config.json'):
             "token": discord_token,
             "prefix": discord_prefix,
             "activity": discord_activity
-        },
-        "reddit":   {
-            "id": reddit_id,
-            "secret": reddit_secret,
-            "username": reddit_username,
-            "password": reddit_password,
-            "message": reddit_message
         },
         "wolfram":  {
             "key": wolfram_key
