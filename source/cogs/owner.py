@@ -38,7 +38,7 @@ class Owner:
 
 
     @whitelist.command(name="add")
-    async def _wl_add(self, ctx, *, user: discord.Member):
+    async def _whitelist_add(self, ctx, *, user: discord.Member):
         ret='User {} was already in the whitelist'.format(user.name)
         if user.id not in Store.whitelist:
             Store.whitelist.append(user.id)
@@ -50,7 +50,7 @@ class Owner:
         await ctx.send(embed=embed)
 
     @whitelist.command(name="remove")
-    async def _wl_remove(self, ctx, user: discord.Member):
+    async def _whitelist_remove(self, ctx, user: discord.Member):
         if user.id in Store.whitelist:
             Store.whitelist.remove(user.id)
             embed=style_embed(ctx, title='Whitelist removal')
@@ -77,7 +77,7 @@ class Owner:
         return await ctx.send(embed=embed)
 
     @blacklist.command(name="add")
-    async def _bl_add(self, ctx, user: discord.Member):
+    async def _blacklist_add(self, ctx, user: discord.Member):
         if not user.id in Store.blacklist:
             Store.blacklist.append(user.id)
             embed=style_embed(ctx, title='Blacklist addition')
@@ -89,7 +89,7 @@ class Owner:
         return await ctx.send(embed=embed)
 
     @blacklist.command(name="remove")
-    async def _bl_remove(self, ctx, user: discord.Member):
+    async def _blacklist_remove(self, ctx, user: discord.Member):
         if user.id in Store.blacklist:
             Store.blacklist.remove(user.id)
             embed=style_embed(ctx, title='Blacklist removal')
@@ -101,10 +101,20 @@ class Owner:
         value='Cannot be removed from blacklist, because they are not in the blacklist')
         await ctx.send(embed=embed)
 
-    @commands.command(name="setgame")
-    async def _setgame(self, ctx, *, game: str):
-        await ctx.bot.change_presence(activity=discord.Game(name=game))
-        await ctx.send('Changed presence to {}'.format(game))
+    @commands.command(name="setpresence")
+    async def _setgame(self, ctx, *, name: str='Beep Boop'):
+        mode = name.split(' ')[0]
+        if mode.lower() == 'playing':
+            activity=discord.Game(name=name)
+        elif mode.lower() == 'streaming':
+            activity=discord.Streaming(name=name)
+
+        await ctx.bot.change_presence(activity=activity)
+        await ctx.send('Changed presence to {}'.format(name.split()[1:]))
+
+    @commands.command(name="setname")
+    async def _setname(self, ctx, *, name: str):
+        pass
 
     @commands.command(name="invite")
     async def _invite(self, ctx):
@@ -112,15 +122,25 @@ class Owner:
 
     @commands.command(name="massdm")
     async def _massdm(self, ctx, *, message: str='Good day fleshy mammal'):
-        pass
+        for user in ctx.guild.members:
+            try:
+                await user.send(message)
+            except Exception:
+                pass
 
     @commands.command(name="prod")
-    async def _prod(self, ctx, *, message: str='Barzoople'):
-        pass
+    async def _prod(self, ctx, user: discord.Member, amt: int=50, *, message: str='Barzoople'):
+        for x in range(amt):
+            await user.send(message + str(x))
 
     @commands.command(name="serverlist")
     async def _serverlist(self, ctx):
-        pass
+        embed=style_embed(ctx, title='First 25 servers')
+        for guild in ctx.bot.guilds[:25]:
+            try:
+                embed.add_field(name='{}#{}'.format(guild.name, guild.id), value=guild.create_invite(unique=False))
+            except Exception:
+                embed.add_field(name='{}#{}'.format(guild.name, guild.id), value='Invite creation blocked')
 
     @commands.command(name="echo")
     async def _echo(self, ctx, *, msg: str):
@@ -128,8 +148,7 @@ class Owner:
 
     @commands.command(name="test")
     async def _test(self, ctx):
-        await ctx.send(ctx.channel.permissions_for(ctx.author))
-        await ctx.message.add_reaction(':madurai:319586146499690496')
+        pass
 
 def setup(bot):
     bot.add_cog(Owner(bot))

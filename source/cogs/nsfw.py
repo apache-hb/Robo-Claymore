@@ -24,6 +24,18 @@ class Nsfw:
 		await ctx.send('Must be used in an nsfw channel')
 		return False
 
+	@commands.group(invoke_without_command=True)
+	async def tags(self, ctx):
+		pass
+
+	@tags.command(name="ban")
+	async def _tags_ban(self, ctx, tag: str=None):
+		pass
+
+	@tags.command(name="unban")
+	async def _tags_unban(self, ctx, tag: str=None):
+		pass
+
 	@commands.command(name="danbooru", aliases=['dan', 'db'])
 	async def _danbooru(self, ctx, *, tags: str=None):
 		if tags is None:

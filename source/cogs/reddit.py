@@ -16,7 +16,7 @@ class Reddit:
         pyout('Cog {} loaded'.format(self.__class__.__name__))
 
     short = "reddit interface"
-    description = "Write posts to the RoboClaymore subreddit, or read posts from anywhere on reddit"
+    description = "Read posts from anywhere on reddit"
     hidden = True
 
     @commands.command(name="reddit")
