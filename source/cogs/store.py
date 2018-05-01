@@ -58,7 +58,6 @@ if Store.current_system == 'mac':
 
 #for url shortening
 import aiohttp
-import async_timeout
 
 async def shorten_url(long_url: str):
     url = "http://tinyurl.com/api-create.php?url=" + long_url

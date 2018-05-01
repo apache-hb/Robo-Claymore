@@ -1,4 +1,3 @@
-import discord
 from discord.ext import commands
 from .store import style_embed, is_embedable, shorten_url, pyout, Store
 

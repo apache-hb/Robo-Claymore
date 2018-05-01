@@ -1,9 +1,6 @@
-import discord
 from discord.ext import commands
 
 from .store import style_embed, pyout, Store
-
-import sys
 
 import time
 import json

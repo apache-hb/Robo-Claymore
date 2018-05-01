@@ -12,8 +12,6 @@ dir_path = os.path.dirname(os.path.realpath(__file__))
 
 from cogs.store import Store, pyout, qlog
 
-from github import Github
-
 import glob
 
 import argparse    

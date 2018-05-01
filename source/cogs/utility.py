@@ -3,7 +3,7 @@ from discord.ext import commands
 
 from itertools import chain
 from urllib.parse import urlencode
-from xml.etree import ElementTree as ET
+from defusedxml.ElementTree import fromstring
 import aiohttp
 import json
 from random import choice, randint
@@ -78,7 +78,7 @@ class Wolfram:
         url = 'https://api.wolframalpha.com/v2/query?' + query
         async with aiohttp.ClientSession() as session:
             async with session.get(url) as resp:
-                return ET.fromstring(await resp.text())
+                return fromstring(await resp.text())
 
 class Zalgo:
 
@@ -283,19 +283,19 @@ class Utility:
 
     @commands.command(name="wikipedia")
     async def _wikipedia(self, ctx, *, search: str):
-        params = {
+        '''params = {
             'action': 'Search/List?/',
             'lang': 'en',
             'limit': 10,
             'query': search
         }
-        api_url = WIKIPEDIA_API_URL.format(**params)
+        api_url = WIKIPEDIA_API_URL.format(**params)'''
 
 
 
     @commands.command(name="wikia")
     async def _wikia(self, ctx, subwiki: str, *, search: str):
-        params = {
+        '''params = {
             'action': 'Search/List?/',
             'sub_wikia': subwiki,
             'lang': 'en',
@@ -311,7 +311,7 @@ class Utility:
 
         async with aiohttp.ClientSession() as session:
             async with session.get(api_url, params=params, headers=headers) as resp:
-                print(await resp.text())
+                print(await resp.text())'''
 
     @commands.command(name="wolfram")
     async def _wolfram(self, ctx, *, query: str=None):

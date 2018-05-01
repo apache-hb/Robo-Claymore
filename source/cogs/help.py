@@ -33,7 +33,7 @@ class Help:
 
         try: description = target.description
         except AttributeError: description = 'None'
-        
+
         if description == '':
             description = 'None'
 

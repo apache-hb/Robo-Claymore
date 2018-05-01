@@ -1,10 +1,6 @@
-import discord
 from discord.ext import commands
-from .store import Store, pyout, style_embed, is_embedable, shorten_url
+from .store import pyout, style_embed, is_embedable, shorten_url
 
-
-import sys
-from re import search as rs
 import aiohttp
 import json
 
