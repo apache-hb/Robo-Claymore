@@ -1,7 +1,7 @@
 from discord.ext import commands
 from .store import style_embed, is_embedable, shorten_url, pyout, Store
 
-from xml.etree import ElementTree as ET
+from defusedxml.ElementTree import fromstring
 import json
 import aiohttp
 
@@ -90,7 +90,7 @@ class Nsfw:
 		try:
 			async with aiohttp.ClientSession() as session:
 				async with session.get(url) as resp:
-					root = ET.fromstring(await resp.text())
+					root = fromstring(await resp.text())
 					#todo find a way to get the image url from a json return to eliminate xml dependancy
 
 					if root == 0:

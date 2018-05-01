@@ -24,7 +24,7 @@ class Owner:
 
     @commands.group(invoke_without_command=True)
     async def whitelist(self, ctx):
-        embed = style_embed(ctx, title='All whitelisted users', 
+        embed = style_embed(ctx, title='All whitelisted users',
         description='These people have access to special commands')
         ret=''
         if Store.whitelist:
@@ -58,13 +58,13 @@ class Owner:
             json.dump(Store.whitelist, open('cogs/store/whitelist.json', 'w'), indent=4)
             return await ctx.send(embed=embed)
         embed=style_embed(ctx, title='Whitelist')
-        embed.add_field(name=user.name, 
+        embed.add_field(name=user.name,
         value='Cannot be removed from whitelist, because they are not in the whitelist')
         await ctx.send(embed=embed)
 
     @commands.group(invoke_without_command=True)
     async def blacklist(self, ctx):
-        embed = style_embed(ctx, title='All blacklisted users', 
+        embed = style_embed(ctx, title='All blacklisted users',
         description='These people have been blocked from using me')
         ret=''
         if Store.blacklist:
@@ -107,7 +107,7 @@ class Owner:
         if mode.lower() == 'playing':
             activity=discord.Game(name=name)
         elif mode.lower() == 'streaming':
-            activity=discord.Streaming(name=name)
+            activity=discord.Streaming(name=name, url='BONELESS')
 
         await ctx.bot.change_presence(activity=activity)
         await ctx.send('Changed presence to {}'.format(name.split()[1:]))
