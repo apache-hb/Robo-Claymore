@@ -1,0 +1,4 @@
+beautifulsoup4==4.5.3
+aiohttp==2.2.5
+mathutils==2.79.1
+PyGithub==1.34

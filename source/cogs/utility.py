@@ -11,6 +11,13 @@ from .store import Store, style_embed, shorten_url, pyout, dir_path
 from datetime import datetime
 import platform
 
+#wikia fandom wikis
+WIKIA_API_URL = 'http://{lang}{sub_wikia}.wikia.com/api/v1/{action}'
+WIKIA_STANDARD_URL = 'http://{lang}{sub_wikia}.wikia.com/wiki/{page}'
+WIKIPEDIA_API_URL = 'http://en.wikipedia.org/w/api.php'
+
+USER_AGENT = '{type} (https://github.com/Apache-HB/Robo-Claymore)'
+
 #stolen from appuselfbot 
 #https://github.com/appu1232/Discord-Selfbot
 emoji_dict = {
@@ -126,6 +133,10 @@ class Utility:
     description = "For extra\'s that don\'t fit in"
     hidden = True
 
+    @commands.command(name="randomcase")
+    async def _randomcase(self, ctx, *, message: str):
+        await ctx.send(''.join(choice((str.upper,str.lower))(x) for x in message))
+
     @commands.command(name="zalgo")
     async def _zalgo(self, ctx, *, text: str=None):
         text = text.split(' ')
@@ -207,10 +218,6 @@ class Utility:
                 ))
                 await ctx.send(embed=embed)
 
-                
-
-
-
     @commands.command(name="credits", aliases=['credit'])
     async def _credits(self, ctx):
         pass
@@ -273,6 +280,38 @@ class Utility:
         embed.add_field(name='Platform', value=platform.platform())
         embed.add_field(name='Processor', value=platform.processor())
         await ctx.send(embed=embed)
+
+    @commands.command(name="wikipedia")
+    async def _wikipedia(self, ctx, *, search: str):
+        params = {
+            'action': 'Search/List?/',
+            'lang': 'en',
+            'limit': 10,
+            'query': search
+        }
+        api_url = WIKIPEDIA_API_URL.format(**params)
+
+
+
+    @commands.command(name="wikia")
+    async def _wikia(self, ctx, subwiki: str, *, search: str):
+        params = {
+            'action': 'Search/List?/',
+            'sub_wikia': subwiki,
+            'lang': 'en',
+            'limit': 10,
+            'query': search
+        }
+
+        api_url = WIKIA_API_URL.format(**params)
+        params['format'] = 'json'
+        headers = {
+            'User-Agent': USER_AGENT.format('wikia')
+        }
+
+        async with aiohttp.ClientSession() as session:
+            async with session.get(api_url, params=params, headers=headers) as resp:
+                print(await resp.text())
 
     @commands.command(name="wolfram")
     async def _wolfram(self, ctx, *, query: str=None):

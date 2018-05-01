@@ -12,12 +12,15 @@ dir_path = os.path.dirname(os.path.realpath(__file__))
 
 from cogs.store import Store, pyout, qlog
 
+from github import Github
+
 import glob
 
 import argparse    
 parser = argparse.ArgumentParser(description='another discord bot to steal code from')
 parser.add_argument('-r', '--reset', nargs='?', default=False, help='reset all config files')
 parser.add_argument('-s', '--silent', nargs='?', default=False, help='supress all errors')
+parser.add_argument('-u', '--update', nargs='?', default=False, help='check for updates from github')
 parser.add_argument('-m', '--mac', nargs='?', default=False, help='force mac version')
 parser.add_argument('-w', '--windows', nargs='?', default=False, help='force windows version')
 parser.add_argument('-l', '--linux', nargs='?', default=False, help='force linux version')
@@ -25,7 +28,11 @@ args, leftovers = parser.parse_known_args()
 
 platform = sys.platform.lower()
 
-__version__ = '0.0.1a'
+__version__ = '0.1.0a'
+
+if args.update is None:
+    pass
+    #TODO: update stuff
 
 if args.silent is None:
     Store.silent = True
