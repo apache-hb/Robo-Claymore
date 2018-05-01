@@ -5,6 +5,7 @@ from itertools import chain
 from urllib.parse import urlencode
 from xml.etree import ElementTree as ET
 import aiohttp
+import json
 from random import choice, randint
 from .store import Store, style_embed, shorten_url, pyout, dir_path
 from datetime import datetime
@@ -117,6 +118,7 @@ class Zalgo:
 class Utility:
     def __init__(self, bot):
         self.bot = bot
+        self.a = 0
         self.wolfram = Wolfram(Store.config['wolfram']['key'])
         print('Cog {} loaded'.format(self.__class__.__name__))
 
@@ -169,6 +171,44 @@ class Utility:
             await ctx.send(ret)
         except Exception:
             await ctx.send('Cannot square this much text, this is discords fault, not mine')
+
+    @commands.command(name="urban")
+    async def _urban(self, ctx, search: str=None):
+        if search is None:
+            url = 'http://api.urbandictionary.com/v0/random'
+        else:
+            url = 'http://api.urbandictionary.com/v0/define?term=' + search
+        
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url) as resp:
+                j = json.loads(await resp.text())
+
+                if not j['list']:
+                    return await ctx.send('Nothing called {} found'.format(search))
+
+                while True:
+                    try:
+                        post = j['list'][self.a]
+                        self.a+=1
+                        break
+                    except Exception:
+                        self.a = 0
+                        post = j['list'][self.a]
+                        break
+
+                embed=style_embed(ctx, title='Definition of {}'.format(post['word']),
+                description='Posted by {}'.format(post['author']))
+                embed.add_field(name='Description', value=post['definition'])
+                embed.add_field(name='Example', value=post['example'])
+                embed.add_field(name='Permalink', value=post['permalink'])
+                embed.set_footer(text='Votes: {up}/{down}'.format(
+                    up=post['thumbs_up'],
+                    down=post['thumbs_down']
+                ))
+                await ctx.send(embed=embed)
+
+                
+
 
 
     @commands.command(name="credits", aliases=['credit'])
