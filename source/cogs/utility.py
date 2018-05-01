@@ -18,7 +18,7 @@ WIKIPEDIA_API_URL = 'http://en.wikipedia.org/w/api.php'
 
 USER_AGENT = '{type} (https://github.com/Apache-HB/Robo-Claymore)'
 
-#stolen from appuselfbot 
+#stolen from appuselfbot
 #https://github.com/appu1232/Discord-Selfbot
 emoji_dict = {
     'a': ['🇦 ', '🅰', '🍙', '🔼', '4⃣'],
@@ -147,7 +147,7 @@ class Utility:
             text = ' '.join(text)
         else:
             text = ' '.join(text[:-1])
-        
+
         try:
             await ctx.send(Zalgo(txt=text , intensity=intensity))
         except Exception:
@@ -157,14 +157,14 @@ class Utility:
     async def _emoji(self, ctx, *, text: str=None):
         if text is None:
             text = 'bottom text'
-        
+
         ret=''
         for letter in text.lower():
             try:
                 ret+=emoji_dict[str(letter)][0]
             except Exception:
                 ret+=emoji_dict[' '][0]
-        
+
         try:
             await ctx.send(ret)
         except Exception:
@@ -189,7 +189,7 @@ class Utility:
             url = 'http://api.urbandictionary.com/v0/random'
         else:
             url = 'http://api.urbandictionary.com/v0/define?term=' + search
-        
+
         async with aiohttp.ClientSession() as session:
             async with session.get(url) as resp:
                 j = json.loads(await resp.text())
@@ -233,7 +233,7 @@ class Utility:
         embed.set_thumbnail(url=user.avatar_url)
         now = datetime.now()
         diffrence = now - user.joined_at
-        embed.add_field(name='Time spent in {}'.format(ctx.guild.name), 
+        embed.add_field(name='Time spent in {}'.format(ctx.guild.name),
         value='First joined at {}, thats {} days ago'.format(user.joined_at.date(), diffrence.days), inline=False)
         diffrence = now - user.created_at
         embed.add_field(name='Time spent on discord', value='First signed up at {}, thats over {} days ago'.format(
@@ -245,7 +245,7 @@ class Utility:
         embed.add_field(name='Roles', value=', '.join(roles))
         embed.add_field(name='Is a bot', value=user.bot)
         await ctx.send(embed=embed)
-        
+
 
     @commands.command(name="selfinfo", aliases=['me'])
     async def _selfinfo(self, ctx):

@@ -14,7 +14,7 @@ from cogs.store import Store, pyout, qlog
 
 import glob
 
-import argparse    
+import argparse
 parser = argparse.ArgumentParser(description='another discord bot to steal code from')
 parser.add_argument('-r', '--reset', nargs='?', default=False, help='reset all config files')
 parser.add_argument('-s', '--silent', nargs='?', default=False, help='supress all errors')
@@ -90,14 +90,14 @@ if not os.path.isfile('./cogs/store/config.json'):
 
     discord_token = ensure_input('Please input your discord token', 'You need to enter a token')
     discord_prefix = ensure_input('Please enter your bots prefix', 'You need to add a prefix')
-    
+
     discord_activity = input('What would you like my default activity to be? (defaults to help)').strip()
 
     if discord_activity == '':
         discord_activity = '{}help'.format(discord_prefix)
-            
+
     wolfram = ensure_bool_input('Would you like to enable this bots wolfram access?', 'must be yes or no')
-    
+
     wolfram_key = None
 
     if wolfram:
@@ -131,7 +131,7 @@ if not os.path.isfile('./cogs/store/config.json'):
     }
 
     json.dump(bot_keys, file, indent=4)
-    
+
     file.close()
     print('Config fully written')
     print('You can edit this at anytime by either reseting the config and running the wizard again')
@@ -261,7 +261,7 @@ async def _load(ctx, name: str):
         except Exception as e:
             return await ctx.send(e)
     return await ctx.send('Nope')
-        
+
 cogs = []
 
 for a in glob.glob('./cogs/*.py'):
@@ -277,9 +277,9 @@ failed_cogs = [
 
 if __name__ == '__main__':
     for cog in cogs:
-        try: 
+        try:
             bot.load_extension(cog)
-        except Exception as e: 
+        except Exception as e:
             pyout(e)
             failed_cogs.append(cog)
     if failed_cogs:

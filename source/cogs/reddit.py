@@ -19,7 +19,7 @@ class Reddit:
     async def reddit(self, ctx, target: str='all', search: str='new', index: int=1):
         if not 0 <= index <= 25: 
             return await ctx.send('Index must be within 0 and 25')
-        
+
         #so i dont have to lower the search each time
         search = search.lower()
         if 'n' in search:

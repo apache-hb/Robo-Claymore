@@ -49,6 +49,7 @@ class Help:
         embed.add_field(name='Usage', value=usage)
         return embed
 
+    @classmethod
     def cog_help(self, ctx, cog: str):
         target = ctx.bot.get_cog(cog)
 
