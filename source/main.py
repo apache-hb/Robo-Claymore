@@ -11,7 +11,7 @@ import sys
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
 from cogs.store import Store, pyout, qlog
-
+import traceback
 import glob
 
 import argparse
@@ -236,9 +236,37 @@ async def after_any_command(ctx):
     current_stats['commands_used'] +=1
     save_stats()
 
-#@bot.event
-#async def on_command_error(ctx, exe):
-#    pass
+@bot.event
+async def on_command_error(context, exception):
+    #shut the fuck up
+    if isinstance(exception, discord.ext.commands.errors.CheckFailure):
+        return
+
+    #i swear to god
+    if isinstance(exception, discord.ext.commands.errors.MissingRequiredArgument):
+        return
+
+    #if i get another useless fucking traceback
+    if isinstance(exception, discord.ext.commands.CommandNotFound):
+        return
+
+    #i will kill someone
+
+    cog = context.cog
+    if cog:
+        attr = '_{0.__class__.__name__}__error'.format(cog)
+        if hasattr(cog, attr):
+            return
+
+    print('Ignoring exception in command {}:'.format(context.command), file=sys.stderr)
+    if await context.bot.is_owner(context.author):
+        try:
+            await context.send('```{}```'.format(traceback.format_exception(type(exception), exception, exception.__traceback__)))
+        except discord.errors.HTTPException:
+            await context.send('An exception occured that is too big for discord to send, check the logs')
+            traceback.print_exception(type(exception), exception, exception.__traceback__, file=sys.stderr)
+    else:
+        traceback.print_exception(type(exception), exception, exception.__traceback__, file=sys.stderr)
 
 @bot.event
 async def on_guild_join(guild):

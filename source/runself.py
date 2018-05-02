@@ -2,8 +2,8 @@ import sys
 import subprocess
 
 def install():
-    subprocess.call(['pip', 'install', '-r', 'requirements.txt'])
-    subprocess.call(['sudo', 'pip', 'install', 'git+https://github.com/Apache-HB/Robo-Claymore'])
+    subprocess.call(['pip', 'install', '--quiet', '-r', 'requirements.txt'])
+    subprocess.call(['sudo', '-H', 'pip', 'install', '--quiet', 'git+https://github.com/Apache-HB/Robo-Claymore'])
 
 if __name__ == '__main__':
     install()
