@@ -27,6 +27,7 @@ class Help:
         else:
             await ctx.send('No cog or command called {} found'.format(command))
 
+    @classmethod
     def command_help(self, ctx, command: str):
         target = ctx.bot.all_commands.get(command)
         aliases = target.aliases
@@ -40,7 +41,7 @@ class Help:
         try: usage = target.usage
         except AttributeError: usage = 'None'
 
-        if not aliases: 
+        if not aliases:
             aliases = ['None']
 
         embed = style_embed(ctx, title=target.name, description='Inside cog {}'.format(target.cog_name))
@@ -55,7 +56,7 @@ class Help:
 
         try: description = target.description
         except AttributeError: description = 'None'
-        
+
 
         embed=style_embed(ctx, title='Information and subcommands in {}'.format(cog),
         description=description)
@@ -66,7 +67,8 @@ class Help:
                 except AttributeError:
                     embed.add_field(name=command.name, value='None')
         return embed
-        
+
+    @classmethod
     def full_help(self, ctx):
         ret=''
         for cog in ctx.bot.cogs:

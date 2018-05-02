@@ -40,9 +40,9 @@ class Warframe:
                 embed.add_field(name='More info', value=j[0]['url'])
                 embed.add_field(name='Minimum MR rank', value=j[0]['mr'])
                 embed.add_field(name='Type', value=j[0]['type'])
-                    
+
                 try:
-                    embed.add_field(name='Base damage', 
+                    embed.add_field(name='Base damage',
                     value='Total of {full}, comprised of {pun} Puncture, {imp} Impact and {sla} Slash'.format(
                         full=j[0]['damage'],
                         pun=j[0]['puncture'],
@@ -51,7 +51,7 @@ class Warframe:
                 except KeyError:
                     embed.add_field(name='Base damage',
                     value=j[0]['damage'])
-                    
+
                 if j[0]['type'] == 'Melee':
                     if j[0]['polarities']:
                         embed.add_field(name='Default polarities', value=', '.join(j[0]['polarities']))
@@ -65,10 +65,10 @@ class Warframe:
 
                     try: embed.add_field(name='Noise level', value=j[0]['noise'])
                     except KeyError: pass
-                        
+
                     try: embed.add_field(name='Firerate', value=j[0]['speed'])
                     except KeyError: pass
-                        
+
                     try: embed.add_field(name='Accuracy', value=j[0]['accuracy'])
                     except KeyError: pass
 
@@ -79,10 +79,10 @@ class Warframe:
                     embed.add_field(name='Reload speed', value=j[0]['reload'])
                     embed.add_field(name='Projectile type', value=j[0]['projectile'])
                     embed.add_field(name='Trigger type', value=j[0]['trigger'])
-                
+
                     try: embed.add_field(name='Flight speed', value=j[0]['flight'])
                     except KeyError: pass
-                    
+
                 embed.add_field(name='Critical chance', value=j[0]['crit_chance'])
                 embed.add_field(name='Critical damage multiplier', value=j[0]['crit_mult'])
                 embed.add_field(name='Status chance', value=j[0]['status_chance'])
@@ -98,18 +98,18 @@ class Warframe:
                 j = json.loads(await resp.text())
                 if not j:
                     return await ctx.send('Nothing with the name {item} found'.format(item=item))
-                    
+
                 embed=style_embed(ctx, title='Information about {}'.format(item))
 
                 a=-1
                 for loc in j:
                     a+=1
                     if a < 25:
-                        embed.add_field(name='Item {} drops from {}'.format(loc['item'], loc['place']), 
+                        embed.add_field(name='Item {} drops from {}'.format(loc['item'], loc['place']),
                         value='Rarity of {} & a drop chance of {}%'.format(loc['rarity'], loc['chance']))
                     else:
                         break
-                
+
                 await ctx.send(embed=embed)
 
     @warframe.command(name="frameinfo",
@@ -121,27 +121,27 @@ class Warframe:
                     color = frame['color']
                 except KeyError:
                     color = ctx.guild.me.color
-                
+
                 embed=style_embed(ctx, title='Info about {}'.format(frame['name']),
-                description=frame['url'], 
+                description=frame['url'],
                 color=color)
                 embed.add_field(name='Min/Max Health', value=frame['health'])
                 embed.add_field(name='Min/Max Shields', value=frame['shield'])
                 embed.add_field(name='Base armor', value=frame['armor'])
                 embed.add_field(name='Min/Max power', value=frame['power'])
                 embed.add_field(name='Base speed', value=frame['speed'])
-                
+
                 try: embed.add_field(name='More info', value=frame['info'])
                 except KeyError: pass
 
                 if not frame['aura'] =='':
-                    embed.add_field(name='Default aura polarity', 
-                    value=frame['aura'].replace('<:madurai:319586146499690496>', 
-                    'Maduri').replace('<:naramon:319586146478850048>', 
+                    embed.add_field(name='Default aura polarity',
+                    value=frame['aura'].replace('<:madurai:319586146499690496>',
+                    'Maduri').replace('<:naramon:319586146478850048>',
                     'Naramon').replace('<:vazarin:319586146269003778>', 'Varazin'))
                 embed.add_field(name='Default polarities',
-                value=', '.join(frame['polarities']).replace('<:madurai:319586146499690496>', 
-                'Maduri').replace('<:naramon:319586146478850048>', 
+                value=', '.join(frame['polarities']).replace('<:madurai:319586146499690496>',
+                'Maduri').replace('<:naramon:319586146478850048>',
                 'Naramon').replace('<:vazarin:319586146269003778>', 'Varazin'))
 
                 try: embed.add_field(name='In game description', value=frame['description'])
@@ -165,7 +165,7 @@ class Warframe:
                 b=0
                 for a in j['variants']:
                     b+=1
-                    embed.add_field(name='Mission {}'.format(b), 
+                    embed.add_field(name='Mission {}'.format(b),
                     value='Mission type: {mission}, Modifier: {mod}, Location: {loc}'.format(
                         mission=a['missionType'],
                         mod=a['modifier'],
@@ -190,13 +190,13 @@ class Warframe:
                         mis=a['mission']['type'],
                         fac=a['mission']['faction']
                     ))
-                    embed.add_field(name='Information', 
+                    embed.add_field(name='Information',
                     value='Rewards: {reward}, Expires in: {exp}'.format(
                         reward=a['mission']['reward']['asString'],
                         exp=a['eta']
                     ))
                 await ctx.send(embed=embed)
-                
+
     @warframe.command(name="baro",
     brief="Baro Ki\'Teer, void trader")
     async def _baro(self, ctx):
@@ -219,10 +219,10 @@ class Warframe:
         async with aiohttp.ClientSession() as session:
             async with session.get('https://api.warframestat.us/pc/dailyDeals') as resp:
                 j = json.loads(await resp.text())
-                embed = style_embed(ctx, title='Current Darvo Deal', 
+                embed = style_embed(ctx, title='Current Darvo Deal',
                 description='Could i interest you in some half price life support?')
                 embed.add_field(name='Item', value=j[0]['item'])
-                embed.add_field(name='Discount', 
+                embed.add_field(name='Discount',
                 value='Original price: {org}, Percentage discount: {dis}%, Current price: {cur}'.format(
                     org=j[0]['originalPrice'],
                     dis=j[0]['discount'],
@@ -239,7 +239,7 @@ class Warframe:
         async with aiohttp.ClientSession() as session:
             async with session.get('https://api.warframestat.us/pc/cetusCycle') as resp:
                 j = json.loads(await resp.text())
-                embed=style_embed(ctx, title='Current cetus time', 
+                embed=style_embed(ctx, title='Current cetus time',
                 description='Taken from https://api.warframestat.us/pc/cetusCycle')
                 embed.add_field(name='Time', value=j['isDay'])
                 embed.add_field(name='Cycle ID', value=j['id'])

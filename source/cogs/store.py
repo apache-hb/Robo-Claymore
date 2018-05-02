@@ -23,10 +23,10 @@ def style_embed(ctx, title: str, description: str='', color: int=None):
 
 
 def pyout(message: str):
-    if not Store.silent: 
+    if not Store.silent:
         print(message)
     return Store.silent
-    
+
 def qlog(message: str):
     f = open('cogs/store/direct.log', 'a')
     f.write(message)

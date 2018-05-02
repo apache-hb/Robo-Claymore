@@ -115,6 +115,7 @@ class Zalgo:
                 newtext.append(choice(random_extras))
         return u''.join(newtext)
 
+    @classmethod
     def _is_narrow_build(self):
         try:
             chr(0x10000)
