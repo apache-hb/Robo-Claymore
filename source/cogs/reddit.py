@@ -13,11 +13,10 @@ class Reddit:
 
     short = "reddit interface"
     description = "Read posts from anywhere on reddit"
-    hidden = True
 
     @commands.command(name="reddit")
     async def reddit(self, ctx, target: str='all', search: str='new', index: int=1):
-        if not 0 <= index <= 25: 
+        if not 0 <= index <= 25:
             return await ctx.send('Index must be within 0 and 25')
 
         #so i dont have to lower the search each time
@@ -35,11 +34,11 @@ class Reddit:
             subreddit=target.lower(),
             search_mode=search
         )
-        
+
         async with aiohttp.ClientSession() as session:
             async with session.get(to_get) as resp:
                 j = json.loads(await resp.text())
-                
+
                 if not j['data']['children']:
                     return await ctx.send('No subreddit found')
 
@@ -60,7 +59,7 @@ class Reddit:
                 ))
 
                 if not post['data']['selftext'] == '':
-                    embed.add_field(name='Selftext', 
+                    embed.add_field(name='Selftext',
                     value=post['data']['selftext'][:250] + (post['data']['selftext'][250:] and '...'))
 
                 if is_embedable(post['data']['url']):

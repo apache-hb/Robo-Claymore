@@ -15,9 +15,6 @@ from mimetypes import MimeTypes
 
 dir_path = dir_path = os.path.dirname(os.path.realpath(__file__))
 
-def admin_check(ctx):
-    return ctx.channel.permissions_for(ctx.author.id).administrator
-
 def reset_config():
     clean_file('./cogs/store/bot.log', 'logging file \n')
     clean_file('./cogs/store/direct.log', 'direct messages file \n')
