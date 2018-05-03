@@ -7,7 +7,7 @@ from defusedxml.ElementTree import fromstring
 import aiohttp
 import json
 from random import choice, randint
-from .store import Store, style_embed, shorten_url, pyout, dir_path
+from .store import Store, style_embed, shorten_url, pyout, dir_path, is_emoji
 from datetime import datetime
 import platform
 
@@ -184,6 +184,75 @@ class Utility:
         except Exception:
             await ctx.send('Cannot square this much text, this is discords fault, not mine')
 
+
+
+    @commands.group(invoke_without_command=True)
+    async def autoreact(self, ctx):
+        pass
+
+    @autoreact.command(name="add")
+    async def _autoreact_add(self, ctx, *, message: str):
+        message = message.split(' ')
+        react = message[-1]
+        if not is_emoji(react):
+            return await ctx.send('That is not an emoji I can react with')
+        phrase = ' '.join(message[:-1])
+        ret = {
+            "phrase": phrase,
+            "react": react,
+            "meta": {
+                "time_created": int(time.time()),
+                "created_by": ctx.author.id,
+                "created_in": ctx.channel.id,
+                "uses": 0
+            }
+        }
+        Store.autoreact.append(ret)
+        json.dump(Store.autoreact, open('cogs/store/autoreact.json', 'w'), indent=4)
+        await ctx.send('{} is now reacted to with {}'.format(
+            phrase,
+            react
+        ))
+
+    @autoreact.command(name="remove")
+    async def _autoreact_remove(self, ctx, *, message: str):
+        pass
+
+    @autoreact.command(name="purge")
+    async def _autoreact_purge(self, ctx):
+        pass
+
+    @autoreact.command(name="info")
+    async def _autoreact_info(self, ctx, *, message: str):
+        pass
+
+
+
+    @commands.group(invoke_without_command=True)
+    async def welcome(self, ctx):
+        pass
+
+    @welcome.command(name="set")
+    async def _welcome_set(self, ctx, *, message: str='Hello'):
+        pass
+
+    @welcome.command(name="remove")
+    async def _welcome_remove(self, ctx):
+        pass
+
+
+    @commands.group(invoke_without_command=True)
+    async def leave(self, ctx):
+        pass
+
+    @leave.command(name="set")
+    async def _leave_set(self, ctx, *, message: str='Goodbye'):
+        pass
+
+    @leave.command(name="remove")
+    async def _leave_remove(self, ctx):
+        pass
+
     @commands.command(name="urban")
     async def _urban(self, ctx, search: str=None):
         if search is None:
@@ -221,7 +290,10 @@ class Utility:
 
     @commands.command(name="credits", aliases=['credit'])
     async def _credits(self, ctx):
-        pass
+        embed=style_embed(ctx,title='The services I use')
+        embed.add_field(name='Wolfram alpha api', value='')
+        embed.add_field(name='Warframe api', value='')
+        embed.add_field(name='Reddit api', value='')
 
     @commands.command(name="userinfo",
     aliases=['memberinfo', 'playerinfo', 'aboutuser'])
@@ -314,8 +386,12 @@ class Utility:
             async with session.get(api_url, params=params, headers=headers) as resp:
                 print(await resp.text())'''
 
+    #TODO make this nice
     @commands.command(name="wolfram")
     async def _wolfram(self, ctx, *, query: str=None):
+        if Store.config['wolfram']['key'] is None:
+            return await ctx.send('Wolfram has not been setup on this bot')
+
         root = await self.wolfram.query(query)
         for child in root:
             if child.attrib['scanner'] == 'Simplification':

@@ -4,7 +4,9 @@ import sys
 import os
 
 import discord
+import time
 
+import emoji as e
 #for embed checking
 from urllib.request import pathname2url
 from mimetypes import MimeTypes
@@ -13,6 +15,40 @@ from mimetypes import MimeTypes
 
 dir_path = dir_path = os.path.dirname(os.path.realpath(__file__))
 
+def admin_check(ctx):
+    return ctx.channel.permissions_for(ctx.author.id).administrator
+
+def reset_config():
+    clean_file('./cogs/store/bot.log', 'logging file \n')
+    clean_file('./cogs/store/direct.log', 'direct messages file \n')
+    clean_file('./cogs/store/statistics.json', json.dumps(statistic_dict, indent=4))
+    clean_file('./cogs/store/symbiosis.json', '[]')
+    clean_file('./cogs/store/tags.json', '[]')
+    clean_file('./cogs/store/quotes.json', '[]')
+    clean_file('./cogs/store/autoreact.json', '[]')
+    clean_file('./cogs/store/autorole.json', '[]')
+    clean_file('./cogs/store/disabled.json', '[]')
+    clean_file('./cogs/store/blacklist.json', '[]')
+    clean_file('./cogs/store/blocked.json', '[]')
+    clean_file('./cogs/store/whitelist.json', '[]')
+    clean_file('./cogs/store/welcome.json', '[]')
+    clean_file('./cogs/store/leave.json', '[]')
+
+def is_emoji(emoji: str):
+    is_anim = True if emoji.startswith('<a:') else False
+
+    if emoji.startswith('<') and emoji.endswith('>') and emoji.count(':') == 2:
+        emoji = emoji[3:] if is_anim else emoji[2:]
+        while not emoji.startswith(':'):
+            emoji = emoji[1:]
+        emoji = emoji[1:-1]
+        if len(emoji):
+            return True
+        return False
+    elif emoji in e.UNICODE_EMOJI:
+        return True
+    return False
+
 def style_embed(ctx, title: str, description: str='', color: int=None):
     if color is None:
         try: color = ctx.guild.me.color
@@ -20,7 +56,6 @@ def style_embed(ctx, title: str, description: str='', color: int=None):
     embed=discord.Embed(title=title, description=description,color=color)
     embed.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
     return embed
-
 
 def pyout(message: str):
     if not Store.silent:
@@ -32,8 +67,37 @@ def qlog(message: str):
     f.write(message)
     f.close()
 
+def guild_template(guild):
+    ret = {
+        "server_id": guild.id,
+        "first_joined": int(time.time()),
+        "contents": [
+
+        ]
+    }
+    return ret
+
 def add_guild(guild):
-    pass
+    #autoreact
+    if not any(d['server_id'] == guild.id for d in Store.autoreact):
+        Store.autoreact.append(guild_template(guild))
+        json.dump(Store.autoreact, open('cogs/store/autoreact.json', 'w'), indent=4)
+
+    #autorole
+    if not any(d['server_id'] == guild.id for d in Store.autorole):
+        Store.autorole.append(guild_template(guild))
+        json.dump(Store.autorole, open('cogs/store/autorole.json', 'w'), indent=4)
+
+    #tags
+    if not any(d['server_id'] == guild.id for d in Store.tags):
+        Store.tags.append(guild_template(guild))
+        json.dump(Store.tags, open('cogs/store/tags.json', 'w'), indent=4)
+
+    #quotes
+    if not any(d['server_id'] == guild.id for d in Store.quotes):
+        Store.quotes.append(guild_template(guild))
+        json.dump(Store.quotes, open('cogs/store/quotes.json', 'w'), indent=4)
+
 
 class Store:
 
@@ -46,6 +110,14 @@ class Store:
     default_color = 0xe00b3c
 
     frames = []
+
+    welcome = json.load(open('cogs/store/welcome.json'))
+
+    leave = json.load(open('cogs/store/leave.json'))
+
+    autoreact = json.load(open('cogs/store/autoreact.json'))
+
+    autorole = json.load(open('cogs/store/autorole.json'))
 
     config = json.load(open('cogs/store/config.json'))
 

@@ -2,8 +2,8 @@ import discord
 from discord.ext import commands
 
 import json
-
-from .store import Store, style_embed, pyout
+import emoji as e
+from .store import Store, style_embed, pyout, add_guild, reset_config
 
 class Owner:
     def __init__(self, bot):
@@ -35,7 +35,6 @@ class Owner:
             ret='There are no whitelisted users'
         embed.add_field(name='All users', value=ret)
         return await ctx.send(embed=embed)
-
 
     @whitelist.command(name="add")
     async def _whitelist_add(self, ctx, *, user: discord.Member):
@@ -97,9 +96,20 @@ class Owner:
             json.dump(Store.blacklist, open('cogs/store/blacklist.json', 'w'), indent=4)
             return await ctx.send(embed=embed)
         embed=style_embed(ctx, title='Blacklist')
-        embed.add_field(name=user.name, 
+        embed.add_field(name=user.name,
         value='Cannot be removed from blacklist, because they are not in the blacklist')
         await ctx.send(embed=embed)
+
+    @commands.command(name="verifyconfig")
+    async def _verifyconfig(self, ctx):
+        for guild in self.bot.guilds:
+            add_guild(guild)
+        await ctx.send('Verified config files')
+
+    @commands.command(name="resetconfig")
+    async def _resetconfig(self, ctx):
+        reset_config()
+        await ctx.invoke(self.bot.get_command("verifyconfig"))
 
     @commands.command(name="setpresence")
     async def _setgame(self, ctx, *, name: str='Beep Boop'):
@@ -142,13 +152,49 @@ class Owner:
             except Exception:
                 embed.add_field(name='{}#{}'.format(guild.name, guild.id), value='Invite creation blocked')
 
+    @commands.command(name="remoteserverinfo")
+    async def _remoteserverinfo(self, ctx, server: int):
+        guild = self.bot.get_guild(server)
+        ret = '```Server info about: {}\n\n'.format(guild.name)
+        for channel in guild.channels:
+            ret+='{}#{}\n'.format(channel.name, channel.id)
+        await ctx.send(ret+'```')
+
+    @commands.command(name="remotemessage")
+    async def _remotemessage(self, ctx, id: int, *, message: str):
+        channel = self.bot.get_channel(id)
+        try:
+            await channel.send(message)
+        except Exception as e:
+            await ctx.send('I could not send a message to that channel for some reason\n\n```{}```'.format(e))
+
+    @commands.command(name="remotedirectmessage")
+    async def _remotedirectmessage(self, ctx, id: int, *, message: str):
+        user = await self.bot.get_user_info(id)
+        try:
+            await user.send(message)
+        except Exception as e:
+            await ctx.send('I could not message that user for some reason\n\n```{}```'.format(e))
+
     @commands.command(name="echo")
     async def _echo(self, ctx, *, msg: str):
         await ctx.send(msg)
 
     @commands.command(name="test")
-    async def _test(self, ctx):
-        pass
+    async def _test(self, ctx, emoji: str):
+        is_anim = True if emoji.startswith('<a:') else False
+
+        if emoji.startswith('<') and emoji.endswith('>') and emoji.count(':') == 2:
+            emoji = emoji[3:] if is_anim else emoji[2:]
+            while not emoji.startswith(':'):
+                emoji = emoji[1:]
+            emoji = emoji[1:-1]
+            if len(emoji):
+                await ctx.send('Is an emoji')
+        elif emoji in e.UNICODE_EMOJI:
+            await ctx.send('Is an emoji')
+
+
 
 def setup(bot):
     bot.add_cog(Owner(bot))

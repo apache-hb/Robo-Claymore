@@ -88,6 +88,7 @@ class Warframe:
                 embed.add_field(name='Status chance', value=j[0]['status_chance'])
                 embed.add_field(name='Riven disposition', value=j[0]['riven_disposition'])
                 embed.set_thumbnail(url=j[0]['thumbnail'])
+
                 return await ctx.send(embed=embed)
 
     @warframe.command(name="dropinfo",

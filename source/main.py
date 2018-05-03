@@ -9,8 +9,10 @@ import os
 import sys
 #this is the current directory
 dir_path = os.path.dirname(os.path.realpath(__file__))
-
-from cogs.store import Store, pyout, qlog
+try:
+    from cogs.store import Store, pyout, qlog, add_guild, reset_config
+except Exception:
+    from cogs.store import pyout, qlog, add_guild, reset_config
 import traceback
 import glob
 
@@ -139,6 +141,11 @@ if not os.path.isfile('./cogs/store/config.json'):
 
 config = json.load(open('cogs/store/config.json'))
 
+statistic_dict = {
+    "messages_processed": 0,
+    "commands_used": 0
+}
+
 def ensure_file(ensure: str, default: str):
     if not os.path.isfile(ensure):
         file = open(ensure, 'w')
@@ -147,16 +154,16 @@ def ensure_file(ensure: str, default: str):
         return True
     return False
 
+def clean_file(clean, default):
+    file = open(clean, 'w')
+    file.write(default)
+    file.close()
+
 if ensure_file('./cogs/store/bot.log', 'logging file \n'):
     pyout('logfile was generated')
 
 if ensure_file('./cogs/store/direct.log', 'direct messages file \n'):
     pyout('direct messages was generated')
-
-statistic_dict = {
-    "messages_processed": 0,
-    "commands_used": 0
-}
 
 if ensure_file('./cogs/store/statistics.json', json.dumps(statistic_dict, indent=4)):
     pyout('statistics file was generated')
@@ -270,7 +277,7 @@ async def on_command_error(context, exception):
 
 @bot.event
 async def on_guild_join(guild):
-    pass
+    add_guild(guild)
 
 @bot.event
 async def on_member_leave(member):
