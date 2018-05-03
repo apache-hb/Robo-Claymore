@@ -2,8 +2,11 @@
 beep boop
 
 # bot setup
+```
 download the repository and run setup.py
-
+after that run either source/runself.py or source/main.py
+(runself.py is actually needed for first time startup unless you want to pip install requirements.txt yourself
+```
 # command line arguments
 ```
 -r or --reset to regenerate config files
