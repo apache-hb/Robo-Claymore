@@ -7,7 +7,7 @@ from defusedxml.ElementTree import fromstring
 import aiohttp
 import json
 from random import choice, randint
-from .store import Store, style_embed, shorten_url, pyout, dir_path, is_emoji
+from .store import Store, style_embed, shorten_url, pyout, dir_path, is_emoji, config
 from datetime import datetime
 import platform
 
@@ -127,7 +127,7 @@ class Utility:
     def __init__(self, bot):
         self.bot = bot
         self.a = 0
-        self.wolfram = Wolfram(Store.config['wolfram']['key'])
+        self.wolfram = Wolfram(config['wolfram']['key'])
         print('Cog {} loaded'.format(self.__class__.__name__))
 
     short = "Miscellaneous functions"
@@ -389,7 +389,7 @@ class Utility:
     #TODO make this nice
     @commands.command(name="wolfram")
     async def _wolfram(self, ctx, *, query: str=None):
-        if Store.config['wolfram']['key'] is None:
+        if config['wolfram']['key'] is None:
             return await ctx.send('Wolfram has not been setup on this bot')
 
         root = await self.wolfram.query(query)

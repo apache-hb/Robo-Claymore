@@ -54,7 +54,7 @@ def remove_file(file: str):
     except Exception as e: pyout(e)
 
 if args.reset is None:
-    remove_file('./cogs/store/config.json')
+    remove_file(dir_path + '/cogs/store/config.json')
 
 def strtobool(i: str):
     i = i.lower()
@@ -79,13 +79,13 @@ def ensure_bool_input(prompt: str, error: str):
         except Exception:
             continue
 
-if not os.path.isfile('./cogs/store/config.json'):
+if not os.path.isfile(dir_path + '/cogs/store/config.json'):
     if Store.silent:
         print('You have silent mode enabled, so the setup can not be completed')
         exit(2)
         #exit with code 2 for bad args
 
-    file = open('./cogs/store/config.json', 'w')
+    file = open(dir_path + '/cogs/store/config.json', 'w')
 
     print('Seeing as the config file cannot be found')
     print('I need you to input some tokens and keys for me to function properly')
@@ -139,7 +139,7 @@ if not os.path.isfile('./cogs/store/config.json'):
     print('You can edit this at anytime by either reseting the config and running the wizard again')
     print('or you can edit the cofig files directly in cogs/store/config.cfg')
 
-config = json.load(open('cogs/store/config.json'))
+config = json.load(open(dir_path + '/cogs/store/config.json'))
 
 statistic_dict = {
     "messages_processed": 0,
@@ -147,7 +147,7 @@ statistic_dict = {
 }
 
 def ensure_file(ensure: str, default: str):
-    if not os.path.isfile(ensure):
+    if not os.path.isfile(dir_path + ensure):
         file = open(ensure, 'w')
         file.write(default)
         file.close()
@@ -159,40 +159,40 @@ def clean_file(clean, default):
     file.write(default)
     file.close()
 
-if ensure_file('./cogs/store/bot.log', 'logging file \n'):
+if ensure_file('/cogs/store/bot.log', 'logging file \n'):
     pyout('logfile was generated')
 
-if ensure_file('./cogs/store/direct.log', 'direct messages file \n'):
+if ensure_file('/cogs/store/direct.log', 'direct messages file \n'):
     pyout('direct messages was generated')
 
-if ensure_file('./cogs/store/statistics.json', json.dumps(statistic_dict, indent=4)):
+if ensure_file('/cogs/store/statistics.json', json.dumps(statistic_dict, indent=4)):
     pyout('statistics file was generated')
 
-if ensure_file('./cogs/store/symbiosis.json', '[]'):
+if ensure_file('/cogs/store/symbiosis.json', '[]'):
     pyout('symbiosis file was generated')
 
-if ensure_file('./cogs/store/tags.json', '[]'):
+if ensure_file('/cogs/store/tags.json', '[]'):
     pyout('tags file was generated')
 
-if ensure_file('./cogs/store/quotes.json', '[]'):
+if ensure_file('/cogs/store/quotes.json', '[]'):
     pyout('quotes file was generated')
 
-if ensure_file('./cogs/store/autoreact.json', '[]'):
+if ensure_file('/cogs/store/autoreact.json', '[]'):
     pyout('autoreact file was generated')
 
-if ensure_file('./cogs/store/autorole.json', '[]'):
+if ensure_file('/cogs/store/autorole.json', '[]'):
     pyout('autorole file was generated')
 
-if ensure_file('./cogs/store/disabled.json', '[]'):
+if ensure_file('/cogs/store/disabled.json', '[]'):
     pyout('disabled file was generated')
 
-if ensure_file('./cogs/store/blacklist.json', '[]'):
+if ensure_file('/cogs/store/blacklist.json', '[]'):
     pyout('blacklist file was generated')
 
-if ensure_file('./cogs/store/blocked.json', '[]'):
+if ensure_file('/cogs/store/blocked.json', '[]'):
     pyout('blocked file was generated')
 
-if ensure_file('./cogs/store/whitelist.json', '[]'):
+if ensure_file('/cogs/store/whitelist.json', '[]'):
     pyout('whitelist file was generated')
 
 bot = commands.Bot(command_prefix=config['discord']['prefix'],
@@ -217,16 +217,16 @@ async def on_ready():
     pyout('bot ready')
 
 try:
-    current_stats = json.load(open('./cogs/store/statistics.json'))
+    current_stats = json.load(open(dir_path + '/cogs/store/statistics.json'))
 except json.decoder.JSONDecodeError:
-    ensure_file('./cogs/store/statistics.json', statistic_dict)
+    ensure_file(dir_path + '/cogs/store/statistics.json', statistic_dict)
     pyout('The statistics file was corrupted so the file has been reset')
 
 async def is_direct(message):
     return isinstance(message.channel, discord.channel.DMChannel) and message.author.id != message.channel.me.id and not message.content.startswith(config['discord']['prefix'])
 
 def save_stats():
-    f=open('./cogs/store/statistics.json', 'w')
+    f=open(dir_path + '/cogs/store/statistics.json', 'w')
     f.write(json.dumps(current_stats, indent=4))
     f.close()
 
@@ -299,8 +299,8 @@ async def _load(ctx, name: str):
 
 cogs = []
 
-for a in glob.glob('./cogs/*.py'):
-    a = a.replace('./cogs/', '')
+for a in glob.glob(dir_path + '/cogs/*.py'):
+    a = a.replace(dir_path + '/cogs/', '')
     a = a.replace('.py', '')
     a = 'cogs.' + a
     if not a in ['cogs.store', 'cogs.__init__']:

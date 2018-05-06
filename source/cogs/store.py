@@ -108,19 +108,23 @@ class Store:
 
     frames = []
 
-    welcome = json.load(open('cogs/store/welcome.json'))
+tags = json.load(open(dir_path + '/store/tags.json'))
 
-    leave = json.load(open('cogs/store/leave.json'))
+quotes = json.load(open(dir_path + '/store/quotes.json'))
 
-    autoreact = json.load(open('cogs/store/autoreact.json'))
+welcome = json.load(open(dir_path + '/store/welcome.json'))
 
-    autorole = json.load(open('cogs/store/autorole.json'))
+leave = json.load(open(dir_path + '/store/leave.json'))
 
-    config = json.load(open('cogs/store/config.json'))
+autoreact = json.load(open(dir_path + '/store/autoreact.json'))
 
-    whitelist = json.load(open('cogs/store/whitelist.json'))
+autorole = json.load(open(dir_path + '/store/autorole.json'))
 
-    blacklist = json.load(open('cogs/store/blacklist.json'))
+config = json.load(open(dir_path + '/store/config.json'))
+
+whitelist = json.load(open(dir_path + '/store/whitelist.json'))
+
+blacklist = json.load(open(dir_path + '/store/blacklist.json'))
 
 if Store.current_system == 'mac':
     sys.path.append('/usr/local/lib/python3.6/site-packages')

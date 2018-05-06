@@ -1,10 +1,10 @@
 from discord.ext import commands
-from .store import pyout, style_embed, is_embedable, shorten_url
+from .store import pyout, style_embed, is_embedable, shorten_url, dir_path
 
 import aiohttp
 import json
 
-config = json.load(open('cogs/store/config.json'))
+config = json.load(open(dir_path + '/store/config.json'))
 
 class Reddit:
     def __init__(self, bot):

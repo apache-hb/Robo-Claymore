@@ -8,6 +8,8 @@ import json
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
+os.system('pip3 install -r requirements.txt')
+
 def ensure_file(ensure: str, default: str):
     if not os.path.isfile(ensure):
         file = open(ensure, 'w')
