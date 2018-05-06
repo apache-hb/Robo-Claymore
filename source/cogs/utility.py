@@ -4,8 +4,10 @@ from discord.ext import commands
 from itertools import chain
 from urllib.parse import urlencode
 from defusedxml.ElementTree import fromstring
+import xml.dom.minidom
 import aiohttp
 import json
+from bs4 import BeautifulSoup
 from random import choice, randint
 from .store import Store, style_embed, shorten_url, pyout, dir_path, is_emoji
 from datetime import datetime
@@ -135,6 +137,12 @@ class Utility:
     description = "For extra\'s that don\'t fit in"
     hidden = True
 
+    @commands.command(name="hastebin")
+    async def _hastebin(self, ctx, *, message: str):
+        async with aiohttp.ClientSession() as session:#TODO test this
+            async with session.post('https://hastebin.com/documents', data=message.encode('utf-8')) as resp:
+                await ctx.send(await resp.text() + await resp.json()['key'])
+
     @commands.command(name="randomcase")
     async def _randomcase(self, ctx, *, message: str):
         await ctx.send(''.join(choice((str.upper,str.lower))(x) for x in message))
@@ -185,9 +193,53 @@ class Utility:
         except Exception:
             await ctx.send('Cannot square this much text, this is discords fault, not mine')
 
-    @commands.group(name="reverse")
+    @commands.command(name="reverse")
     async def _reverse(self, ctx, *, message: str):
         await ctx.send(message[::-1])
+
+    @commands.command(name="invert")
+    async def _invert(self, ctx, *, message: str):
+        await ctx.send(message.swapcase())
+
+    @commands.command(name="binary")
+    async def _binary(self, ctx, *, message: str):
+        try:
+            await ctx.send(' '.join(format(ord(x), 'b') for x in message))
+        except Exception:
+            await ctx.send('Cannot send this much binary, blame b1nzy for this')
+
+    @commands.command(name="ascii")
+    async def _ascii(self, ctx, *, message: str):
+        try:
+            await ctx.send(' '.join([ord(c) for c in message]))
+        except Exception:
+            await ctx.send('Cannot send that much ascii, blame b1nzy, this is his fault')
+
+    @commands.group(invoke_without_command=True)
+    async def prettyprint(self, ctx):
+        pass
+
+    @prettyprint.command(name="json")
+    async def _prettyprint_json(self, ctx, *, message: str):
+        try:
+            await ctx.send(json.dumps(message.strip(), indent=4))
+        except json.JSONDecodeError:
+            await ctx.send('Cannot print malformed json')
+
+    @prettyprint.command(name="xml")
+    async def _prettyprint_xml(self, ctx, *, message: str):
+        try:
+            ret = xml.dom.minidom.parseString(message)
+            await ctx.send(ret.toprettyxml())
+        except Exception:
+            await ctx.send('Cannot pretty print malformed xml')
+
+    @prettyprint.command(name="html")
+    async def _prettyprint_html(self, ctx, *, message: str):
+        try:
+            await ctx.send(BeautifulSoup(message, 'html.parser').prettify())
+        except Exception:
+            await ctx.send('Cannot print malformed html')
 
     @commands.group(invoke_without_command=True)
     async def autoreact(self, ctx):
