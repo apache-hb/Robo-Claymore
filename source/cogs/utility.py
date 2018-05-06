@@ -184,7 +184,9 @@ class Utility:
         except Exception:
             await ctx.send('Cannot square this much text, this is discords fault, not mine')
 
-
+    @commands.group(name="reverse")
+    async def _reverse(self, ctx, *, message: str):
+        await ctx.send(message[::-1])
 
     @commands.group(invoke_without_command=True)
     async def autoreact(self, ctx):
