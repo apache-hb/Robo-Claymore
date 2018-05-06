@@ -9,6 +9,7 @@ import json
 from random import choice, randint
 from .store import Store, style_embed, shorten_url, pyout, dir_path, is_emoji
 from datetime import datetime
+import time
 import platform
 
 #wikia fandom wikis
