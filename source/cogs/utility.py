@@ -222,7 +222,7 @@ class Utility:
     @prettyprint.command(name="json")
     async def _prettyprint_json(self, ctx, *, message: str):
         try:
-            await ctx.send(json.dumps(message.strip(), indent=4))
+            await ctx.send('```json' + json.dumps(message.strip(), indent=4) + '```')
         except json.JSONDecodeError:
             await ctx.send('Cannot print malformed json')
 
@@ -230,14 +230,14 @@ class Utility:
     async def _prettyprint_xml(self, ctx, *, message: str):
         try:
             ret = xml.dom.minidom.parseString(message)
-            await ctx.send(ret.toprettyxml())
+            await ctx.send('```xml' + ret.toprettyxml() '```')
         except Exception:
             await ctx.send('Cannot pretty print malformed xml')
 
     @prettyprint.command(name="html")
     async def _prettyprint_html(self, ctx, *, message: str):
         try:
-            await ctx.send(BeautifulSoup(message, 'html.parser').prettify())
+            await ctx.send('```html\n' + BeautifulSoup(message, 'html.parser').prettify() + '```' )
         except Exception:
             await ctx.send('Cannot print malformed html')
 
