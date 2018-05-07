@@ -224,8 +224,8 @@ class Utility:
     @prettyprint.command(name="json")
     async def _prettyprint_json(self, ctx, *, message: str):
         try:
-            ret = json.loads(message.strip())
-            await ctx.send('```json' + json.dumps(ret, indent=4) + '```')
+            ret = json.loads(message)
+            await ctx.send('```json\n' + json.dumps(ret, indent=4) + '```')
         except json.JSONDecodeError:
             await ctx.send('Cannot print malformed json')
 
@@ -233,7 +233,7 @@ class Utility:
     async def _prettyprint_xml(self, ctx, *, message: str):
         try:
             ret = xml.dom.minidom.parseString(message)
-            await ctx.send('```xml' + ret.toprettyxml() '```')
+            await ctx.send('```xml\n' + ret.toprettyxml() + '```')
         except Exception:
             await ctx.send('Cannot pretty print malformed xml')
 
