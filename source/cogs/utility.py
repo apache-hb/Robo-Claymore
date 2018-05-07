@@ -224,8 +224,12 @@ class Utility:
     @prettyprint.command(name="json")
     async def _prettyprint_json(self, ctx, *, message: str):
         try:
+<<<<<<< HEAD
             ret = json.loads(message.strip())
             await ctx.send(json.dumps(ret, indent=4))
+=======
+            await ctx.send('```json' + json.dumps(message.strip(), indent=4) + '```')
+>>>>>>> 6ba0f5166b898dfcc7f22c102b46a9e7dd97ceeb
         except json.JSONDecodeError:
             await ctx.send('Cannot print malformed json')
 
@@ -233,17 +237,27 @@ class Utility:
     async def _prettyprint_xml(self, ctx, *, message: str):
         try:
             ret = xml.dom.minidom.parseString(message)
+<<<<<<< HEAD
             await ctx.send(ret.toprettyxml())
         except Exception as e:
             print(e)
+=======
+            await ctx.send('```xml' + ret.toprettyxml() '```')
+        except Exception:
+>>>>>>> 6ba0f5166b898dfcc7f22c102b46a9e7dd97ceeb
             await ctx.send('Cannot pretty print malformed xml')
 
     @prettyprint.command(name="html")
     async def _prettyprint_html(self, ctx, *, message: str):
         try:
+<<<<<<< HEAD
             await ctx.send(BeautifulSoup(message, 'html.parser').prettify())
         except Exception as e:
             print(e)
+=======
+            await ctx.send('```html\n' + BeautifulSoup(message, 'html.parser').prettify() + '```' )
+        except Exception:
+>>>>>>> 6ba0f5166b898dfcc7f22c102b46a9e7dd97ceeb
             await ctx.send('Cannot print malformed html')
 
     @commands.group(invoke_without_command=True)
