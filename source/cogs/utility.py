@@ -205,14 +205,16 @@ class Utility:
     async def _binary(self, ctx, *, message: str):
         try:
             await ctx.send(' '.join(format(ord(x), 'b') for x in message))
-        except Exception:
+        except Exception as e:
+            print(e)
             await ctx.send('Cannot send this much binary, blame b1nzy for this')
 
     @commands.command(name="ascii")
     async def _ascii(self, ctx, *, message: str):
         try:
-            await ctx.send(' '.join([ord(c) for c in message]))
-        except Exception:
+            await ctx.send(''.join(str([ord(c) for c in message])))
+        except Exception as e:
+            print(e)
             await ctx.send('Cannot send that much ascii, blame b1nzy, this is his fault')
 
     @commands.group(invoke_without_command=True)
@@ -222,7 +224,8 @@ class Utility:
     @prettyprint.command(name="json")
     async def _prettyprint_json(self, ctx, *, message: str):
         try:
-            await ctx.send(json.dumps(message.strip(), indent=4))
+            ret = json.loads(message.strip())
+            await ctx.send(json.dumps(ret, indent=4))
         except json.JSONDecodeError:
             await ctx.send('Cannot print malformed json')
 
@@ -231,14 +234,16 @@ class Utility:
         try:
             ret = xml.dom.minidom.parseString(message)
             await ctx.send(ret.toprettyxml())
-        except Exception:
+        except Exception as e:
+            print(e)
             await ctx.send('Cannot pretty print malformed xml')
 
     @prettyprint.command(name="html")
     async def _prettyprint_html(self, ctx, *, message: str):
         try:
             await ctx.send(BeautifulSoup(message, 'html.parser').prettify())
-        except Exception:
+        except Exception as e:
+            print(e)
             await ctx.send('Cannot print malformed html')
 
     @commands.group(invoke_without_command=True)
