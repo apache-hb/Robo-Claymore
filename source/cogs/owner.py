@@ -1,6 +1,7 @@
 import discord
 from discord.ext import commands
 
+import inspect
 import json
 import emoji as e
 from .store import Store, style_embed, pyout, add_guild, reset_config
@@ -180,9 +181,16 @@ class Owner:
     async def _echo(self, ctx, *, msg: str):
         await ctx.send(msg)
 
+    async def testing(self):
+        a = 1
+        b = 2
+        return a + b
+
     @commands.command(name="test")
     async def _test(self, ctx, emoji: str):
         is_anim = True if emoji.startswith('<a:') else False
+
+        await ctx.send(inspect.getsource(self.testing))
 
         if emoji.startswith('<') and emoji.endswith('>') and emoji.count(':') == 2:
             emoji = emoji[3:] if is_anim else emoji[2:]

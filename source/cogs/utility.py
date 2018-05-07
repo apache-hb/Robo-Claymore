@@ -7,9 +7,15 @@ from defusedxml.ElementTree import fromstring
 import xml.dom.minidom
 import aiohttp
 import json
+import unicodedata
 from bs4 import BeautifulSoup
 from random import choice, randint
-from .store import Store, style_embed, shorten_url, pyout, dir_path, is_emoji, config
+
+from .store import (Store,
+style_embed, shorten_url, pyout,
+dir_path, is_emoji, config,
+autoreact, autorole)
+
 from datetime import datetime
 import time
 import platform
@@ -143,6 +149,13 @@ class Utility:
             async with session.post('https://hastebin.com/documents', data=message.encode('utf-8')) as resp:
                 await ctx.send(await resp.text() + await resp.json()['key'])
 
+    @commands.command(name="charinfo")
+    async def _charinfo(self, ctx, *, message: str):
+        ret=''
+        for a in message[:5]:
+            ret+='``{}`` is ``{}`` in unicode\n'.format(a, unicodedata.name(a))
+        await ctx.send(ret)
+
     @commands.command(name="randomcase")
     async def _randomcase(self, ctx, *, message: str):
         await ctx.send(''.join(choice((str.upper,str.lower))(x) for x in message))
@@ -246,7 +259,13 @@ class Utility:
 
     @commands.group(invoke_without_command=True)
     async def autoreact(self, ctx):
-        pass
+        embed=style_embed(ctx, title='All subcommands for autoreact')
+        c=[]
+        for a in self.autoreact.walk_commands():
+            if not a.name in c:#prevent duplicates
+                embed.add_field(name=a.name, value=a.brief)
+            c.append(a.name)
+        await ctx.send(embed=embed)
 
     @autoreact.command(name="add")
     async def _autoreact_add(self, ctx, *, message: str):
@@ -256,7 +275,7 @@ class Utility:
             return await ctx.send('That is not an emoji I can react with')
         phrase = ' '.join(message[:-1])
         ret = {
-            "phrase": phrase,
+            "phrase": phrase.lower(),
             "react": react,
             "meta": {
                 "time_created": int(time.time()),
@@ -265,26 +284,58 @@ class Utility:
                 "uses": 0
             }
         }
-        Store.autoreact.append(ret)
-        json.dump(Store.autoreact, open('cogs/store/autoreact.json', 'w'), indent=4)
-        await ctx.send('{} is now reacted to with {}'.format(
-            phrase,
-            react
-        ))
+        for a in autoreact:
+            if a['server_id'] == ctx.guild.id:
+                a['contents'].append(ret)
+        json.dump(autoreact, open('cogs/store/autoreact.json', 'w'), indent=4)
+        await ctx.send('``{}`` is now reacted to with ``{}``'.format(phrase, react))
 
-    @autoreact.command(name="remove")
+    @autoreact.command(name="remove", aliases=['delete', 'subtract'])
     async def _autoreact_remove(self, ctx, *, message: str):
-        pass
+        message = message.split(' ')
+        react = message[-1]
+        phrase = ' '.join(message[:-1])
+
+        for a in autoreact:
+            if a['server_id'] == ctx.guild.id:
+                for b in a['contents']:
+                    if b['phrase'].lower() == phrase.lower() and b['react'] == react:
+                        a['contents'].remove(b)
+                        json.dump(autoreact, open('cogs/store/autoreact.json', 'w'), indent=4)
+                        return await ctx.send('Autoreact removed')
+        await ctx.send('No Autoreact found')
+
 
     @autoreact.command(name="purge")
     async def _autoreact_purge(self, ctx):
-        pass
+        if not (ctx.guild.owner == ctx.author or self.bot.is_owner(ctx.author.id)):
+            return await ctx.send('You must be the guild owner to do this')
+
+        for a in autoreact:
+            if a['server_id'] == ctx.guild.id:
+                del a['contents'][:]
+        json.dump(autoreact, open('cogs/store/autoreact.json', 'w'), indent=4)
+        await ctx.send('Autoreacts purged for this guild')
 
     @autoreact.command(name="info")
     async def _autoreact_info(self, ctx, *, message: str):
-        pass
+        message = message.split(' ')
+        react = message[-1]
+        phrase = ' '.join(message[:-1])
 
-
+        for a in autoreact:
+            if a['server_id'] == ctx.guild.id:
+                for b in a['contents']:
+                    if b['phrase'].lower() == phrase.lower() and b['react'] == react:
+                        embed = style_embed(ctx, title='Autoreact info')
+                        embed.add_field(name='Times used', value=str(b['meta']['uses']))
+                        embed.add_field(name='Created in', value=self.bot.get_channel(b['meta']['created_in']).name)
+                        embed.add_field(name='Created by', value=self.bot.get_user(b['meta']['created_by']).name)
+                        embed.add_field(name='Time made', value=str(time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(b['meta']['time_created']))))
+                        embed.add_field(name='Phrase', value=b['phrase'])
+                        embed.add_field(name='React', value=b['react'])
+                        return await ctx.send(embed=embed)
+                await ctx.send('Nothing found')
 
     @commands.group(invoke_without_command=True)
     async def welcome(self, ctx):

@@ -76,24 +76,24 @@ def guild_template(guild):
 
 def add_guild(guild):
     #autoreact
-    if not any(d['server_id'] == guild.id for d in Store.autoreact):
-        Store.autoreact.append(guild_template(guild))
-        json.dump(Store.autoreact, open('cogs/store/autoreact.json', 'w'), indent=4)
+    if not any(d['server_id'] == guild.id for d in autoreact):
+        autoreact.append(guild_template(guild))
+        json.dump(autoreact, open('cogs/store/autoreact.json', 'w'), indent=4)
 
     #autorole
-    if not any(d['server_id'] == guild.id for d in Store.autorole):
-        Store.autorole.append(guild_template(guild))
-        json.dump(Store.autorole, open('cogs/store/autorole.json', 'w'), indent=4)
+    if not any(d['server_id'] == guild.id for d in autorole):
+        autorole.append(guild_template(guild))
+        json.dump(autorole, open('cogs/store/autorole.json', 'w'), indent=4)
 
     #tags
-    if not any(d['server_id'] == guild.id for d in Store.tags):
-        Store.tags.append(guild_template(guild))
-        json.dump(Store.tags, open('cogs/store/tags.json', 'w'), indent=4)
+    if not any(d['server_id'] == guild.id for d in tags):
+        tags.append(guild_template(guild))
+        json.dump(tags, open('cogs/store/tags.json', 'w'), indent=4)
 
     #quotes
-    if not any(d['server_id'] == guild.id for d in Store.quotes):
-        Store.quotes.append(guild_template(guild))
-        json.dump(Store.quotes, open('cogs/store/quotes.json', 'w'), indent=4)
+    if not any(d['server_id'] == guild.id for d in quotes):
+        quotes.append(guild_template(guild))
+        json.dump(quotes, open('cogs/store/quotes.json', 'w'), indent=4)
 
 
 class Store:

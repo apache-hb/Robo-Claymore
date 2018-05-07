@@ -9,10 +9,9 @@ import os
 import sys
 #this is the current directory
 dir_path = os.path.dirname(os.path.realpath(__file__))
-try:
-    from cogs.store import Store, pyout, qlog, add_guild, reset_config
-except Exception:
-    from cogs.store import pyout, qlog, add_guild, reset_config
+
+from cogs.store import (Store, pyout, qlog,
+add_guild, reset_config, autoreact)
 import traceback
 import glob
 
@@ -237,6 +236,14 @@ async def on_message(message):
     save_stats()
     if await is_direct(message):
         qlog(message.author.name + ' says ' + message.content + '\n')
+
+    for a in autoreact:
+        if message.guild.id == a['server_id']:
+            for b in a['contents']:
+                if b['phrase'].lower() in message.content.lower():
+                    await message.add_reaction(b['react'])
+                    b['meta']['uses']+=1
+                    json.dump(autoreact, open('cogs/store/autoreact.json', 'w'), indent=4)
 
 @bot.after_invoke
 async def after_any_command(ctx):
