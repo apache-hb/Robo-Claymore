@@ -104,6 +104,18 @@ if not os.path.isfile(dir_path + '/cogs/store/config.json'):
     if wolfram:
         wolfram_key = ensure_input('Please input your wolfram alpha id', 'you must enter an id')
 
+    fortnite = ensure_bool_input('Would you like to enable fortnite stats?', 'must be yes or no')
+
+    fortnite_token = launcher_token = fortnite_password = fortnite_email = None
+
+    if fortnite:
+        fortnite_token = ensure_input('Please enter your fortnite token', 'you need to enter a token')
+        launcher_token = ensure_input('please enter your launcher token', 'you must enter a token')
+        fortnite_password = ensure_input('please enter your fortnite password', 'you must enter a psssword')
+        fortnite_email = ensure_input('Please enter the email address linked to your fortnite account', 'you must enter an email')
+
+
+
     #todo
     # google
     # twitter
@@ -126,6 +138,12 @@ if not os.path.isfile(dir_path + '/cogs/store/config.json'):
             "prefix": discord_prefix,
             "activity": discord_activity
         },
+        "fortnite": {
+            "user_token": fortnite_token,
+            "launcher_token": launcher_token,
+            "password": fortnite_password,
+            "email": fortnite_email
+        },
         "wolfram":  {
             "key": wolfram_key
         }
@@ -135,7 +153,7 @@ if not os.path.isfile(dir_path + '/cogs/store/config.json'):
 
     file.close()
     print('Config fully written')
-    print('You can edit this at anytime by either reseting the config and running the wizard again')
+    print('You can edit this at anytime by either reseting the config or running the wizard again')
     print('or you can edit the cofig files directly in cogs/store/config.cfg')
 
 config = json.load(open(dir_path + '/cogs/store/config.json'))

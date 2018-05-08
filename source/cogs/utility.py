@@ -143,11 +143,13 @@ class Utility:
     description = "For extra\'s that don\'t fit in"
     hidden = True
 
+    #TODO: figure out why this doesnt work
+    '''
     @commands.command(name="hastebin")
     async def _hastebin(self, ctx, *, message: str):
         async with aiohttp.ClientSession() as session:#TODO test this
             async with session.post('https://hastebin.com/documents', data=message.encode('utf-8')) as resp:
-                await ctx.send(await resp.text() + await resp.json()['key'])
+                await ctx.send(await resp.text() + await resp.json()['key'])'''
 
     @commands.command(name="charinfo")
     async def _charinfo(self, ctx, *, message: str):
