@@ -39,7 +39,10 @@ class Help:
             description = 'None'
 
         try: usage = target.usage
-        except AttributeError: usage = 'None'
+        except AttributeError: usage = target.signature
+
+        if usage is None:
+            usage = target.signature
 
         if not aliases:
             aliases = ['None']

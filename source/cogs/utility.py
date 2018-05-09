@@ -9,7 +9,8 @@ import aiohttp
 import json
 import unicodedata
 from bs4 import BeautifulSoup
-from random import choice, randint
+import random
+import base64
 
 from .store import (Store,
 style_embed, shorten_url, pyout,
@@ -108,10 +109,10 @@ class Zalgo:
         zalgoized = []
         for letter in source:
             zalgoized.append(letter)
-            zalgo_num = randint(0, zalgo_threshold) + 1
+            zalgo_num = random.radnint(0, zalgo_threshold) + 1
             for _ in range(zalgo_num):
-                zalgoized.append(choice(zalgo_chars))
-        response = choice(zalgo_chars).join(zalgoized)
+                zalgoized.append(random.choice(zalgo_chars))
+        response = random.choice(zalgo_chars).join(zalgoized)
         return response.encode('utf8', 'ignore')
 
 
@@ -120,8 +121,8 @@ class Zalgo:
         newtext = []
         for char in text:
             newtext.append(char)
-            if randint(1, 5) == 1:
-                newtext.append(choice(random_extras))
+            if random.radnint(1, 5) == 1:
+                newtext.append(random.choice(random_extras))
         return u''.join(newtext)
 
     @classmethod
@@ -160,7 +161,7 @@ class Utility:
 
     @commands.command(name="randomcase")
     async def _randomcase(self, ctx, *, message: str):
-        await ctx.send(''.join(choice((str.upper,str.lower))(x) for x in message))
+        await ctx.send(''.join(random.choice((str.upper,str.lower))(x) for x in message))
 
     @commands.command(name="zalgo")
     async def _zalgo(self, ctx, *, text: str=None):
@@ -259,6 +260,8 @@ class Utility:
         except Exception:
             await ctx.send('Cannot print malformed html')
 
+
+
     @commands.group(invoke_without_command=True)
     async def autoreact(self, ctx):
         embed=style_embed(ctx, title='All subcommands for autoreact')
@@ -307,7 +310,6 @@ class Utility:
                         return await ctx.send('Autoreact removed')
         await ctx.send('No Autoreact found')
 
-
     @autoreact.command(name="purge")
     async def _autoreact_purge(self, ctx):
         if not (ctx.guild.owner == ctx.author or self.bot.is_owner(ctx.author.id)):
@@ -338,6 +340,66 @@ class Utility:
                         embed.add_field(name='React', value=b['react'])
                         return await ctx.send(embed=embed)
                 await ctx.send('Nothing found')
+
+    @autoreact.command(name="list")
+    async def _autoreact_list(self, ctx):
+        ret=''
+        for a in autoreact:
+            if a['server_id'] == ctx.guild.id:
+                for b in a['contents']:
+                    ret+='``{}`` is reacted with {}\n'.format(b['phrase'], b['react'])
+                break
+
+        temp = [ret[i:i+1500] for i in range(0, len(ret), 1500)]
+        for c in temp:
+            await ctx.author.send(c)
+        await ctx.send('I have delivered the list to you\'re inbox')
+
+
+
+    @commands.group(invoke_without_command=True)
+    async def quote(self, ctx, index: int=None):
+        pass
+
+    @quote.command(name="add")
+    async def _quote_add(self, ctx, *, message: str):
+        pass
+
+    @quote.command(name="remove")
+    async def _quote_remove(self, ctx, index: int):
+        pass
+
+    @quote.command(name="list")
+    async def _quote_list(self, ctx):
+        pass
+
+    @quote.command(name="info")
+    async def _quote_info(self, ctx, index: int):
+        pass
+
+
+
+    @commands.group(invoke_without_command=True)
+    async def tag(self, ctx, name: str=None):
+        pass
+
+    @tag.command(name="add")
+    async def _tag_add(self, ctx, name: str, *, content: str):
+        pass
+
+    @tag.command(name="remove")
+    async def _tag_remove(self, ctx, name: str):
+        pass
+
+    @tag.command(name="list")
+    async def _tag_list(self, ctx):
+        pass
+
+    @tag.command(name="info")
+    async def _tag_info(self, ctx, name: str):
+        pass
+
+
 
     @commands.group(invoke_without_command=True)
     async def welcome(self, ctx):
@@ -496,6 +558,34 @@ class Utility:
         async with aiohttp.ClientSession() as session:
             async with session.get(api_url, params=params, headers=headers) as resp:
                 print(await resp.text())'''
+
+    @commands.command(name="hash")
+    async def _hash(self, ctx, *, seed: str):
+        await ctx.send(hash(seed))
+
+    @commands.command(name="encrypt")
+    async def _encrypt(self, ctx, password: str, *, message: str):
+        ret = []
+        for a in range(len(message)):
+            key_c = password[a % len(password)]
+            encoded_c = chr(ord(message[a]) + ord(key_c) % 256)
+            ret.append(encoded_c)
+        ret = ''.join(ret)
+        await ctx.send(ret.encode('utf-8'))
+
+    def clamp(self, value, min, max):
+        return max(0, min(value, max))
+    #TODO make this work
+    @commands.command(name="decrypt")
+    async def _decrypt(self, ctx, password: str, *, message: str):
+        message = message.replace(' ', '')
+        ret = []
+        for a in range(len(message)):
+            key_c = password[a % len(password)]
+            encoded_c = self.clamp((ord(message[a]) - ord(key_c) % 256), 0, 64)
+            ret.append(encoded_c)
+        ret = ''.join(ret)
+        await ctx.send(ret.encode('utf-8'))
 
     #TODO make this nice
     @commands.command(name="wolfram")

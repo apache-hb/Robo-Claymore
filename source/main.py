@@ -255,6 +255,9 @@ async def on_message(message):
     if await is_direct(message):
         qlog(message.author.name + ' says ' + message.content + '\n')
 
+    if message.guild is None:
+        return #stop autoreact from triggering in direct messages
+
     for a in autoreact:
         if message.guild.id == a['server_id']:
             for b in a['contents']:

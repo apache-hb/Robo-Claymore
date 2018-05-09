@@ -181,6 +181,10 @@ class Owner:
     async def _echo(self, ctx, *, msg: str):
         await ctx.send(msg)
 
+    @commands.command(name="eval")
+    async def _eval(self, ctx, *, todo: str):
+        await ctx.send(eval(todo))
+
     async def testing(self):
         a = 1
         b = 2
