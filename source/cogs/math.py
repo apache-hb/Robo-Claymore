@@ -4,6 +4,7 @@ from .store import pyout
 
 import mathutils
 import math
+from itertools import cycle
 
 class Math:
     def __init__(self, bot):
@@ -24,6 +25,13 @@ class Math:
 
     @commands.command(name="solve")
     async def _solve(self, ctx, equation: str):
+        temp = []
+        for a in equation:
+            if a in ['+','-','/','*','%','^']:
+                if a:
+                    pass
+            temp.append(a)
+
         if '^' in equation:
             temp = equation.split('^')
             a = float(temp[0])

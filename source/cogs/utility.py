@@ -15,7 +15,7 @@ import base64
 from .store import (Store,
 style_embed, shorten_url, pyout,
 dir_path, is_emoji, config,
-autoreact, autorole)
+autoreact, autorole, is_embedable)
 
 from datetime import datetime
 import time
@@ -369,6 +369,10 @@ class Utility:
     async def _quote_remove(self, ctx, index: int):
         pass
 
+    @quote.command(name="purge")
+    async def _quote_purge(self, ctx):
+        pass
+
     @quote.command(name="list")
     async def _quote_list(self, ctx):
         pass
@@ -389,6 +393,10 @@ class Utility:
 
     @tag.command(name="remove")
     async def _tag_remove(self, ctx, name: str):
+        pass
+
+    @tag.command(name="purge")
+    async def _tag_purge(self, ctx):
         pass
 
     @tag.command(name="list")
@@ -563,33 +571,60 @@ class Utility:
     async def _hash(self, ctx, *, seed: str):
         await ctx.send(hash(seed))
 
-    @commands.command(name="encrypt")
-    async def _encrypt(self, ctx, password: str, *, message: str):
-        ret = []
-        for a in range(len(message)):
-            key_c = password[a % len(password)]
-            encoded_c = chr(ord(message[a]) + ord(key_c) % 256)
-            ret.append(encoded_c)
-        ret = ''.join(ret)
-        await ctx.send(ret.encode('utf-8'))
+    # @commands.command(name="encrypt")
+    # async def _encrypt(self, ctx, password: str, *, message: str):
+    #     ret = []
+    #     for a in range(len(message)):
+    #         key_c = password[a % len(password)]
+    #         encoded_c = chr(ord(message[a]) + ord(key_c) % 256)
+    #         ret.append(encoded_c)
+    #     ret = ''.join(ret)
+    #     await ctx.send(ret.encode('utf-8'))
 
-    def clamp(self, value, min, max):
-        return max(0, min(value, max))
-    #TODO make this work
-    @commands.command(name="decrypt")
-    async def _decrypt(self, ctx, password: str, *, message: str):
-        message = message.replace(' ', '')
-        ret = []
-        for a in range(len(message)):
-            key_c = password[a % len(password)]
-            encoded_c = self.clamp((ord(message[a]) - ord(key_c) % 256), 0, 64)
-            ret.append(encoded_c)
-        ret = ''.join(ret)
-        await ctx.send(ret.encode('utf-8'))
+    # #TODO stop this from breaking
+    # def clamp(self, value, min, max):
+    #     return max(0, min(value, max))
+
+    # #TODO make this work
+    # @commands.command(name="decrypt")
+    # async def _decrypt(self, ctx, password: str, *, message: str):
+    #     message = message.replace(' ', '')
+    #     ret = []
+    #     for a in range(len(message)):
+    #         key_c = password[a % len(password)]
+    #         encoded_c = self.clamp((ord(message[a]) - ord(key_c) % 256), 0, 64)
+    #         ret.append(encoded_c)
+    #     ret = ''.join(ret)
+    #     await ctx.send(ret.decode('utf-8'))
+
+    NASA_URL = 'https://images-api.nasa.gov/search?q={search}'
+
+    @commands.command(name="nasa")
+    async def _nasa(self, ctx, *, search: str='hubble'):
+        async with aiohttp.ClientSession() as session:
+            async with session.get(self.NASA_URL.format(search=search)) as resp:
+                j = json.loads(await resp.text())
+                if not j['collection']['items']:
+                    return await ctx.send('Nothing found for the search {}'.format(search))
+                while True:
+                    try:
+                        a = j['collection']['items'][self.a]
+                        break
+                    except IndexError:
+                        self.a = 0
+                        a = j['collection']['items'][self.a]
+
+                embed=style_embed(ctx,title=a['data'][0]['title'],
+                description='Created at {}'.format(a['data'][0]['date_created']))
+                async with session.get(a['href']) as resp:
+                    z = json.loads(await resp.text())
+                    if is_embedable(z[0]):
+                        embed.set_image(url=z[0])
+                await ctx.send(embed=embed)
 
     #TODO make this nice
     @commands.command(name="wolfram")
-    async def _wolfram(self, ctx, *, query: str=None):
+    async def _wolfram(self, ctx, *, query: str):
         if config['wolfram']['key'] is None:
             return await ctx.send('Wolfram has not been setup on this bot')
 
