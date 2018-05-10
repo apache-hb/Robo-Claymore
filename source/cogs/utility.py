@@ -152,6 +152,13 @@ class Utility:
             async with session.post('https://hastebin.com/documents', data=message.encode('utf-8')) as resp:
                 await ctx.send(await resp.text() + await resp.json()['key'])'''
 
+    @commands.command(name="findreplace")
+    async def _findreplace(self, ctx, find: str, replace: str, *, message: str):
+        try:
+            await ctx.send(message.replace(find, replace))
+        except Exception:
+            await ctx.send('I cannot find and replace that')
+
     @commands.command(name="charinfo")
     async def _charinfo(self, ctx, *, message: str):
         ret=''
