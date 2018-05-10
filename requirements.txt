@@ -1,7 +1,6 @@
 discord.py[voice]
-
 aiofortnite
-
+imageio
 beautifulsoup4==4.5.3
 aiohttp==2.2.5
 mathutils==2.79.1
