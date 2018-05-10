@@ -159,6 +159,19 @@ class Utility:
         except Exception:
             await ctx.send('I cannot find and replace that')
 
+    #TODO a hell of alot of testing
+    @commands.command(name="togif")
+    async def _togif(self, ctx, duration: int,*, message: str):
+        images = []
+        message = message.split(' ').split('\n')
+        async with aiohttp.ClientSession() as session:
+            for link in message:
+                async with session.get(link) as resp:
+                    images.append(imageio.imread(await resp.text()))
+        imageio.mimsave('temp.gif', images)
+        await ctx.send(file=discord.File(open('temp.gif')))
+
+
     @commands.command(name="charinfo")
     async def _charinfo(self, ctx, *, message: str):
         ret=''
