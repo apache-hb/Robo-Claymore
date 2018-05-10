@@ -15,7 +15,8 @@ import base64
 from .store import (Store,
 style_embed, shorten_url, pyout,
 dir_path, is_emoji, config,
-autoreact, autorole, is_embedable)
+autoreact, autorole, is_embedable,
+quotes, tags, whitelist, blacklist)
 
 from datetime import datetime
 import time
@@ -283,6 +284,7 @@ class Utility:
 
 
     @commands.group(invoke_without_command=True)
+    @commands.guild_only()
     async def autoreact(self, ctx):
         embed=style_embed(ctx, title='All subcommands for autoreact')
         c=[]
@@ -293,6 +295,7 @@ class Utility:
         await ctx.send(embed=embed)
 
     @autoreact.command(name="add")
+    @commands.guild_only()
     async def _autoreact_add(self, ctx, *, message: str):
         message = message.split(' ')
         react = message[-1]
@@ -316,6 +319,7 @@ class Utility:
         await ctx.send('``{}`` is now reacted to with ``{}``'.format(phrase, react))
 
     @autoreact.command(name="remove", aliases=['delete', 'subtract'])
+    @commands.guild_only()
     async def _autoreact_remove(self, ctx, *, message: str):
         message = message.split(' ')
         react = message[-1]
@@ -331,6 +335,7 @@ class Utility:
         await ctx.send('No Autoreact found')
 
     @autoreact.command(name="purge")
+    @commands.guild_only()
     async def _autoreact_purge(self, ctx):
         if not (ctx.guild.owner == ctx.author or self.bot.is_owner(ctx.author.id)):
             return await ctx.send('You must be the guild owner to do this')
@@ -342,6 +347,7 @@ class Utility:
         await ctx.send('Autoreacts purged for this guild')
 
     @autoreact.command(name="info")
+    @commands.guild_only()
     async def _autoreact_info(self, ctx, *, message: str):
         message = message.split(' ')
         react = message[-1]
@@ -362,6 +368,7 @@ class Utility:
                 await ctx.send('Nothing found')
 
     @autoreact.command(name="list")
+    @commands.guild_only()
     async def _autoreact_list(self, ctx):
         ret=''
         for a in autoreact:
@@ -382,7 +389,7 @@ class Utility:
         pass
 
     @quote.command(name="add")
-    async def _quote_add(self, ctx, *, message: str):
+    async def _quote_add(self, ctx, name: str, *, message: str):
         pass
 
     @quote.command(name="remove")
@@ -404,26 +411,88 @@ class Utility:
 
 
     @commands.group(invoke_without_command=True)
+    @commands.guild_only()
     async def tag(self, ctx, name: str=None):
         pass
 
     @tag.command(name="add")
+    @commands.guild_only()
     async def _tag_add(self, ctx, name: str, *, content: str):
-        pass
+        for a in tags:
+            if a['server_id'] == ctx.guild.id:
+                if any(d['name'] == name for d in a['contents']):
+                    return await ctx.send('A tag with that name already exists')
+
+                ret = {
+                    'name': name.lower(),
+                    'content': content,
+                    'meta': {
+                        'protected': False,
+                        'time_created': int(time.time()),
+                        'created_by': ctx.author.id,
+                        'created_in': ctx.channel.id,
+                        'uses': 0
+                    }
+                }
+
+                a['contents'].append(ret)
+                json.dump(tags, open('cogs/store/tags.json', 'w'), indent=4)
+                await ctx.send('tag ``{}`` was added'.format(name))
 
     @tag.command(name="remove")
+    @commands.guild_only()
     async def _tag_remove(self, ctx, name: str):
-        pass
+        is_admin = ctx.author.permissions_in(ctx.channel).administrator
+
+        for a in tags:
+            if a['server_id'] == ctx.guild.id:
+                for b in a['contents']:
+                    if name.lower() == b['name']:
+                        if a['meta']['protected']:
+                            if not ctx.author.id in whitelist or self.bot.is_owner(ctx.author.id):
+                                if not is_admin:
+                                    return await ctx.send('this tag is protected, and you don\'t have the permissions to remove it')
+                        a['contents'].remove(b)
+                        json.dump(tags, open('cogs/store/tags.json', 'w'), indent=4)
+                        return await ctx.send('tag ``{}`` was removed'.format(name))
+                await ctx.send('no tag called ``{}`` was found'.format(name))
+
+    @tag.command(name="protect")
+    @commands.guild_only()
+    async def _tag_protect(self, ctx, name: str):
+        if not ctx.author.id in whitelist or self.bot.is_owner(ctx.author.id):
+            if not ctx.author.permissions_in(ctx.channel).administrator:
+                return await ctx.send('You must be an administrator to do this')
+
+        for a in tags:
+            if a['server_id'] == ctx.guild.id:
+                for b in a['contents']:
+                    if b['name'] == name.lower():
+                        b['meta']['protected'] == True
+                        json.dump(tags, open('cogs/store/tags.json', 'w'), indent=4)
+                        return await ctx.send('the tag ``{}`` is now protected'.format(name))
+
 
     @tag.command(name="purge")
+    @commands.guild_only()
     async def _tag_purge(self, ctx):
-        pass
+        if not ctx.author.id in whitelist or self.bot.is_owner(ctx.author.id):
+            if not ctx.author.permissions_in(ctx.channel).administrator:
+                return await ctx.send('You must be an administrator to do this')
+
+        for a in tags:
+            if a['server_id'] == ctx.guild.id:
+                del a['contents'][:]
+                json.dump(tags, open('cogs/store/tags.json', 'w'), indent=4)
+                await ctx.send('all tags have been purged')
 
     @tag.command(name="list")
+    @commands.guild_only()
     async def _tag_list(self, ctx):
         pass
 
     @tag.command(name="info")
+    @commands.guild_only()
     async def _tag_info(self, ctx, name: str):
         pass
 
@@ -590,32 +659,6 @@ class Utility:
     @commands.command(name="hash")
     async def _hash(self, ctx, *, seed: str):
         await ctx.send(hash(seed))
-
-    # @commands.command(name="encrypt")
-    # async def _encrypt(self, ctx, password: str, *, message: str):
-    #     ret = []
-    #     for a in range(len(message)):
-    #         key_c = password[a % len(password)]
-    #         encoded_c = chr(ord(message[a]) + ord(key_c) % 256)
-    #         ret.append(encoded_c)
-    #     ret = ''.join(ret)
-    #     await ctx.send(ret.encode('utf-8'))
-
-    # #TODO stop this from breaking
-    # def clamp(self, value, min, max):
-    #     return max(0, min(value, max))
-
-    # #TODO make this work
-    # @commands.command(name="decrypt")
-    # async def _decrypt(self, ctx, password: str, *, message: str):
-    #     message = message.replace(' ', '')
-    #     ret = []
-    #     for a in range(len(message)):
-    #         key_c = password[a % len(password)]
-    #         encoded_c = self.clamp((ord(message[a]) - ord(key_c) % 256), 0, 64)
-    #         ret.append(encoded_c)
-    #     ret = ''.join(ret)
-    #     await ctx.send(ret.decode('utf-8'))
 
     NASA_URL = 'https://images-api.nasa.gov/search?q={search}'
 
