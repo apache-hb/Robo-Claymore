@@ -1,7 +1,6 @@
 from discord.ext import commands
 from .utils import quick_embed
 import json
-import sys
 
 import aiofortnite
 

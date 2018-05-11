@@ -31,9 +31,9 @@ class Owner:
             title='All whitelisted users',
             description='These people have access to special commands')
         ret = ''
-        if Store.whitelist:
-            for a in Store.whitelist:
-                user = await self.bot.get_user_info(a)
+        if whitelist:
+            for person in whitelist:
+                user = await self.bot.get_user_info(person)
                 ret += '{}#{}:({})\n'.format(user.name, user.discriminator,
                                              user.id)
         else:
@@ -44,27 +44,27 @@ class Owner:
     @whitelist.command(name="add")
     async def _whitelist_add(self, ctx, *, user: discord.Member):
         ret = 'User {} was already in the whitelist'.format(user.name)
-        if user.id not in Store.whitelist:
-            Store.whitelist.append(user.id)
+        if user.id not in whitelist:
+            whitelist.append(user.id)
             json.dump(
-                Store.whitelist,
+                whitelist,
                 open('cogs/store/whitelist.json', 'w'),
                 indent=4)
             ret = 'User {} was added to the whitelist'.format(user.name)
             json.dump(
-                Store.whitelist, open('store/whitelist.json', 'w'), indent=4)
+                whitelist, open('store/whitelist.json', 'w'), indent=4)
         embed = quick_embed(ctx, title='New user added to whitelist')
         embed.add_field(name='User', value=ret)
         await ctx.send(embed=embed)
 
     @whitelist.command(name="remove")
     async def _whitelist_remove(self, ctx, user: discord.Member):
-        if user.id in Store.whitelist:
-            Store.whitelist.remove(user.id)
+        if user.id in whitelist:
+            whitelist.remove(user.id)
             embed = quick_embed(ctx, title='Whitelist removal')
             embed.add_field(name=user.name, value='Was removed from whitelist')
             json.dump(
-                Store.whitelist,
+                whitelist,
                 open('cogs/store/whitelist.json', 'w'),
                 indent=4)
             return await ctx.send(embed=embed)
@@ -83,9 +83,9 @@ class Owner:
             title='All blacklisted users',
             description='These people have been blocked from using me')
         ret = ''
-        if Store.blacklist:
-            for a in Store.blacklist:
-                user = await self.bot.get_user_info(a)
+        if blacklist:
+            for person in blacklist:
+                user = await self.bot.get_user_info(person)
                 ret += '{}#{}:({})\n'.format(user.name, user.discriminator,
                                              user.id)
         else:
@@ -95,12 +95,12 @@ class Owner:
 
     @blacklist.command(name="add")
     async def _blacklist_add(self, ctx, user: discord.Member):
-        if user.id not in Store.blacklist:
-            Store.blacklist.append(user.id)
+        if user.id not in blacklist:
+            blacklist.append(user.id)
             embed = quick_embed(ctx, title='Blacklist addition')
             embed.add_field(name=user.name, value='Was blocked')
             json.dump(
-                Store.blacklist,
+                blacklist,
                 open('cogs/store/blacklist.json', 'w'),
                 indent=4)
             return await ctx.send(embed=embed)
@@ -110,12 +110,12 @@ class Owner:
 
     @blacklist.command(name="remove")
     async def _blacklist_remove(self, ctx, user: discord.Member):
-        if user.id in Store.blacklist:
-            Store.blacklist.remove(user.id)
+        if user.id in blacklist:
+            blacklist.remove(user.id)
             embed = quick_embed(ctx, title='Blacklist removal')
             embed.add_field(name=user.name, value='Was removed from blacklist')
             json.dump(
-                Store.blacklist,
+                blacklist,
                 open('cogs/store/blacklist.json', 'w'),
                 indent=4)
             return await ctx.send(embed=embed)

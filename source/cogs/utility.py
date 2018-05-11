@@ -398,16 +398,16 @@ class Utility:
     @commands.guild_only()
     async def _autoreact_list(self, ctx):
         ret = ''
-        for a in autoreact:
-            if a['server_id'] == ctx.guild.id:
-                for b in a['contents']:
+        for server in autoreact:
+            if server['server_id'] == ctx.guild.id:
+                for content in server['contents']:
                     ret += '``{}`` is reacted with {}\n'.format(
-                        b['phrase'], b['react'])
+                        content['phrase'], content['react'])
                 break
 
-        temp = [ret[i:i + 1500] for i in range(0, len(ret), 1500)]
-        for c in temp:
-            await ctx.author.send(c)
+        messages = [ret[i:i + 1500] for i in range(0, len(ret), 1500)]
+        for message in messages:
+            await ctx.author.send(message)
         await ctx.send('I have delivered the list to you\'re inbox')
 
     @commands.group(invoke_without_command=True)
