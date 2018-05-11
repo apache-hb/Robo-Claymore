@@ -1,12 +1,12 @@
 import discord
 from discord.ext import commands
 
-from .store import style_embed, pyout
+from .utils import quick_embed
 
 class Help:
     def __init__(self, bot):
         self.bot = bot
-        pyout('Cog {} loaded'.format(self.__class__.__name__))
+        print('Cog {} loaded'.format(self.__class__.__name__))
 
     short = "Help me!"
     description = "Retrives a list of commands the bot has that the user can access"
@@ -45,9 +45,9 @@ class Help:
             usage = target.signature
 
         if not aliases:
-            aliases = ['None']
+            aliases = None
 
-        embed = style_embed(ctx, title=target.name, description='Inside cog {}'.format(target.cog_name))
+        embed = quick_embed(ctx, title=target.name, description='Inside cog {}'.format(target.cog_name))
         embed.add_field(name='Description', value=description)
         embed.add_field(name='Aliases', value=', '.join(aliases))
         embed.add_field(name='Usage', value=usage)
@@ -61,7 +61,7 @@ class Help:
         except AttributeError: description = 'None'
 
 
-        embed=style_embed(ctx, title='Information and subcommands in {}'.format(cog),
+        embed=quick_embed(ctx, title='Information and subcommands in {}'.format(cog),
         description=description)
         for command in ctx.bot.get_cog_commands(cog):
             if not command.hidden:
@@ -81,7 +81,7 @@ class Help:
                     ret+=cog+'\n'
             except AttributeError:
                 ret+=cog+'\n'
-        embed=style_embed(ctx, title='All cogs for bot {}'.format(ctx.bot.user.name))
+        embed=quick_embed(ctx, title='All cogs for bot {}'.format(ctx.bot.user.name))
         embed.add_field(name='All cogs', value=ret)
         return embed
 

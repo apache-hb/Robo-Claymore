@@ -1,4 +1,16 @@
 import json
+import sys
+import os
+
+#the bot config will be stored in here
+config = None
+
+stats = None
+
+frames = None
+
+'''
+import json
 
 import sys
 import os
@@ -143,3 +155,4 @@ def is_embedable(url: str):
     url = pathname2url(url)
     mime_type = mime.guess_type(url)
     return mime_type[0] in ['image/jpeg', 'image/png', 'image/gif', 'image/jpg']
+'''

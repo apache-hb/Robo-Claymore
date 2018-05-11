@@ -1,69 +1,71 @@
-#this is empty for now so pip doesnt complain when updating
-#TODO pip is still fucking complaining
-#if you want to run the bot just check inside /source and run the script called runself
-#python3 runself.py
-
 import os
 import json
 
-dir_path = os.path.dirname(os.path.realpath(__file__))
+from source.cogs.store import pyout
 
-os.system('pip3 install -r requirements.txt')
-
-def ensure_file(ensure: str, default: str):
-    if not os.path.isfile(ensure):
+#for making sure a file exists
+#ensure is the name of the file to check for existence
+#default is the default content to preint to it if it doesnt exist
+def ensure_file(ensure: str, default):
+    if not path.isfile(ensure):
         file = open(ensure, 'w')
         file.write(default)
         file.close()
-        return True
-    return False
+        print('File {} was generated'.format(ensure))
 
-if not os.path.exists(os.path.join(dir_path, 'source/cogs/store')):
-    os.mkdir(os.path.join(dir_path, 'source/cogs/store'))
-
-if ensure_file('./source/cogs/store/bot.log', 'logging file \n'):
-    print('logfile was generated')
-
-if ensure_file('./source/cogs/store/direct.log', 'direct messages file \n'):
-    print('direct messages was generated')
-
-statistic_dict = {
-    "messages_processed": 0,
-    "commands_used": 0
+stats = {
+    'total_commands': 0,
+    'total_messages': 0
 }
 
-if ensure_file('./source/cogs/store/statistics.json', json.dumps(statistic_dict, indent=4)):
-    print('statistics file was generated')
+print('''
++---------------------------------------------------------------+
+|   welcome to the setup for robo claymore                      |
+|   the discord token and prefix are the only mandatory inputs  |
+|   all the other tokens can be skipped by entering nothing     |
++---------------------------------------------------------------+
+''')
 
-if ensure_file('./source/cogs/store/symbiosis.json', '[]'):
-    print('symbiosis file was generated')
+config = {
+    'discord': {
+        'token': input('input discord token\n'),
+        'prefix': input('input discord prefix\n'),
+        'activity': input('input default discord activity\n'),
+        'description': input('input bot description\n')
+    },
+    'fortnite': {
+        'launcher_token': input('input fortnite launcher token\n'),
+        'user_token': input('input fortnite user token\n'),
+        'password': input('input fortnite password\n'),
+        'email': input('input fortnite email\n')
+    },
+    'wolfram': {
+        'key': input('input wolfram key\n')
+    }
+}
 
-if ensure_file('./source/cogs/store/tags.json', '[]'):
-    print('tags file was generated')
+#TODO there must be a way to do this with reflection
+store_files = [
+    {'name': 'tag','default': '[]'},
+    {'name': 'quote','default': '[]'},
+    {'name': 'autoreact','default': '[]'},
+    {'name': 'leave','default': '[]'},
+    {'name': 'join','default': '[]'},
+    {'name': 'autorole','default': '[]'},
+    {'name': 'blocked','default': '[]'},
+    {'name': 'whitelist','default': '[]'},
+    {'name': 'blacklist','default': '[]'},
+    {'name': 'config','default': json.dumps(config, indent=4)},
+    {'name': 'stats', 'default': json.dumps(stats, indent=4)}
+]
 
-if ensure_file('./source/cogs/store/quotes.json', '[]'):
-    print('quotes file was generated')
+if not os.path.isdir('source/cogs/store'):
+    os.mkdir('source/cogs/store')
+    print('store file was made')
 
-if ensure_file('./source/cogs/store/autoreact.json', '[]'):
-    print('autoreact file was generated')
-
-if ensure_file('./source/cogs/store/autorole.json', '[]'):
-    print('autorole file was generated')
-
-if ensure_file('./source/cogs/store/disabled.json', '[]'):
-    print('disabled file was generated')
-
-if ensure_file('./source/cogs/store/blacklist.json', '[]'):
-    print('blacklist file was generated')
-
-if ensure_file('./source/cogs/store/blocked.json', '[]'):
-    print('blocked file was generated')
-
-if ensure_file('./source/cogs/store/whitelist.json', '[]'):
-    print('whitelist file was generated')
-
-if ensure_file('./source/cogs/store/welcome.json', '[]'):
-    print('welcome file was generated')
-
-if ensure_file('./source/cogs/store/leave.json', '[]'):
-    print('leave file was generated')
+for a in store_files:
+    if not os.path.isfile('source/cogs/store/' + a['name'] + '.json'):
+        file = open('source/cogs/store/' + a['name'] + '.json', 'w')
+        file.write(a['default'])
+        file.close()
+        print('{} file was generated'.format(a['name']))

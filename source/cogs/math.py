@@ -1,6 +1,5 @@
 import discord
 from discord.ext import commands
-from .store import pyout
 
 import mathutils
 import math
@@ -25,37 +24,40 @@ class Math:
 
     @commands.command(name="simplesolve")
     async def _simplesolve(self, ctx, equation: str):
-        ret=0
-
         if not set(['^', '**']).isdisjoint(equation):
             equation = equation.split('^')
-            for a in equation:
-                ret**=a
+            ret = float(equation[0])
+            for a in equation[1:]:
+                ret**=float(a)
             return await ctx.send(ret)
 
         elif '+' in equation:
             equation = equation.split('+')
-            for a in equation:
-                ret+=a
+            ret = float(equation[0])
+            for a in equation[1:]:
+                ret+=float(a)
             return await ctx.send(ret)
 
         elif '-' in equation:
             equation = equation.split('-')
-            for a in equation:
-                ret-=a
+            ret = float(equation[0])
+            for a in equation[1:]:
+                ret-=float(a)
             return await ctx.send(ret)
 
         elif '*' in equation:
             equation = equation.split('*')
-            for a in equation:
-                ret*=a
+            ret = float(equation[0])
+            for a in equation[1:]:
+                ret*=float(a)
             return await ctx.send(ret)
-        
+
         elif '/' in equation:
             equation = equation.split('/')
-            for a in equation:
-                ret/=a
-            return await ctx.send(a)
+            ret = float(equation[0])
+            for a in equation[1:]:
+                ret/=float(a)
+            return await ctx.send(ret)
 
         else:
             return await ctx.send('must be simple\none operation type per calculation')
