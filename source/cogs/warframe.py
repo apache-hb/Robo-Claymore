@@ -1,6 +1,7 @@
 from discord.ext import commands
 
-from .store import style_embed, pyout, Store
+from .store import frames
+from .utils import quick_embed
 
 import time
 import json
@@ -9,14 +10,14 @@ import aiohttp
 class Warframe:
     def __init__(self, bot):
         self.bot = bot
-        pyout('Cog {} loaded'.format(self.__class__.__name__))
+        print('Cog {} loaded'.format(self.__class__.__name__))
 
     short = "Warframe info"
     description = "Get info about an item or event in warframe"
 
     @commands.group(invoke_without_command=True)
     async def warframe(self, ctx):
-        embed=style_embed(ctx, title='All warframe subcommands')
+        embed=quick_embed(ctx, title='All warframe subcommands')
         for a in self.warframe.walk_commands():
             embed.add_field(name=a.name, value=a.brief)
         await ctx.send(embed=embed)
@@ -30,7 +31,7 @@ class Warframe:
                 if not j:
                     return await ctx.send('Nothing with the name {} found'.format(item))
 
-                embed=style_embed(ctx, title='Info about {}'.format(item))
+                embed=quick_embed(ctx, title='Info about {}'.format(item))
                 a = []
                 for f in j:
                     a.append(f['name'])
@@ -100,7 +101,7 @@ class Warframe:
                 if not j:
                     return await ctx.send('Nothing with the name {item} found'.format(item=item))
 
-                embed=style_embed(ctx, title='Information about {}'.format(item))
+                embed=quick_embed(ctx, title='Information about {}'.format(item))
 
                 a=-1
                 for loc in j:
@@ -116,14 +117,14 @@ class Warframe:
     @warframe.command(name="frameinfo",
     brief="Get info and stats about a certain frame")
     async def _frameinfo(self, ctx, *, target: str):
-        for frame in Store.frames:
+        for frame in frames:
             if target.lower() in frame['regex']:
                 try:
                     color = frame['color']
                 except KeyError:
                     color = ctx.guild.me.color
 
-                embed=style_embed(ctx, title='Info about {}'.format(frame['name']),
+                embed=quick_embed(ctx, title='Info about {}'.format(frame['name']),
                 description=frame['url'],
                 color=color)
                 embed.add_field(name='Min/Max Health', value=frame['health'])
@@ -162,7 +163,7 @@ class Warframe:
         async with aiohttp.ClientSession() as session:
             async with session.get('https://api.warframestat.us/pc/sortie') as resp:
                 j = json.loads(await resp.text())
-                embed = style_embed(ctx, title='Todays sorties')
+                embed = quick_embed(ctx, title='Todays sorties')
                 b=0
                 for a in j['variants']:
                     b+=1
@@ -181,7 +182,7 @@ class Warframe:
         async with aiohttp.ClientSession() as session:
             async with session.get('https://api.warframestat.us/pc/alerts') as resp:
                 j = json.loads(await resp.text())
-                embed = style_embed(ctx, title='Currently running alerts')
+                embed = quick_embed(ctx, title='Currently running alerts')
                 b=0
                 for a in j:
                     b+=1
@@ -204,7 +205,7 @@ class Warframe:
         async with aiohttp.ClientSession() as session:
             async with session.get('https://api.warframestat.us/pc/voidTrader') as resp:
                 j = json.loads(await resp.text())
-                embed = style_embed(ctx, title='Current Baro Ki\'Teer info')
+                embed = quick_embed(ctx, title='Current Baro Ki\'Teer info')
                 if not j['active']:
                     embed.add_field(name='BaroKi\'teer', value='Is currently not visiting, he will be back in {}'.format(
                         j['startString']
@@ -220,7 +221,7 @@ class Warframe:
         async with aiohttp.ClientSession() as session:
             async with session.get('https://api.warframestat.us/pc/dailyDeals') as resp:
                 j = json.loads(await resp.text())
-                embed = style_embed(ctx, title='Current Darvo Deal',
+                embed = quick_embed(ctx, title='Current Darvo Deal',
                 description='Could i interest you in some half price life support?')
                 embed.add_field(name='Item', value=j[0]['item'])
                 embed.add_field(name='Discount',
@@ -240,7 +241,7 @@ class Warframe:
         async with aiohttp.ClientSession() as session:
             async with session.get('https://api.warframestat.us/pc/cetusCycle') as resp:
                 j = json.loads(await resp.text())
-                embed=style_embed(ctx, title='Current cetus time',
+                embed=quick_embed(ctx, title='Current cetus time',
                 description='Taken from https://api.warframestat.us/pc/cetusCycle')
                 embed.add_field(name='Time', value=j['isDay'])
                 embed.add_field(name='Cycle ID', value=j['id'])

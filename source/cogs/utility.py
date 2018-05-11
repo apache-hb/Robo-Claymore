@@ -12,11 +12,9 @@ from bs4 import BeautifulSoup
 import random
 import base64
 
-from .store import (Store,
-style_embed, shorten_url, pyout,
-dir_path, is_emoji, config,
-autoreact, autorole, is_embedable,
-quotes, tags, whitelist, blacklist)
+from .utils import quick_embed, shorten_url, is_emoji
+
+from .store import (config, quotes, tags, whitelist, blacklist)
 
 from datetime import datetime
 import time
@@ -77,7 +75,7 @@ emoji_dict = {
 class Wolfram:
     def __init__(self, key):
         self.key = key
-        pyout('Wolfram loaded')
+        print('Wolfram loaded')
 
     async def query(self, question, params=(), **kwargs):
         data = dict(
@@ -146,12 +144,12 @@ class Utility:
     hidden = True
 
     #TODO: figure out why this doesnt work
-    '''
+
     @commands.command(name="hastebin")
     async def _hastebin(self, ctx, *, message: str):
         async with aiohttp.ClientSession() as session:#TODO test this
             async with session.post('https://hastebin.com/documents', data=message.encode('utf-8')) as resp:
-                await ctx.send(await resp.text() + await resp.json()['key'])'''
+                await ctx.send(await resp.text() + await resp.json()['key'])
 
     @commands.command(name="findreplace")
     async def _findreplace(self, ctx, find: str, replace: str, *, message: str):
@@ -286,7 +284,7 @@ class Utility:
     @commands.group(invoke_without_command=True)
     @commands.guild_only()
     async def autoreact(self, ctx):
-        embed=style_embed(ctx, title='All subcommands for autoreact')
+        embed=quick_embed(ctx, title='All subcommands for autoreact')
         c=[]
         for a in self.autoreact.walk_commands():
             if not a.name in c:#prevent duplicates
@@ -357,7 +355,7 @@ class Utility:
             if a['server_id'] == ctx.guild.id:
                 for b in a['contents']:
                     if b['phrase'].lower() == phrase.lower() and b['react'] == react:
-                        embed = style_embed(ctx, title='Autoreact info')
+                        embed = quick_embed(ctx, title='Autoreact info')
                         embed.add_field(name='Times used', value=str(b['meta']['uses']))
                         embed.add_field(name='Created in', value=self.bot.get_channel(b['meta']['created_in']).name)
                         embed.add_field(name='Created by', value=self.bot.get_user(b['meta']['created_by']).name)
@@ -547,7 +545,7 @@ class Utility:
                         post = j['list'][self.a]
                         break
 
-                embed=style_embed(ctx, title='Definition of {}'.format(post['word']),
+                embed=quick_embed(ctx, title='Definition of {}'.format(post['word']),
                 description='Posted by {}'.format(post['author']))
                 embed.add_field(name='Description', value=post['definition'])
                 embed.add_field(name='Example', value=post['example'])
@@ -560,7 +558,7 @@ class Utility:
 
     @commands.command(name="credits", aliases=['credit'])
     async def _credits(self, ctx):
-        embed=style_embed(ctx,title='The services I use')
+        embed=quick_embed(ctx,title='The services I use')
         embed.add_field(name='Wolfram alpha api', value='')
         embed.add_field(name='Warframe api', value='')
         embed.add_field(name='Reddit api', value='')
@@ -570,7 +568,7 @@ class Utility:
     async def _userinfo(self, ctx, user: discord.Member=None):
         if user is None:
             user = ctx.message.author
-        embed=style_embed(ctx, title='Info about {}'.format(
+        embed=quick_embed(ctx, title='Info about {}'.format(
             user.name+'#'+user.discriminator+' - ('+user.display_name+')'
         ), description='ID: {}'.format(user.id))
         embed.set_thumbnail(url=user.avatar_url)
@@ -592,11 +590,11 @@ class Utility:
 
     @commands.command(name="selfinfo", aliases=['me'])
     async def _selfinfo(self, ctx):
-        await ctx.invoke(ctx.bot.get_command("userinfo"))
+        await ctx.invoke(self.bot.get_command("userinfo"))
 
     @commands.command(name="serverinfo")
     async def _serverinfo(self, ctx):
-        embed=style_embed(ctx, title='Server information about {}'.format(ctx.guild.name),
+        embed=quick_embed(ctx, title='Server information about {}'.format(ctx.guild.name),
         description='ID: {}'.format(ctx.guild.id))
         now = datetime.now()
         diffrence = now - ctx.guild.created_at
@@ -613,7 +611,7 @@ class Utility:
 
     @commands.command(name="botinfo")
     async def _botinfo(self, ctx):
-        embed=style_embed(ctx, title='Info about me, {}'.format(ctx.bot.user.name))
+        embed=quick_embed(ctx, title='Info about me, {}'.format(self.bot.user.name))
         embed.add_field(name='Working directory', value=dir_path)
         embed.set_thumbnail(url=self.bot.user.avatar_url)
         embed.add_field(name='discord.py version', value=discord.__version__)
@@ -677,7 +675,7 @@ class Utility:
                         self.a = 0
                         a = j['collection']['items'][self.a]
 
-                embed=style_embed(ctx,title=a['data'][0]['title'],
+                embed=quick_embed(ctx,title=a['data'][0]['title'],
                 description='Created at {}'.format(a['data'][0]['date_created']))
                 async with session.get(a['href']) as resp:
                     z = json.loads(await resp.text())
@@ -697,7 +695,7 @@ class Utility:
                 for subobject in child:
                     for subsubobject in subobject:
                         if subsubobject.tag == 'plaintext':
-                            embed=style_embed(ctx, title='From wolfram alpha',
+                            embed=quick_embed(ctx, title='From wolfram alpha',
                             description='Awnser to the question {}'.format(query))
                             embed.add_field(name='Awnser', value=subsubobject.text)
                             return await ctx.send(embed=embed)

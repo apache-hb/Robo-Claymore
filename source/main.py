@@ -8,13 +8,11 @@ import aiohttp
 import discord
 from discord.ext import commands
 
-from cogs.store import config, stats, frames
+from cogs.store import (
+    config, stats, frames,
+    whitelist, blacklist)
 
 __version__ = '0.0.1.4a'
-
-#its better to just load them here instead of in store
-stats = json.load(open('cogs/store/stats.json'))
-config = json.load(open('cogs/store/config.json'))
 
 bot = commands.Bot(
     command_prefix=config['discord']['prefix'],
@@ -29,14 +27,22 @@ async def on_ready():
         async with session.get('https://api.warframestat.us/warframes') as resp:
             print('warframe data aquired')
             frames = json.loads(await resp.text())
-    print('\n+----------------------------------')
-    print('|my name is: {}#{}'.format(bot.user.name, bot.user.discriminator))
-    print('|my id is: {}'.format(bot.user.id))
-    print('+----------------------------------')
-    print('\nrunning with {} of the discord.py library'.format(discord.__version__))
-    print('bot version: {}'.format(__version__))
-    print('bot ready')
-
+    print('''
+--------------------------------------
+my name is: {name}#{discrim}
+my id is: {id}
+invite me with: https://discordapp.com/oauth2/authorize?client_id={id}&scope=bot&permissions=66321471
+--------------------------------------
+running with version {discord} of discord.py
+bot version: {bot}
+bot ready
+    '''.format(
+        name=bot.user.name,
+        discrim=bot.user.discriminator,
+        id=bot.user.id,
+        discord=discord.__version__,
+        bot=__version__
+    ))
 
 @bot.event
 async def on_message(message):
@@ -81,8 +87,7 @@ if __name__ == '__main__':
             print(e)
             failed_cogs.append(cog)
     if failed_cogs:
-        print('these cogs failed')
-        print('\n'.join(failed_cogs))
+        print('these cogs failed\n','\n'.join(failed_cogs))
     else:
         print('all cogs loaded successfully')
 

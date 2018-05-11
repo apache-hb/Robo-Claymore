@@ -67,3 +67,4 @@ for a in store_files:
         file.write(a['default'])
         file.close()
         print('{} file was generated'.format(a['name']))
+json.dump(config, open('source/cogs/store/config.json', 'w'), indent=4)

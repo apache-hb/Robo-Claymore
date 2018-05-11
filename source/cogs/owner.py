@@ -1,36 +1,36 @@
 import discord
 from discord.ext import commands
+from ast import literal_eval
 
 import inspect
 import json
 import emoji as e
-from .store import Store, style_embed, pyout, add_guild, reset_config
+from .store import whitelist, blacklist
+from .utils import quick_embed, can_override
 
 class Owner:
     def __init__(self, bot):
         self.bot = bot
-        pyout('Cog {} loaded'.format(self.__class__.__name__))
+        print('Cog {} loaded'.format(self.__class__.__name__))
 
     short = "Owner commands"
     description = "Only the owner of the bot and whitelisted users can use these commands"
     hidden = True
 
     async def __local_check(self, ctx):
-        if ctx.bot.is_owner(ctx.author.id):
-            return True
-        elif ctx.author.id in Store.whitelist:
+        if can_override(ctx.author.id):
             return True
         await ctx.send('Go away')
         return False
 
     @commands.group(invoke_without_command=True)
     async def whitelist(self, ctx):
-        embed = style_embed(ctx, title='All whitelisted users',
+        embed = quick_embed(ctx, title='All whitelisted users',
         description='These people have access to special commands')
         ret=''
         if Store.whitelist:
             for a in Store.whitelist:
-                user = await ctx.bot.get_user_info(a)
+                user = await self.bot.get_user_info(a)
                 ret+='{}#{}:({})\n'.format(user.name, user.discriminator, user.id)
         else:
             ret='There are no whitelisted users'
@@ -45,7 +45,7 @@ class Owner:
             json.dump(Store.whitelist, open('cogs/store/whitelist.json', 'w'), indent=4)
             ret='User {} was added to the whitelist'.format(user.name)
             json.dump(Store.whitelist, open('store/whitelist.json', 'w'), indent=4)
-        embed=style_embed(ctx, title='New user added to whitelist')
+        embed=quick_embed(ctx, title='New user added to whitelist')
         embed.add_field(name='User', value=ret)
         await ctx.send(embed=embed)
 
@@ -53,23 +53,23 @@ class Owner:
     async def _whitelist_remove(self, ctx, user: discord.Member):
         if user.id in Store.whitelist:
             Store.whitelist.remove(user.id)
-            embed=style_embed(ctx, title='Whitelist removal')
+            embed=quick_embed(ctx, title='Whitelist removal')
             embed.add_field(name=user.name, value='Was removed from whitelist')
             json.dump(Store.whitelist, open('cogs/store/whitelist.json', 'w'), indent=4)
             return await ctx.send(embed=embed)
-        embed=style_embed(ctx, title='Whitelist')
+        embed=quick_embed(ctx, title='Whitelist')
         embed.add_field(name=user.name,
         value='Cannot be removed from whitelist, because they are not in the whitelist')
         await ctx.send(embed=embed)
 
     @commands.group(invoke_without_command=True)
     async def blacklist(self, ctx):
-        embed = style_embed(ctx, title='All blacklisted users',
+        embed = quick_embed(ctx, title='All blacklisted users',
         description='These people have been blocked from using me')
         ret=''
         if Store.blacklist:
             for a in Store.blacklist:
-                user = await ctx.bot.get_user_info(a)
+                user = await self.bot.get_user_info(a)
                 ret+='{}#{}:({})\n'.format(user.name, user.discriminator, user.id)
         else:
             ret='There are no blacklisted users'
@@ -80,11 +80,11 @@ class Owner:
     async def _blacklist_add(self, ctx, user: discord.Member):
         if not user.id in Store.blacklist:
             Store.blacklist.append(user.id)
-            embed=style_embed(ctx, title='Blacklist addition')
+            embed=quick_embed(ctx, title='Blacklist addition')
             embed.add_field(name=user.name, value='Was blocked')
             json.dump(Store.blacklist, open('cogs/store/blacklist.json', 'w'), indent=4)
             return await ctx.send(embed=embed)
-        embed=style_embed(ctx, title='Blacklist')
+        embed=quick_embed(ctx, title='Blacklist')
         embed.add_field(name=user.name, value='Was already blacklisted')
         return await ctx.send(embed=embed)
 
@@ -92,11 +92,11 @@ class Owner:
     async def _blacklist_remove(self, ctx, user: discord.Member):
         if user.id in Store.blacklist:
             Store.blacklist.remove(user.id)
-            embed=style_embed(ctx, title='Blacklist removal')
+            embed=quick_embed(ctx, title='Blacklist removal')
             embed.add_field(name=user.name, value='Was removed from blacklist')
             json.dump(Store.blacklist, open('cogs/store/blacklist.json', 'w'), indent=4)
             return await ctx.send(embed=embed)
-        embed=style_embed(ctx, title='Blacklist')
+        embed=quick_embed(ctx, title='Blacklist')
         embed.add_field(name=user.name,
         value='Cannot be removed from blacklist, because they are not in the blacklist')
         await ctx.send(embed=embed)
@@ -120,7 +120,7 @@ class Owner:
         elif mode.lower() == 'streaming':
             activity=discord.Streaming(name=name, url='BONELESS')
 
-        await ctx.bot.change_presence(activity=activity)
+        await self.bot.change_presence(activity=activity)
         await ctx.send('Changed presence to {}'.format(name.split()[1:]))
 
     @commands.command(name="setname")
@@ -129,7 +129,7 @@ class Owner:
 
     @commands.command(name="invite")
     async def _invite(self, ctx):
-        await ctx.send('https://discordapp.com/oauth2/authorize?client_id={}&scope=bot&permissions=66321471'.format(ctx.bot.user.id))
+        await ctx.send('https://discordapp.com/oauth2/authorize?client_id={}&scope=bot&permissions=66321471'.format(self.bot.user.id))
 
     @commands.command(name="massdm")
     async def _massdm(self, ctx, *, message: str='Good day fleshy mammal'):
@@ -146,8 +146,8 @@ class Owner:
 
     @commands.command(name="serverlist")
     async def _serverlist(self, ctx):
-        embed=style_embed(ctx, title='First 25 servers')
-        for guild in ctx.bot.guilds[:25]:
+        embed=quick_embed(ctx, title='First 25 servers')
+        for guild in self.bot.guilds[:25]:
             try:
                 embed.add_field(name='{}#{}'.format(guild.name, guild.id), value=guild.create_invite(unique=False))
             except Exception:
@@ -183,7 +183,7 @@ class Owner:
 
     @commands.command(name="eval")
     async def _eval(self, ctx, *, todo: str):
-        await ctx.send(eval(todo))
+        await ctx.send(literal_eval(todo))
 
     async def testing(self):
         a = 1

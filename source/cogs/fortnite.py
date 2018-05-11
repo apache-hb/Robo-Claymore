@@ -1,10 +1,7 @@
-import discord
 from discord.ext import commands
-from .store import Store, style_embed, pyout
+from .utils import quick_embed
 import json
 import sys
-if Store.current_system == 'mac':
-    sys.path.append('usr/local/lib/python3.6/site-packages')
 
 import aiofortnite
 
@@ -19,13 +16,15 @@ class Fortnite:
                 launcher_token=self.config['fortnite']['launcher_token'],
                 fortnite_token=self.config['fortnite']['fortnite_token']
             )
+            self.hidden = False
         except Exception:
-            pyout('Fortnite didnt load')
-        print('Cog {} loaded'.format(self.__class__.__name__))
+            print('Fortnite didnt load')
+            self.hidden = True
+        else:
+            print('Cog {} loaded'.format(self.__class__.__name__))
 
     short = "Fortnite information"
     description = "Get information about players and store sales"
-    hidden = True
 
     @commands.group(invoke_without_command=True)
     async def fortnite(self, ctx):
@@ -34,7 +33,7 @@ class Fortnite:
     @fortnite.command(name="playerinfo")
     async def _playerinfo(self, ctx, *, name: str):
         info = await self.client.get_user(name)
-        embed = style_embed(ctx, title='Info about {}'.format(info.username))
+        embed = quick_embed(ctx, title='Info about {}'.format(info.username))
         embed.add_field(name='User id', value=str(info.id))
         stats = await info.stats.get()
         embed.add_field(name='Solo stats', value='Score: {score}\nMatches: {matches}\nTop 12: {top12}\n Wins: {wins}\nTime:{time}\nTop 5: {top5}\nKills: {kills}'.format(
@@ -81,7 +80,7 @@ class Fortnite:
 
     @fortnite.command(name="news")
     async def _news(self, ctx):
-        embed=style_embed(ctx, title='Latest fortnite news')
+        embed=quick_embed(ctx, title='Latest fortnite news')
         async for news in self.client.get_news()[:3]:
             embed.add_field(name=news.title, value=news.body, inline=False)
         await ctx.send(embed=embed)
@@ -98,7 +97,7 @@ class Fortnite:
     @fortnite.command(name="leaderboard")
     async def _leaderboard(self, ctx):
         board = await self.client.get_leaderboards()
-        embed=style_embed(ctx, title='Fortnite leaderboards')
+        embed=quick_embed(ctx, title='Fortnite leaderboards')
         for user in board:
             if user:
                 embed.add_field(name=user.name, value='{}:{}'.format(user.value, user.rank),inline=False)

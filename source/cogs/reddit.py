@@ -1,15 +1,13 @@
 from discord.ext import commands
-from .store import pyout, style_embed, is_embedable, shorten_url, dir_path
+from .utils import quick_embed
 
 import aiohttp
 import json
 
-config = json.load(open(dir_path + '/store/config.json'))
-
 class Reddit:
     def __init__(self, bot):
         self.bot = bot
-        pyout('Cog {} loaded'.format(self.__class__.__name__))
+        print('Cog {} loaded'.format(self.__class__.__name__))
 
     short = "reddit interface"
     description = "Read posts from anywhere on reddit"
@@ -47,7 +45,7 @@ class Reddit:
                 if post['data']['over_18'] and not ctx.channel.is_nsfw():
                     return await ctx.send('That post is nsfw, and must be requested in an nsfw channel')
 
-                embed=style_embed(ctx, title='Post from {}'.format(target),
+                embed=quick_embed(ctx, title='Post from {}'.format(target),
                 description='Posted by {}'.format(post['data']['author']))
 
                 embed.add_field(name='Link', value=await shorten_url(post['data']['url']))

@@ -3,11 +3,19 @@ import sys
 import os
 
 #the bot config will be stored in here
-config = None
+config = json.load(open('cogs/store/config.json'))
 
-stats = None
+stats = json.load(open('cogs/store/stats.json'))
 
 frames = None
+
+blacklist = json.load(open('cogs/store/blacklist.json'))
+
+whitelist = json.load(open('cogs/store/whitelist.json'))
+
+quotes = None
+
+tags = None
 
 '''
 import json

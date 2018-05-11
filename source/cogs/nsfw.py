@@ -1,5 +1,6 @@
 from discord.ext import commands
-from .store import style_embed, is_embedable, shorten_url, pyout, Store
+from .utils import quick_embed, is_embedable, shorten_url
+from .store import whitelist
 
 from defusedxml.ElementTree import fromstring
 import json
@@ -10,10 +11,10 @@ class Nsfw:
 		self.danbooru_thumbnail = 'https://tinyurl.com/ya9ug3la'
 		self.bot = bot
 		self.a = 0
-		pyout('Cog {} loaded'.format(self.__class__.__name__))
+		print('Cog {} loaded'.format(self.__class__.__name__))
 
 	async def __local_check(self, ctx):
-		if ctx.bot.is_owner(ctx.author.id):
+		if self.bot.is_owner(ctx.author.id):
 			return True
 		if ctx.author.id in Store.whitelist: #for some reason doesnt work with an or statement
 			return True #todo debug that
@@ -58,7 +59,7 @@ class Nsfw:
 						except IndexError:
 							self.a = 0
 
-					embed=style_embed(ctx, title='A post from danbooru',
+					embed=quick_embed(ctx, title='A post from danbooru',
 					description='Posted by {}'.format(
 						post['uploader_name']
 					))
@@ -109,7 +110,7 @@ class Nsfw:
 					tags = info['tags']
 					file_url = info['file_url']
 
-					embed=style_embed(ctx, title='Image from gelbooru')
+					embed=quick_embed(ctx, title='Image from gelbooru')
 					embed.add_field(name='Image source', value=await shorten_url(file_url))
 
 					if is_embedable(url=file_url):
@@ -148,7 +149,7 @@ class Nsfw:
 						except IndexError:
 							self.a = 0
 
-					embed=style_embed(ctx, title='A post from gelbooru',
+					embed=quick_embed(ctx, title='A post from gelbooru',
 					description='Posted by {}'.format(post['owner']))
 
 					tags = post['tags'].split(' ')

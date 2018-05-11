@@ -1,19 +1,19 @@
 import discord
 from discord.ext import commands
 
-from .store import pyout, Store
+from .utils import can_override
 
 class Admin:
     def __init__(self, bot):
         self.bot = bot
-        pyout('Cog {} loaded'.format(self.__class__.__name__))
+        print('Cog {} loaded'.format(self.__class__.__name__))
 
     @commands.command(name="kick")
     async def _kick(self, ctx, user: discord.Member):
         is_admin = ctx.author.permissions_in(ctx.channel).kick_members
         isTadmin = user.permissions_in(ctx.channel).administrator
 
-        if ctx.author.id in Store.whitelist or self.bot.is_owner(ctx.author.id):
+        if can_override(self.bot, ctx.author.id):
             is_admin = True
 
         if not is_admin:
@@ -28,7 +28,7 @@ class Admin:
         if user.id == self.bot.user.id:
             return await ctx.send('I\'m not going to kick myself')
 
-        if self.bot.is_owner(user.id) or user.id in Store.whitelist:
+        if can_override(self.bot, user.id):
             return await ctx.send('I don\'t want to kick them')
 
         try:
@@ -43,7 +43,7 @@ class Admin:
         is_admin = ctx.author.permissions_in(ctx.channel).ban_members
         isTadmin = user.permissions_in(ctx.channel).administrator
 
-        if ctx.author.id in Store.whitelist or self.bot.is_owner(ctx.author.id):
+        if can_override(self.bot, ctx.author.id):
             is_admin = True
 
         if not is_admin:
@@ -55,7 +55,7 @@ class Admin:
         if user.id == self.bot.user.id:
             return await ctx.send('I can\'t ban myself')
 
-        if self.bot.is_owner(user.id) or user.id in Store.whitelist:
+        if can_override(self.bot, user.id):
             return await ctx.send('I don\'t want to ban them')
 
         try:
@@ -69,7 +69,7 @@ class Admin:
     async def _prune(self, ctx, amt: int=5):
         is_admin = ctx.author.permissions_in(ctx.channel).manage_messages
 
-        if ctx.author.id in Store.whitelist or self.bot.is_owner(ctx.author.id):
+        if can_override(self.bot, ctx.author.id):
             is_admin = True
 
         if not is_admin:
