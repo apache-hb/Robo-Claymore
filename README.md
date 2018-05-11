@@ -1,4 +1,4 @@
-[![Codacy Badge](https://tinyurl.com/yb5fp542)
+[![Codacy Badge](https://tinyurl.com/yb5fp542)]
 [![Discord Server](https://discordapp.com/api/guilds/441399366000050197/widget.png?style=shield)](https://tinyurl.com/claybot)
 
 # Robo Claymore
