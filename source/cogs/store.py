@@ -5,7 +5,7 @@ config = json.load(open('cogs/store/config.json'))
 
 stats = json.load(open('cogs/store/stats.json'))
 
-frames = None
+FRAMES = None
 
 blacklist = json.load(open('cogs/store/blacklist.json'))
 
@@ -123,7 +123,7 @@ class Store:
 
     default_color = 0xe00b3c
 
-    frames = []
+    FRAMES = []
 
 tags = json.load(open(dir_path + '/store/tags.json'))
 

@@ -1,6 +1,6 @@
 from discord.ext import commands
 
-from .store import frames
+from .store import FRAMES
 from .utils import quick_embed
 
 import time
@@ -163,7 +163,7 @@ class Warframe:
     @warframe.command(
         name="frameinfo", brief="Get info and stats about a certain frame")
     async def _frameinfo(self, ctx, *, target: str):
-        for frame in frames:
+        for frame in FRAMES:
             if target.lower() in frame['regex']:
                 try:
                     color = frame['color']

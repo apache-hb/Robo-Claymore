@@ -7,7 +7,7 @@ import aiohttp
 import discord
 from discord.ext import commands
 
-from cogs.store import (config, stats, frames, whitelist, blacklist)
+from cogs.store import (config, stats, FRAMES, whitelist, blacklist)
 
 __version__ = '0.0.1.4a'
 
@@ -24,7 +24,7 @@ async def on_ready():
         async with session.get(
                 'https://api.warframestat.us/warframes') as resp:
             print('warframe data aquired')
-            frames = json.loads(await resp.text())
+            FRAMES = json.loads(await resp.text())
     print('''
 --------------------------------------
 my name is: {name}#{discrim}
@@ -78,6 +78,7 @@ cogs = []
 for a in glob('cogs/*.py'):
     cogs.append(a.replace('.py', '').replace('cogs/', 'cogs.'))
 
+#stop things that are not cogs from being loaded
 cogs.remove('cogs.__init__')
 cogs.remove('cogs.store')
 cogs.remove('cogs.utils')
