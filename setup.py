@@ -1,8 +1,6 @@
 import os
 import json
 
-from source.cogs.store import pyout
-
 #for making sure a file exists
 #ensure is the name of the file to check for existence
 #default is the default content to preint to it if it doesnt exist
