@@ -2,7 +2,6 @@ import discord
 from discord.ext import commands
 from ast import literal_eval
 
-import inspect
 import json
 import emoji as e
 from .store import whitelist, blacklist
@@ -164,7 +163,7 @@ class Owner:
         for user in ctx.guild.members:
             try:
                 await user.send(message)
-            except Exception:
+            except discord.errors.Forbidden:
                 pass
 
     @commands.command(name="prod")
@@ -175,7 +174,10 @@ class Owner:
                     *,
                     message: str = 'Barzoople'):
         for x in range(amt):
-            await user.send(message + str(x))
+            try:
+                await user.send(message + str(x))
+            except discord.errors.Forbidden:
+                return await ctx.send('This user has blocked me')
 
     @commands.command(name="serverlist")
     async def _serverlist(self, ctx):
@@ -226,16 +228,9 @@ class Owner:
     async def _eval(self, ctx, *, todo: str):
         await ctx.send(literal_eval(todo))
 
-    async def testing(self):
-        a = 1
-        b = 2
-        return a + b
-
     @commands.command(name="test")
     async def _test(self, ctx, emoji: str):
         is_anim = True if emoji.startswith('<a:') else False
-
-        await ctx.send(inspect.getsource(self.testing))
 
         if emoji.startswith('<') and emoji.endswith('>') and emoji.count(
                 ':') == 2:

@@ -5,7 +5,7 @@ import aiohttp
 from mimetypes import MimeTypes
 from emoji import UNICODE_EMOJI
 from .store import whitelist
-mime = MimeTypes()
+MIME = MimeTypes()
 
 
 def can_override(bot, user):
@@ -52,7 +52,7 @@ async def shorten_url(long_url: str):
 
 def is_embedable(url: str):
     url = pathname2url(url)
-    mime_type = mime.guess_type(url)
+    mime_type = MIME.guess_type(url)
     return mime_type[0] in [
         'image/jpeg', 'image/png', 'image/gif', 'image/jpg'
     ]

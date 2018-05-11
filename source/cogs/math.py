@@ -3,8 +3,6 @@ from discord.ext import commands
 
 import mathutils
 import math
-from itertools import cycle
-
 
 class Math:
     def __init__(self, bot):
@@ -16,12 +14,12 @@ class Math:
     hidden = True
 
     @commands.command(name="inoutcircle")
-    async def _inoutcircle(self, ctx, radius: int, x: int, y: int):
-        await ctx.send(radius > math.sqrt(x ^ 2 + y ^ 2))
+    async def _inoutcircle(self, ctx, radius: int, locx: int, locy: int):
+        await ctx.send(radius > math.sqrt(locx ^ 2 + locy ^ 2))
 
     @commands.command(name="sqrt")
-    async def _sqrt(self, ctx, a: int):
-        await ctx.send(math.sqrt(a))
+    async def _sqrt(self, ctx, todo: int):
+        await ctx.send(math.sqrt(todo))
 
     @commands.command(name="simplesolve")
     async def _simplesolve(self, ctx, equation: str):

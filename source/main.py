@@ -47,14 +47,15 @@ async def on_message(message):
     stats['total_messages'] += 1
     await bot.process_commands(message)
 
+    json.dump(stats, open('cogs/store/stats.json', 'w'), indent=4)
     # stop autoreact from trying to react in direct messages
     if message.guild is None:
         return
 
-
 @bot.after_invoke
 async def after_any_command(ctx):
     stats['total_commands'] += 1
+    json.dump(stats, open('cogs/store/stats.json', 'w'), indent=4)
 
 
 @bot.event

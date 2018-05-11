@@ -158,7 +158,7 @@ class Warframe:
                         '<:madurai:319586146499690496>', 'Maduri').replace(
                             '<:naramon:319586146478850048>',
                             'Naramon').replace('<:vazarin:319586146269003778>',
-                                               'Varazin'))
+                                               'Varazin')
 
     @warframe.command(
         name="frameinfo", brief="Get info and stats about a certain frame")
@@ -189,10 +189,10 @@ class Warframe:
                 if not frame['aura'] == '':
                     embed.add_field(
                         name='Default aura polarity',
-                        value=self.polarity_converter(frame['aura'])
+                        value=self.polarity_converter(frame['aura']))
                 embed.add_field(
                     name='Default polarities',
-                    value=self.polarity_converter(', '.join(frame['polarities']))
+                    value=self.polarity_converter(', '.join(frame['polarities'])))
 
                 try:
                     embed.add_field(

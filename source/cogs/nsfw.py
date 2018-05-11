@@ -11,7 +11,7 @@ class Nsfw:
     def __init__(self, bot):
         self.danbooru_thumbnail = 'https://tinyurl.com/ya9ug3la'
         self.bot = bot
-        self.a = 0
+        self.loop = 0
         print('Cog {} loaded'.format(self.__class__.__name__))
 
     async def __local_check(self, ctx):
@@ -55,11 +55,11 @@ class Nsfw:
                     # todo there has to be a nicer way of doing this
                     while True:
                         try:
-                            post = j[self.a]
-                            self.a += 1
+                            post = j[self.loop]
+                            self.loop += 1
                             break
                         except IndexError:
-                            self.a = 0
+                            self.loop = 0
 
                     embed = quick_embed(
                         ctx,
@@ -109,11 +109,11 @@ class Nsfw:
 
                     while True:
                         try:
-                            post = root[self.a]
-                            self.a += 1
+                            post = root[self.loop]
+                            self.loop += 1
                             break
                         except IndexError:
-                            self.a = 0
+                            self.loop = 0
 
                     info = post.attrib
                     # todo alot of testing
@@ -160,11 +160,11 @@ class Nsfw:
 
                     while True:
                         try:
-                            post = j[self.a]
-                            self.a += 1
+                            post = j[self.loop]
+                            self.loop += 1
                             break
                         except IndexError:
-                            self.a = 0
+                            self.loop = 0
 
                     embed = quick_embed(
                         ctx,

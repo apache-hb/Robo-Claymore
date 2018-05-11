@@ -43,40 +43,19 @@ config = {
 }
 
 # TODO there must be a way to do this with reflection
-store_files = [{
-    'name': 'tag',
-    'default': '[]'
-}, {
-    'name': 'quote',
-    'default': '[]'
-}, {
-    'name': 'autoreact',
-    'default': '[]'
-}, {
-    'name': 'leave',
-    'default': '[]'
-}, {
-    'name': 'join',
-    'default': '[]'
-}, {
-    'name': 'autorole',
-    'default': '[]'
-}, {
-    'name': 'blocked',
-    'default': '[]'
-}, {
-    'name': 'whitelist',
-    'default': '[]'
-}, {
-    'name': 'blacklist',
-    'default': '[]'
-}, {
-    'name': 'config',
-    'default': json.dumps(config, indent=4)
-}, {
-    'name': 'stats',
-    'default': json.dumps(stats, indent=4)
-}]
+store_files = [
+    {'name': 'tag', 'default': '[]'},
+    {'name': 'quote', 'default': '[]'},
+    {'name': 'autoreact', 'default': '[]'},
+    {'name': 'leave', 'default': '[]'},
+    {'name': 'join', 'default': '[]'},
+    {'name': 'autorole', 'default': '[]'},
+    {'name': 'blocked', 'default': '[]'},
+    {'name': 'whitelist', 'default': '[]'},
+    {'name': 'blacklist', 'default': '[]'},
+    {'name': 'config', 'default': json.dumps(config, indent=4)},
+    {'name': 'stats', 'default': json.dumps(stats, indent=4)}
+]
 
 if not os.path.isdir('source/cogs/store'):
     os.mkdir('source/cogs/store')

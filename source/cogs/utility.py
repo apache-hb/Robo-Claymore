@@ -10,7 +10,6 @@ import json
 import unicodedata
 from bs4 import BeautifulSoup
 import random
-import base64
 
 from .utils import quick_embed, shorten_url, is_emoji
 
@@ -107,18 +106,19 @@ class Zalgo:
         zalgoized = []
         for letter in source:
             zalgoized.append(letter)
-            zalgo_num = random.radnint(0, zalgo_threshold) + 1
+            zalgo_num = random.randint(0, zalgo_threshold) + 1
             for _ in range(zalgo_num):
                 zalgoized.append(random.choice(zalgo_chars))
         response = random.choice(zalgo_chars).join(zalgoized)
         return response.encode('utf8', 'ignore')
 
+    @classmethod
     def _insert_randoms(self, text):
         random_extras = [chr(i) for i in range(0x1D023, 0x1D045 + 1)]
         newtext = []
         for char in text:
             newtext.append(char)
-            if random.radnint(1, 5) == 1:
+            if random.randint(1, 5) == 1:
                 newtext.append(random.choice(random_extras))
         return u''.join(newtext)
 
@@ -134,7 +134,7 @@ class Zalgo:
 class Utility:
     def __init__(self, bot):
         self.bot = bot
-        self.a = 0
+        self.loop = 0
         self.wolfram = Wolfram(config['wolfram']['key'])
         print('Cog {} loaded'.format(self.__class__.__name__))
 
@@ -296,7 +296,7 @@ class Utility:
     async def autoreact(self, ctx):
         embed = quick_embed(ctx, title='All subcommands for autoreact')
         c = []
-        for a in self.autoreact.walk_commands():
+        for a in self.looputoreact.walk_commands():
             if a.name not in c:  # prevent duplicates
                 embed.add_field(name=a.name, value=a.brief)
             c.append(a.name)
@@ -570,12 +570,12 @@ class Utility:
 
                 while True:
                     try:
-                        post = j['list'][self.a]
-                        self.a += 1
+                        post = j['list'][self.loop]
+                        self.loop += 1
                         break
                     except Exception:
-                        self.a = 0
-                        post = j['list'][self.a]
+                        self.loop = 0
+                        post = j['list'][self.loop]
                         break
 
                 embed = quick_embed(
@@ -717,11 +717,11 @@ class Utility:
                         'Nothing found for the search {}'.format(search))
                 while True:
                     try:
-                        a = j['collection']['items'][self.a]
+                        a = j['collection']['items'][self.loop]
                         break
                     except IndexError:
-                        self.a = 0
-                        a = j['collection']['items'][self.a]
+                        self.loop = 0
+                        a = j['collection']['items'][self.loop]
 
                 embed = quick_embed(
                     ctx,
