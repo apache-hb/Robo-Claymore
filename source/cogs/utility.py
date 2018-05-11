@@ -79,10 +79,7 @@ class Wolfram:
         print('Wolfram loaded')
 
     async def query(self, question, params=(), **kwargs):
-        data = dict(
-            input=question,
-            appid=self.key
-        )
+        data = dict(input=question, appid=self.key)
         data = chain(params, data.items(), kwargs.items())
         query = urlencode(tuple(data))
         url = 'https://api.wolframalpha.com/v2/query?' + query
@@ -92,15 +89,13 @@ class Wolfram:
 
 
 class Zalgo:
-
     def __init__(self, txt: str, intensity: int):
         self.txt = txt
         self.intensity = intensity
 
     def __str__(self):
         return self.zalgo(
-            text=self.txt,
-            intensity=self.intensity).decode('utf-8')
+            text=self.txt, intensity=self.intensity).decode('utf-8')
 
     def zalgo(self, text, intensity=50):
         zalgo_threshold = intensity
@@ -152,11 +147,14 @@ class Utility:
     @commands.command(name="hastebin")
     async def _hastebin(self, ctx, *, message: str):
         async with aiohttp.ClientSession() as session:  # TODO test this
-            async with session.post('https://hastebin.com/documents', data=message.encode('utf-8')) as resp:
+            async with session.post(
+                    'https://hastebin.com/documents',
+                    data=message.encode('utf-8')) as resp:
                 await ctx.send(await resp.text() + await resp.json()['key'])
 
     @commands.command(name="findreplace")
-    async def _findreplace(self, ctx, find: str, replace: str, *, message: str):
+    async def _findreplace(self, ctx, find: str, replace: str, *,
+                           message: str):
         try:
             await ctx.send(message.replace(find, replace))
         except Exception:
@@ -184,10 +182,11 @@ class Utility:
 
     @commands.command(name="randomcase")
     async def _randomcase(self, ctx, *, message: str):
-        await ctx.send(''.join(random.choice((str.upper, str.lower))(x) for x in message))
+        await ctx.send(''.join(
+            random.choice((str.upper, str.lower))(x) for x in message))
 
     @commands.command(name="zalgo")
-    async def _zalgo(self, ctx, *, text: str=None):
+    async def _zalgo(self, ctx, *, text: str = None):
         text = text.split(' ')
         try:
             intensity = int(text[-1])
@@ -200,10 +199,12 @@ class Utility:
         try:
             await ctx.send(Zalgo(txt=text, intensity=intensity))
         except Exception:
-            await ctx.send('Cannot zalgo this much text, this is discords fault, not mine')
+            await ctx.send(
+                'Cannot zalgo this much text, this is discords fault, not mine'
+            )
 
     @commands.command(name="emoji")
-    async def _emoji(self, ctx, *, text: str=None):
+    async def _emoji(self, ctx, *, text: str = None):
         if text is None:
             text = 'bottom text'
 
@@ -217,10 +218,12 @@ class Utility:
         try:
             await ctx.send(ret)
         except Exception:
-            await ctx.send('Cannot emojify that much text, this is discords fault, not mine')
+            await ctx.send(
+                'Cannot emojify that much text, this is discords fault, not mine'
+            )
 
     @commands.command(name="square")
-    async def _square(self, ctx, *, text: str=None):
+    async def _square(self, ctx, *, text: str = None):
         if text is None:
             text = 'bottom text'
 
@@ -230,7 +233,9 @@ class Utility:
         try:
             await ctx.send(ret)
         except Exception:
-            await ctx.send('Cannot square this much text, this is discords fault, not mine')
+            await ctx.send(
+                'Cannot square this much text, this is discords fault, not mine'
+            )
 
     @commands.command(name="reverse")
     async def _reverse(self, ctx, *, message: str):
@@ -246,7 +251,8 @@ class Utility:
             await ctx.send(' '.join(format(ord(x), 'b') for x in message))
         except Exception as e:
             print(e)
-            await ctx.send('Cannot send this much binary, blame b1nzy for this')
+            await ctx.send('Cannot send this much binary, blame b1nzy for this'
+                           )
 
     @commands.command(name="ascii")
     async def _ascii(self, ctx, *, message: str):
@@ -254,7 +260,8 @@ class Utility:
             await ctx.send(''.join(str([ord(c) for c in message])))
         except Exception as e:
             print(e)
-            await ctx.send('Cannot send that much ascii, blame b1nzy, this is his fault')
+            await ctx.send(
+                'Cannot send that much ascii, blame b1nzy, this is his fault')
 
     @commands.group(invoke_without_command=True)
     async def prettyprint(self, ctx):
@@ -279,7 +286,8 @@ class Utility:
     @prettyprint.command(name="html")
     async def _prettyprint_html(self, ctx, *, message: str):
         try:
-            await ctx.send('```html\n' + BeautifulSoup(message, 'html.parser').prettify() + '```')
+            await ctx.send('```html\n' + BeautifulSoup(message, 'html.parser')
+                           .prettify() + '```')
         except Exception:
             await ctx.send('Cannot print malformed html')
 
@@ -316,7 +324,8 @@ class Utility:
             if a['server_id'] == ctx.guild.id:
                 a['contents'].append(ret)
         json.dump(autoreact, open('cogs/store/autoreact.json', 'w'), indent=4)
-        await ctx.send('``{}`` is now reacted to with ``{}``'.format(phrase, react))
+        await ctx.send('``{}`` is now reacted to with ``{}``'.format(
+            phrase, react))
 
     @autoreact.command(name="remove", aliases=['delete', 'subtract'])
     @commands.guild_only()
@@ -333,9 +342,7 @@ class Utility:
                         a['contents'].remove(b)
                         json.dump(
                             autoreact,
-                            open(
-                                'cogs/store/autoreact.json',
-                                'w'),
+                            open('cogs/store/autoreact.json', 'w'),
                             indent=4)
                         return await ctx.send('Autoreact removed')
         await ctx.send('No Autoreact found')
@@ -343,9 +350,8 @@ class Utility:
     @autoreact.command(name="purge")
     @commands.guild_only()
     async def _autoreact_purge(self, ctx):
-        if not (
-            ctx.guild.owner == ctx.author or self.bot.is_owner(
-                ctx.author.id)):
+        if not (ctx.guild.owner == ctx.author
+                or self.bot.is_owner(ctx.author.id)):
             return await ctx.send('You must be the guild owner to do this')
 
         for a in autoreact:
@@ -368,21 +374,21 @@ class Utility:
                     ) and b['react'] == react:
                         embed = quick_embed(ctx, title='Autoreact info')
                         embed.add_field(
-                            name='Times used', value=str(
-                                b['meta']['uses']))
+                            name='Times used', value=str(b['meta']['uses']))
                         embed.add_field(
-                            name='Created in', value=self.bot.get_channel(
+                            name='Created in',
+                            value=self.bot.get_channel(
                                 b['meta']['created_in']).name)
                         embed.add_field(
-                            name='Created by', value=self.bot.get_user(
+                            name='Created by',
+                            value=self.bot.get_user(
                                 b['meta']['created_by']).name)
                         embed.add_field(
                             name='Time made',
                             value=str(
-                                time.strftime(
-                                    '%Y-%m-%d %H:%M:%S',
-                                    time.localtime(
-                                        b['meta']['time_created']))))
+                                time.strftime('%Y-%m-%d %H:%M:%S',
+                                              time.localtime(
+                                                  b['meta']['time_created']))))
                         embed.add_field(name='Phrase', value=b['phrase'])
                         embed.add_field(name='React', value=b['react'])
                         return await ctx.send(embed=embed)
@@ -405,7 +411,7 @@ class Utility:
         await ctx.send('I have delivered the list to you\'re inbox')
 
     @commands.group(invoke_without_command=True)
-    async def quote(self, ctx, index: int=None):
+    async def quote(self, ctx, index: int = None):
         pass
 
     @quote.command(name="add")
@@ -430,7 +436,7 @@ class Utility:
 
     @commands.group(invoke_without_command=True)
     @commands.guild_only()
-    async def tag(self, ctx, name: str=None):
+    async def tag(self, ctx, name: str = None):
         pass
 
     @tag.command(name="add")
@@ -439,7 +445,8 @@ class Utility:
         for a in tags:
             if a['server_id'] == ctx.guild.id:
                 if any(d['name'] == name for d in a['contents']):
-                    return await ctx.send('A tag with that name already exists')
+                    return await ctx.send('A tag with that name already exists'
+                                          )
 
                 ret = {
                     'name': name.lower(),
@@ -470,15 +477,14 @@ class Utility:
                             if ctx.author.id not in whitelist or self.bot.is_owner(
                                     ctx.author.id):
                                 if not is_admin:
-                                    return await ctx.send('this tag is protected, and you don\'t have the permissions to remove it')
+                                    return await ctx.send(
+                                        'this tag is protected, and you don\'t have the permissions to remove it'
+                                    )
                         a['contents'].remove(b)
                         json.dump(
-                            tags,
-                            open(
-                                'cogs/store/tags.json',
-                                'w'),
-                            indent=4)
-                        return await ctx.send('tag ``{}`` was removed'.format(name))
+                            tags, open('cogs/store/tags.json', 'w'), indent=4)
+                        return await ctx.send(
+                            'tag ``{}`` was removed'.format(name))
                 await ctx.send('no tag called ``{}`` was found'.format(name))
 
     @tag.command(name="protect")
@@ -486,7 +492,8 @@ class Utility:
     async def _tag_protect(self, ctx, name: str):
         if ctx.author.id not in whitelist or self.bot.is_owner(ctx.author.id):
             if not ctx.author.permissions_in(ctx.channel).administrator:
-                return await ctx.send('You must be an administrator to do this')
+                return await ctx.send('You must be an administrator to do this'
+                                      )
 
         for a in tags:
             if a['server_id'] == ctx.guild.id:
@@ -494,19 +501,17 @@ class Utility:
                     if b['name'] == name.lower():
                         b['meta']['protected']
                         json.dump(
-                            tags,
-                            open(
-                                'cogs/store/tags.json',
-                                'w'),
-                            indent=4)
-                        return await ctx.send('the tag ``{}`` is now protected'.format(name))
+                            tags, open('cogs/store/tags.json', 'w'), indent=4)
+                        return await ctx.send(
+                            'the tag ``{}`` is now protected'.format(name))
 
     @tag.command(name="purge")
     @commands.guild_only()
     async def _tag_purge(self, ctx):
         if ctx.author.id not in whitelist or self.bot.is_owner(ctx.author.id):
             if not ctx.author.permissions_in(ctx.channel).administrator:
-                return await ctx.send('You must be an administrator to do this')
+                return await ctx.send('You must be an administrator to do this'
+                                      )
 
         for a in tags:
             if a['server_id'] == ctx.guild.id:
@@ -529,7 +534,7 @@ class Utility:
         pass
 
     @welcome.command(name="set")
-    async def _welcome_set(self, ctx, *, message: str='Hello'):
+    async def _welcome_set(self, ctx, *, message: str = 'Hello'):
         pass
 
     @welcome.command(name="remove")
@@ -541,7 +546,7 @@ class Utility:
         pass
 
     @leave.command(name="set")
-    async def _leave_set(self, ctx, *, message: str='Goodbye'):
+    async def _leave_set(self, ctx, *, message: str = 'Goodbye'):
         pass
 
     @leave.command(name="remove")
@@ -549,7 +554,7 @@ class Utility:
         pass
 
     @commands.command(name="urban")
-    async def _urban(self, ctx, search: str=None):
+    async def _urban(self, ctx, search: str = None):
         if search is None:
             url = 'http://api.urbandictionary.com/v0/random'
         else:
@@ -560,7 +565,8 @@ class Utility:
                 j = json.loads(await resp.text())
 
                 if not j['list']:
-                    return await ctx.send('Nothing called {} found'.format(search))
+                    return await ctx.send(
+                        'Nothing called {} found'.format(search))
 
                 while True:
                     try:
@@ -573,16 +579,14 @@ class Utility:
                         break
 
                 embed = quick_embed(
-                    ctx, title='Definition of {}'.format(
-                        post['word']), description='Posted by {}'.format(
-                        post['author']))
+                    ctx,
+                    title='Definition of {}'.format(post['word']),
+                    description='Posted by {}'.format(post['author']))
                 embed.add_field(name='Description', value=post['definition'])
                 embed.add_field(name='Example', value=post['example'])
                 embed.add_field(name='Permalink', value=post['permalink'])
                 embed.set_footer(text='Votes: {up}/{down}'.format(
-                    up=post['thumbs_up'],
-                    down=post['thumbs_down']
-                ))
+                    up=post['thumbs_up'], down=post['thumbs_down']))
                 await ctx.send(embed=embed)
 
     @commands.command(name="credits", aliases=['credit'])
@@ -592,35 +596,29 @@ class Utility:
         embed.add_field(name='Warframe api', value='')
         embed.add_field(name='Reddit api', value='')
 
-    @commands.command(name="userinfo",
-                      aliases=['memberinfo', 'playerinfo', 'aboutuser'])
-    async def _userinfo(self, ctx, user: discord.Member=None):
+    @commands.command(
+        name="userinfo", aliases=['memberinfo', 'playerinfo', 'aboutuser'])
+    async def _userinfo(self, ctx, user: discord.Member = None):
         if user is None:
             user = ctx.message.author
         embed = quick_embed(
             ctx,
-            title='Info about {}'.format(
-                user.name +
-                '#' +
-                user.discriminator +
-                ' - (' +
-                user.display_name +
-                ')'),
-            description='ID: {}'.format(
-                user.id))
+            title='Info about {}'.format(user.name + '#' + user.discriminator +
+                                         ' - (' + user.display_name + ')'),
+            description='ID: {}'.format(user.id))
         embed.set_thumbnail(url=user.avatar_url)
         now = datetime.now()
         diffrence = now - user.joined_at
         embed.add_field(
-            name='Time spent in {}'.format(
-                ctx.guild.name), value='First joined at {}, thats {} days ago'.format(
-                user.joined_at.date(), diffrence.days), inline=False)
+            name='Time spent in {}'.format(ctx.guild.name),
+            value='First joined at {}, thats {} days ago'.format(
+                user.joined_at.date(), diffrence.days),
+            inline=False)
         diffrence = now - user.created_at
         embed.add_field(
             name='Time spent on discord',
             value='First signed up at {}, thats over {} days ago'.format(
-                user.created_at.date(),
-                diffrence.days),
+                user.created_at.date(), diffrence.days),
             inline=False)
         roles = []
         for a in user.roles:
@@ -636,41 +634,36 @@ class Utility:
     @commands.command(name="serverinfo")
     async def _serverinfo(self, ctx):
         embed = quick_embed(
-            ctx, title='Server information about {}'.format(
-                ctx.guild.name), description='ID: {}'.format(
-                ctx.guild.id))
+            ctx,
+            title='Server information about {}'.format(ctx.guild.name),
+            description='ID: {}'.format(ctx.guild.id))
         now = datetime.now()
         diffrence = now - ctx.guild.created_at
         embed.add_field(
             name='Created at',
             value='{}, thats over {} days ago'.format(
-                ctx.guild.created_at.date(),
-                diffrence.days),
+                ctx.guild.created_at.date(), diffrence.days),
             inline=False)
         embed.add_field(name='User Count', value=len(ctx.guild.members))
         embed.add_field(name='Owner', value=ctx.guild.owner.name)
         embed.add_field(
-            name='Text channels', value=len(
-                ctx.guild.text_channels))
+            name='Text channels', value=len(ctx.guild.text_channels))
         embed.add_field(
-            name='Voice channels', value=len(
-                ctx.guild.voice_channels))
+            name='Voice channels', value=len(ctx.guild.voice_channels))
         embed.set_thumbnail(url=ctx.guild.icon_url)
         await ctx.send(embed=embed)
 
     @commands.command(name="botinfo")
     async def _botinfo(self, ctx):
         embed = quick_embed(
-            ctx, title='Info about me, {}'.format(
-                self.bot.user.name))
+            ctx, title='Info about me, {}'.format(self.bot.user.name))
         embed.add_field(name='Working directory', value=dir_path)
         embed.set_thumbnail(url=self.bot.user.avatar_url)
         embed.add_field(name='discord.py version', value=discord.__version__)
         embed.add_field(
             name='bot name and id',
             value="Name: {name}, ID: {id}".format(
-                id=self.bot.user.id,
-                name=self.bot.user.name))
+                id=self.bot.user.id, name=self.bot.user.name))
         embed.add_field(name='Architecture', value=platform.machine())
         embed.add_field(name='Version', value=platform.version())
         embed.add_field(name='Platform', value=platform.platform())
@@ -714,12 +707,14 @@ class Utility:
     NASA_URL = 'https://images-api.nasa.gov/search?q={search}'
 
     @commands.command(name="nasa")
-    async def _nasa(self, ctx, *, search: str='hubble'):
+    async def _nasa(self, ctx, *, search: str = 'hubble'):
         async with aiohttp.ClientSession() as session:
-            async with session.get(self.NASA_URL.format(search=search)) as resp:
+            async with session.get(
+                    self.NASA_URL.format(search=search)) as resp:
                 j = json.loads(await resp.text())
                 if not j['collection']['items']:
-                    return await ctx.send('Nothing found for the search {}'.format(search))
+                    return await ctx.send(
+                        'Nothing found for the search {}'.format(search))
                 while True:
                     try:
                         a = j['collection']['items'][self.a]
@@ -754,13 +749,14 @@ class Utility:
                             embed = quick_embed(
                                 ctx,
                                 title='From wolfram alpha',
-                                description='Awnser to the question {}'.format(query))
+                                description='Awnser to the question {}'.format(
+                                    query))
                             embed.add_field(
                                 name='Awnser', value=subsubobject.text)
                             return await ctx.send(embed=embed)
 
     @commands.command(name="shorten")
-    async def _shorten(self, ctx, *, url: str=None):
+    async def _shorten(self, ctx, *, url: str = None):
         if url is not None:
             return await ctx.send(await shorten_url(long_url=url))
         return await ctx.send('You need to enter a url')

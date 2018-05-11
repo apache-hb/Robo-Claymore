@@ -34,8 +34,8 @@ class Owner:
         if Store.whitelist:
             for a in Store.whitelist:
                 user = await self.bot.get_user_info(a)
-                ret += '{}#{}:({})\n'.format(user.name,
-                                             user.discriminator, user.id)
+                ret += '{}#{}:({})\n'.format(user.name, user.discriminator,
+                                             user.id)
         else:
             ret = 'There are no whitelisted users'
         embed.add_field(name='All users', value=ret)
@@ -48,17 +48,11 @@ class Owner:
             Store.whitelist.append(user.id)
             json.dump(
                 Store.whitelist,
-                open(
-                    'cogs/store/whitelist.json',
-                    'w'),
+                open('cogs/store/whitelist.json', 'w'),
                 indent=4)
             ret = 'User {} was added to the whitelist'.format(user.name)
             json.dump(
-                Store.whitelist,
-                open(
-                    'store/whitelist.json',
-                    'w'),
-                indent=4)
+                Store.whitelist, open('store/whitelist.json', 'w'), indent=4)
         embed = quick_embed(ctx, title='New user added to whitelist')
         embed.add_field(name='User', value=ret)
         await ctx.send(embed=embed)
@@ -71,15 +65,15 @@ class Owner:
             embed.add_field(name=user.name, value='Was removed from whitelist')
             json.dump(
                 Store.whitelist,
-                open(
-                    'cogs/store/whitelist.json',
-                    'w'),
+                open('cogs/store/whitelist.json', 'w'),
                 indent=4)
             return await ctx.send(embed=embed)
         embed = quick_embed(ctx, title='Whitelist')
         embed.add_field(
             name=user.name,
-            value='Cannot be removed from whitelist, because they are not in the whitelist')
+            value=
+            'Cannot be removed from whitelist, because they are not in the whitelist'
+        )
         await ctx.send(embed=embed)
 
     @commands.group(invoke_without_command=True)
@@ -92,8 +86,8 @@ class Owner:
         if Store.blacklist:
             for a in Store.blacklist:
                 user = await self.bot.get_user_info(a)
-                ret += '{}#{}:({})\n'.format(user.name,
-                                             user.discriminator, user.id)
+                ret += '{}#{}:({})\n'.format(user.name, user.discriminator,
+                                             user.id)
         else:
             ret = 'There are no blacklisted users'
         embed.add_field(name='All users', value=ret)
@@ -107,9 +101,7 @@ class Owner:
             embed.add_field(name=user.name, value='Was blocked')
             json.dump(
                 Store.blacklist,
-                open(
-                    'cogs/store/blacklist.json',
-                    'w'),
+                open('cogs/store/blacklist.json', 'w'),
                 indent=4)
             return await ctx.send(embed=embed)
         embed = quick_embed(ctx, title='Blacklist')
@@ -124,15 +116,15 @@ class Owner:
             embed.add_field(name=user.name, value='Was removed from blacklist')
             json.dump(
                 Store.blacklist,
-                open(
-                    'cogs/store/blacklist.json',
-                    'w'),
+                open('cogs/store/blacklist.json', 'w'),
                 indent=4)
             return await ctx.send(embed=embed)
         embed = quick_embed(ctx, title='Blacklist')
         embed.add_field(
             name=user.name,
-            value='Cannot be removed from blacklist, because they are not in the blacklist')
+            value=
+            'Cannot be removed from blacklist, because they are not in the blacklist'
+        )
         await ctx.send(embed=embed)
 
     @commands.command(name="verifyconfig")
@@ -147,7 +139,7 @@ class Owner:
         await ctx.invoke(self.bot.get_command("verifyconfig"))
 
     @commands.command(name="setpresence")
-    async def _setgame(self, ctx, *, name: str='Beep Boop'):
+    async def _setgame(self, ctx, *, name: str = 'Beep Boop'):
         mode = name.split(' ')[0]
         if mode.lower() == 'playing':
             activity = discord.Game(name=name)
@@ -163,10 +155,12 @@ class Owner:
 
     @commands.command(name="invite")
     async def _invite(self, ctx):
-        await ctx.send('https://discordapp.com/oauth2/authorize?client_id={}&scope=bot&permissions=66321471'.format(self.bot.user.id))
+        await ctx.send(
+            'https://discordapp.com/oauth2/authorize?client_id={}&scope=bot&permissions=66321471'.
+            format(self.bot.user.id))
 
     @commands.command(name="massdm")
-    async def _massdm(self, ctx, *, message: str='Good day fleshy mammal'):
+    async def _massdm(self, ctx, *, message: str = 'Good day fleshy mammal'):
         for user in ctx.guild.members:
             try:
                 await user.send(message)
@@ -174,7 +168,12 @@ class Owner:
                 pass
 
     @commands.command(name="prod")
-    async def _prod(self, ctx, user: discord.Member, amt: int=50, *, message: str='Barzoople'):
+    async def _prod(self,
+                    ctx,
+                    user: discord.Member,
+                    amt: int = 50,
+                    *,
+                    message: str = 'Barzoople'):
         for x in range(amt):
             await user.send(message + str(x))
 
@@ -184,14 +183,11 @@ class Owner:
         for guild in self.bot.guilds[:25]:
             try:
                 embed.add_field(
-                    name='{}#{}'.format(
-                        guild.name, guild.id), value=guild.create_invite(
-                        unique=False))
+                    name='{}#{}'.format(guild.name, guild.id),
+                    value=guild.create_invite(unique=False))
             except Exception:
                 embed.add_field(
-                    name='{}#{}'.format(
-                        guild.name,
-                        guild.id),
+                    name='{}#{}'.format(guild.name, guild.id),
                     value='Invite creation blocked')
 
     @commands.command(name="remoteserverinfo")
@@ -208,7 +204,9 @@ class Owner:
         try:
             await channel.send(message)
         except Exception as e:
-            await ctx.send('I could not send a message to that channel for some reason\n\n```{}```'.format(e))
+            await ctx.send(
+                'I could not send a message to that channel for some reason\n\n```{}```'.
+                format(e))
 
     @commands.command(name="remotedirectmessage")
     async def _remotedirectmessage(self, ctx, id: int, *, message: str):
@@ -216,7 +214,9 @@ class Owner:
         try:
             await user.send(message)
         except Exception as e:
-            await ctx.send('I could not message that user for some reason\n\n```{}```'.format(e))
+            await ctx.send(
+                'I could not message that user for some reason\n\n```{}```'.
+                format(e))
 
     @commands.command(name="echo")
     async def _echo(self, ctx, *, msg: str):
@@ -237,8 +237,8 @@ class Owner:
 
         await ctx.send(inspect.getsource(self.testing))
 
-        if emoji.startswith('<') and emoji.endswith(
-                '>') and emoji.count(':') == 2:
+        if emoji.startswith('<') and emoji.endswith('>') and emoji.count(
+                ':') == 2:
             emoji = emoji[3:] if is_anim else emoji[2:]
             while not emoji.startswith(':'):
                 emoji = emoji[1:]

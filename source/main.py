@@ -8,16 +8,13 @@ import aiohttp
 import discord
 from discord.ext import commands
 
-from cogs.store import (
-    config, stats, frames,
-    whitelist, blacklist)
+from cogs.store import (config, stats, frames, whitelist, blacklist)
 
 __version__ = '0.0.1.4a'
 
 bot = commands.Bot(
     command_prefix=config['discord']['prefix'],
-    activity=discord.Game(name=config['discord']['activity'])
-)
+    activity=discord.Game(name=config['discord']['activity']))
 
 bot.remove_command('help')
 
@@ -25,7 +22,8 @@ bot.remove_command('help')
 @bot.event
 async def on_ready():
     async with aiohttp.ClientSession() as session:
-        async with session.get('https://api.warframestat.us/warframes') as resp:
+        async with session.get(
+                'https://api.warframestat.us/warframes') as resp:
             print('warframe data aquired')
             frames = json.loads(await resp.text())
     print('''
@@ -42,8 +40,7 @@ bot ready
         discrim=bot.user.discriminator,
         id=bot.user.id,
         discord=discord.__version__,
-        bot=__version__
-    ))
+        bot=__version__))
 
 
 @bot.event
@@ -64,17 +61,17 @@ async def after_any_command(ctx):
 @bot.event
 async def on_command_error(ctx, exception):
     if isinstance(exception, discord.ext.commands.errors.CheckFailure):
-        return await ctx.send('You do not have the required permissions to do that')
-    elif isinstance(exception, discord.ext.commands.errors.MissingRequiredArgument):
+        return await ctx.send(
+            'You do not have the required permissions to do that')
+    elif isinstance(exception,
+                    discord.ext.commands.errors.MissingRequiredArgument):
         return await ctx.send('You have missing arguments')
     elif isinstance(exception, discord.ext.commands.CommandNotFound):
         return
 
     traceback.print_exception(
-        type(exception),
-        exception,
-        exception.__traceback__,
-        file=sys.stderr)
+        type(exception), exception, exception.__traceback__, file=sys.stderr)
+
 
 cogs = []
 

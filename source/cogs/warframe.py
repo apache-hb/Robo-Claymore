@@ -23,14 +23,16 @@ class Warframe:
             embed.add_field(name=a.name, value=a.brief)
         await ctx.send(embed=embed)
 
-    @warframe.command(name="weaponinfo",
-                      brief="Get info about a weapon")
+    @warframe.command(name="weaponinfo", brief="Get info about a weapon")
     async def _weaponinfo(self, ctx, *, item: str):
         async with aiohttp.ClientSession() as session:
-            async with session.get('https://api.warframestat.us/weapons/search/{query}'.format(query=item.lower())) as resp:
+            async with session.get(
+                    'https://api.warframestat.us/weapons/search/{query}'.
+                    format(query=item.lower())) as resp:
                 j = json.loads(await resp.text())
                 if not j:
-                    return await ctx.send('Nothing with the name {} found'.format(item))
+                    return await ctx.send(
+                        'Nothing with the name {} found'.format(item))
 
                 embed = quick_embed(ctx, title='Info about {}'.format(item))
                 a = []
@@ -46,32 +48,29 @@ class Warframe:
                 try:
                     embed.add_field(
                         name='Base damage',
-                        value='Total of {full}, comprised of {pun} Puncture, {imp} Impact and {sla} Slash'.format(
+                        value=
+                        'Total of {full}, comprised of {pun} Puncture, {imp} Impact and {sla} Slash'.
+                        format(
                             full=j[0]['damage'],
                             pun=j[0]['puncture'],
                             imp=j[0]['impact'],
                             sla=j[0]['slash']))
                 except KeyError:
-                    embed.add_field(name='Base damage',
-                                    value=j[0]['damage'])
+                    embed.add_field(name='Base damage', value=j[0]['damage'])
 
                 if j[0]['type'] == 'Melee':
                     if j[0]['polarities']:
                         embed.add_field(
                             name='Default polarities',
-                            value=', '.join(
-                                j[0]['polarities']))
+                            value=', '.join(j[0]['polarities']))
                     embed.add_field(name='Attack speed', value=j[0]['speed'])
                     embed.add_field(name='Slide damage', value=j[0]['slide'])
                     embed.add_field(
-                        name='Slam attack damage',
-                        value=j[0]['jump'])
+                        name='Slam attack damage', value=j[0]['jump'])
                     embed.add_field(
-                        name='Wall attack damage',
-                        value=j[0]['wall'])
+                        name='Wall attack damage', value=j[0]['wall'])
                     embed.add_field(
-                        name='Channeling efficiency',
-                        value=j[0]['channeling'])
+                        name='Channeling efficiency', value=j[0]['channeling'])
                     embed.add_field(
                         name='Default stance polarity',
                         value=j[0]['stancePolarity'])
@@ -101,12 +100,10 @@ class Warframe:
                         pass
 
                     embed.add_field(
-                        name='Magazine capacity',
-                        value=j[0]['magazine'])
+                        name='Magazine capacity', value=j[0]['magazine'])
                     embed.add_field(name='Reload speed', value=j[0]['reload'])
                     embed.add_field(
-                        name='Projectile type',
-                        value=j[0]['projectile'])
+                        name='Projectile type', value=j[0]['projectile'])
                     embed.add_field(name='Trigger type', value=j[0]['trigger'])
 
                     try:
@@ -116,17 +113,13 @@ class Warframe:
                         pass
 
                 embed.add_field(
-                    name='Critical chance',
-                    value=j[0]['crit_chance'])
+                    name='Critical chance', value=j[0]['crit_chance'])
                 embed.add_field(
-                    name='Critical damage multiplier',
-                    value=j[0]['crit_mult'])
+                    name='Critical damage multiplier', value=j[0]['crit_mult'])
                 embed.add_field(
-                    name='Status chance',
-                    value=j[0]['status_chance'])
+                    name='Status chance', value=j[0]['status_chance'])
                 embed.add_field(
-                    name='Riven disposition',
-                    value=j[0]['riven_disposition'])
+                    name='Riven disposition', value=j[0]['riven_disposition'])
                 embed.set_thumbnail(url=j[0]['thumbnail'])
 
                 return await ctx.send(embed=embed)
@@ -136,10 +129,13 @@ class Warframe:
         brief="Get info about the drop rates and location of an item")
     async def _dropinfo(self, ctx, *, item: str):
         async with aiohttp.ClientSession() as session:
-            async with session.get('https://api.warframestat.us/drops/search/{query}'.format(query=item.lower())) as resp:
+            async with session.get(
+                    'https://api.warframestat.us/drops/search/{query}'.format(
+                        query=item.lower())) as resp:
                 j = json.loads(await resp.text())
                 if not j:
-                    return await ctx.send('Nothing with the name {item} found'.format(item=item))
+                    return await ctx.send(
+                        'Nothing with the name {item} found'.format(item=item))
 
                 embed = quick_embed(
                     ctx, title='Information about {}'.format(item))
@@ -150,15 +146,16 @@ class Warframe:
                     if a < 25:
                         embed.add_field(
                             name='Item {} drops from {}'.format(
-                                loc['item'], loc['place']), value='Rarity of {} & a drop chance of {}%'.format(
+                                loc['item'], loc['place']),
+                            value='Rarity of {} & a drop chance of {}%'.format(
                                 loc['rarity'], loc['chance']))
                     else:
                         break
 
                 await ctx.send(embed=embed)
 
-    @warframe.command(name="frameinfo",
-                      brief="Get info and stats about a certain frame")
+    @warframe.command(
+        name="frameinfo", brief="Get info and stats about a certain frame")
     async def _frameinfo(self, ctx, *, target: str):
         for frame in frames:
             if target.lower() in frame['regex']:
@@ -169,8 +166,7 @@ class Warframe:
 
                 embed = quick_embed(
                     ctx,
-                    title='Info about {}'.format(
-                        frame['name']),
+                    title='Info about {}'.format(frame['name']),
                     description=frame['url'],
                     colour=color)
                 embed.add_field(name='Min/Max Health', value=frame['health'])
@@ -188,34 +184,28 @@ class Warframe:
                     embed.add_field(
                         name='Default aura polarity',
                         value=frame['aura'].replace(
-                            '<:madurai:319586146499690496>',
-                            'Maduri').replace(
-                            '<:naramon:319586146478850048>',
-                            'Naramon').replace(
-                            '<:vazarin:319586146269003778>',
-                            'Varazin'))
+                            '<:madurai:319586146499690496>', 'Maduri').replace(
+                                '<:naramon:319586146478850048>',
+                                'Naramon').replace(
+                                    '<:vazarin:319586146269003778>',
+                                    'Varazin'))
                 embed.add_field(
                     name='Default polarities',
-                    value=', '.join(
-                        frame['polarities']).replace(
-                        '<:madurai:319586146499690496>',
-                        'Maduri').replace(
-                        '<:naramon:319586146478850048>',
-                        'Naramon').replace(
-                        '<:vazarin:319586146269003778>',
-                        'Varazin'))
+                    value=', '.join(frame['polarities']).replace(
+                        '<:madurai:319586146499690496>', 'Maduri').replace(
+                            '<:naramon:319586146478850048>',
+                            'Naramon').replace('<:vazarin:319586146269003778>',
+                                               'Varazin'))
 
                 try:
                     embed.add_field(
-                        name='In game description',
-                        value=frame['description'])
+                        name='In game description', value=frame['description'])
                 except KeyError:
                     pass
 
                 try:
                     embed.add_field(
-                        name='Main drop location',
-                        value=frame['location'])
+                        name='Main drop location', value=frame['location'])
                 except KeyError:
                     pass
 
@@ -226,11 +216,11 @@ class Warframe:
 
                 await ctx.send(embed=embed)
 
-    @warframe.command(name="sortie",
-                      brief="todays sortie")
+    @warframe.command(name="sortie", brief="todays sortie")
     async def _sortie(self, ctx):
         async with aiohttp.ClientSession() as session:
-            async with session.get('https://api.warframestat.us/pc/sortie') as resp:
+            async with session.get(
+                    'https://api.warframestat.us/pc/sortie') as resp:
                 j = json.loads(await resp.text())
                 embed = quick_embed(ctx, title='Todays sorties')
                 b = 0
@@ -238,7 +228,9 @@ class Warframe:
                     b += 1
                     embed.add_field(
                         name='Mission {}'.format(b),
-                        value='Mission type: {mission}, Modifier: {mod}, Location: {loc}'.format(
+                        value=
+                        'Mission type: {mission}, Modifier: {mod}, Location: {loc}'.
+                        format(
                             mission=a['missionType'],
                             mod=a['modifier'],
                             loc=a['node']),
@@ -246,11 +238,11 @@ class Warframe:
                 embed.set_footer(text='Sortie for {}'.format(time.time()))
                 await ctx.send(embed=embed)
 
-    @warframe.command(name="alerts",
-                      brief="ongoing alerts")
+    @warframe.command(name="alerts", brief="ongoing alerts")
     async def _alerts(self, ctx):
         async with aiohttp.ClientSession() as session:
-            async with session.get('https://api.warframestat.us/pc/alerts') as resp:
+            async with session.get(
+                    'https://api.warframestat.us/pc/alerts') as resp:
                 j = json.loads(await resp.text())
                 embed = quick_embed(ctx, title='Currently running alerts')
                 b = 0
@@ -258,7 +250,9 @@ class Warframe:
                     b += 1
                     embed.add_field(
                         name='Alert {}'.format(b),
-                        value='Location: {loc}, Mission type: {mis}, Faction: {fac}'.format(
+                        value=
+                        'Location: {loc}, Mission type: {mis}, Faction: {fac}'.
+                        format(
                             loc=a['mission']['node'],
                             mis=a['mission']['type'],
                             fac=a['mission']['faction']))
@@ -269,58 +263,60 @@ class Warframe:
                             exp=a['eta']))
                 await ctx.send(embed=embed)
 
-    @warframe.command(name="baro",
-                      brief="Baro Ki\'Teer, void trader")
+    @warframe.command(name="baro", brief="Baro Ki\'Teer, void trader")
     async def _baro(self, ctx):
         async with aiohttp.ClientSession() as session:
-            async with session.get('https://api.warframestat.us/pc/voidTrader') as resp:
+            async with session.get(
+                    'https://api.warframestat.us/pc/voidTrader') as resp:
                 j = json.loads(await resp.text())
                 embed = quick_embed(ctx, title='Current Baro Ki\'Teer info')
                 if not j['active']:
                     embed.add_field(
                         name='BaroKi\'teer',
-                        value='Is currently not visiting, he will be back in {}'.format(
-                            j['startString']))
+                        value=
+                        'Is currently not visiting, he will be back in {}'.
+                        format(j['startString']))
                     return await ctx.send(embed=embed)
                 embed.add_field(name='Location', value=j['location'])
                 embed.add_field(
-                    name='Current inventory',
-                    value=', '.join(
-                        j['inventory']))
+                    name='Current inventory', value=', '.join(j['inventory']))
                 await ctx.send(embed=embed)
 
-    @warframe.command(name="darvo",
-                      brief="Todays darvo deal")
+    @warframe.command(name="darvo", brief="Todays darvo deal")
     async def _darvo(self, ctx):
         async with aiohttp.ClientSession() as session:
-            async with session.get('https://api.warframestat.us/pc/dailyDeals') as resp:
+            async with session.get(
+                    'https://api.warframestat.us/pc/dailyDeals') as resp:
                 j = json.loads(await resp.text())
                 embed = quick_embed(
                     ctx,
                     title='Current Darvo Deal',
-                    description='Could i interest you in some half price life support?')
+                    description=
+                    'Could i interest you in some half price life support?')
                 embed.add_field(name='Item', value=j[0]['item'])
                 embed.add_field(
                     name='Discount',
-                    value='Original price: {org}, Percentage discount: {dis}%, Current price: {cur}'.format(
+                    value=
+                    'Original price: {org}, Percentage discount: {dis}%, Current price: {cur}'.
+                    format(
                         org=j[0]['originalPrice'],
                         dis=j[0]['discount'],
                         cur=j[0]['salePrice']))
-                embed.add_field(name='Amount sold',
-                                value=str(j[0]['sold']))
+                embed.add_field(name='Amount sold', value=str(j[0]['sold']))
                 embed.add_field(name='Time left', value=j[0]['eta'])
                 await ctx.send(embed=embed)
 
-    @warframe.command(name="cetustime",
-                      brief="current time in the plains")
+    @warframe.command(name="cetustime", brief="current time in the plains")
     async def _cetustime(self, ctx):
         async with aiohttp.ClientSession() as session:
-            async with session.get('https://api.warframestat.us/pc/cetusCycle') as resp:
+            async with session.get(
+                    'https://api.warframestat.us/pc/cetusCycle') as resp:
                 j = json.loads(await resp.text())
                 embed = quick_embed(
                     ctx,
                     title='Current cetus time',
-                    description='Taken from https://api.warframestat.us/pc/cetusCycle')
+                    description=
+                    'Taken from https://api.warframestat.us/pc/cetusCycle')
                 embed.add_field(name='Time', value=j['isDay'])
                 embed.add_field(name='Cycle ID', value=j['id'])
                 embed.add_field(name='Time left', value=j['timeLeft'])

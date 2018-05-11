@@ -15,8 +15,7 @@ class Fortnite:
                 email=self.config['fortnite']['email'],
                 password=self.config['fortnite']['client'],
                 launcher_token=self.config['fortnite']['launcher_token'],
-                fortnite_token=self.config['fortnite']['fortnite_token']
-            )
+                fortnite_token=self.config['fortnite']['fortnite_token'])
             self.hidden = False
         except Exception:
             print('Fortnite didnt load')
@@ -39,7 +38,9 @@ class Fortnite:
         stats = await info.stats.get()
         embed.add_field(
             name='Solo stats',
-            value='Score: {score}\nMatches: {matches}\nTop 12: {top12}\n Wins: {wins}\nTime:{time}\nTop 5: {top5}\nKills: {kills}'.format(
+            value=
+            'Score: {score}\nMatches: {matches}\nTop 12: {top12}\n Wins: {wins}\nTime:{time}\nTop 5: {top5}\nKills: {kills}'.
+            format(
                 score=stats['solo']['score'],
                 matches=stats['solo']['matches'],
                 top12=stats['solo']['top12'],
@@ -50,7 +51,9 @@ class Fortnite:
             inline=False)
         embed.add_field(
             name='Duo stats',
-            value='Score: {score}\nMatches: {matches}\nTop 12: {top12}\n Wins: {wins}\nTime:{time}\nTop 5: {top5}\nKills: {kills}'.format(
+            value=
+            'Score: {score}\nMatches: {matches}\nTop 12: {top12}\n Wins: {wins}\nTime:{time}\nTop 5: {top5}\nKills: {kills}'.
+            format(
                 score=stats['duo']['score'],
                 matches=stats['duo']['matches'],
                 top12=stats['duo']['top12'],
@@ -61,7 +64,9 @@ class Fortnite:
             inline=False)
         embed.add_field(
             name='Squad stats',
-            value='Score: {score}\nMatches: {matches}\nTop 12: {top12}\n Wins: {wins}\nTime:{time}\nTop 5: {top5}\nKills: {kills}'.format(
+            value=
+            'Score: {score}\nMatches: {matches}\nTop 12: {top12}\n Wins: {wins}\nTime:{time}\nTop 5: {top5}\nKills: {kills}'.
+            format(
                 score=stats['squad']['score'],
                 matches=stats['squad']['matches'],
                 top12=stats['squad']['top12'],
@@ -72,7 +77,9 @@ class Fortnite:
             inline=False)
         embed.add_field(
             name='Total stats',
-            value='Score: {score}\nMatches: {matches}\nTop 12: {top12}\n Wins: {wins}\nTime:{time}\nTop 5: {top5}\nKills: {kills}\nTop 3: {top3}\nTop 6: {top6}\nTop 10: {top10}\n Top 25: {top25}'.format(
+            value=
+            'Score: {score}\nMatches: {matches}\nTop 12: {top12}\n Wins: {wins}\nTime:{time}\nTop 5: {top5}\nKills: {kills}\nTop 3: {top3}\nTop 6: {top6}\nTop 10: {top10}\n Top 25: {top25}'.
+            format(
                 score=stats['all']['score'],
                 matches=stats['all']['matches'],
                 top12=stats['all']['top12'],
@@ -96,12 +103,10 @@ class Fortnite:
 
     @fortnite.command(name="serverstatus")
     async def _serverstatus(self, ctx):
-        statuses = {
-            True: 'up',
-            False: 'down'
-        }
+        statuses = {True: 'up', False: 'down'}
         up = await self.client.get_fortnite_status()
-        await ctx.send('Fortnite servers are currently {}'.format(statuses[up]))
+        await ctx.send('Fortnite servers are currently {}'.format(
+            statuses[up]))
 
     @fortnite.command(name="leaderboard")
     async def _leaderboard(self, ctx):
@@ -110,8 +115,9 @@ class Fortnite:
         for user in board:
             if user:
                 embed.add_field(
-                    name=user.name, value='{}:{}'.format(
-                        user.value, user.rank), inline=False)
+                    name=user.name,
+                    value='{}:{}'.format(user.value, user.rank),
+                    inline=False)
         await ctx.send(embed=embed)
 
 

@@ -17,7 +17,7 @@ class Help:
         return True
 
     @commands.command(name="help")
-    async def _help(self, ctx, command: str=None):
+    async def _help(self, ctx, command: str = None):
         if command is None:
             await ctx.send(embed=self.full_help(ctx))
         elif command in self.bot.cogs:
@@ -54,8 +54,7 @@ class Help:
         embed = quick_embed(
             ctx,
             title=target.name,
-            description='Inside cog {}'.format(
-                target.cog_name))
+            description='Inside cog {}'.format(target.cog_name))
         embed.add_field(name='Description', value=description)
         embed.add_field(name='Aliases', value=', '.join(aliases))
         embed.add_field(name='Usage', value=usage)
@@ -93,8 +92,7 @@ class Help:
             except AttributeError:
                 ret += cog + '\n'
         embed = quick_embed(
-            ctx, title='All cogs for bot {}'.format(
-                self.bot.user.name))
+            ctx, title='All cogs for bot {}'.format(self.bot.user.name))
         embed.add_field(name='All cogs', value=ret)
         return embed
 

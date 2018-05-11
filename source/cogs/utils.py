@@ -12,7 +12,8 @@ def can_override(bot, user):
     return bot.is_owner(user) or user in whitelist
 
 
-def quick_embed(ctx, title: str, description: str='', colour: int=0xff1500):
+def quick_embed(ctx, title: str, description: str = '',
+                colour: int = 0xff1500):
     try:
         colour = ctx.guild.me.colour
     except AttributeError:
@@ -39,11 +40,7 @@ def is_emoji(emoji: str):
 
 
 def guild_template(guild):
-    return {
-        "server_id": guild.id,
-        "first_joined": int(time()),
-        "contents": []
-    }
+    return {"server_id": guild.id, "first_joined": int(time()), "contents": []}
 
 
 async def shorten_url(long_url: str):
@@ -57,7 +54,5 @@ def is_embedable(url: str):
     url = pathname2url(url)
     mime_type = mime.guess_type(url)
     return mime_type[0] in [
-        'image/jpeg',
-        'image/png',
-        'image/gif',
-        'image/jpg']
+        'image/jpeg', 'image/png', 'image/gif', 'image/jpg'
+    ]

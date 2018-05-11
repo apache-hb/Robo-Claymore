@@ -16,7 +16,6 @@ whitelist = json.load(open('cogs/store/whitelist.json'))
 quotes = None
 
 tags = None
-
 '''
 import json
 

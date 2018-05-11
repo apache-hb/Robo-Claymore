@@ -18,7 +18,9 @@ class Admin:
             is_admin = True
 
         if not is_admin:
-            return await ctx.send('You dont have the permissions required to use the ban command')
+            return await ctx.send(
+                'You dont have the permissions required to use the ban command'
+            )
 
         if is_tadmin:
             return await ctx.send('I can\'t kick admins')
@@ -35,7 +37,8 @@ class Admin:
         try:
             await user.kick()
         except discord.errors.Forbidden:
-            return await ctx.send('I Don\'t have the correct permissions to do that')
+            return await ctx.send(
+                'I Don\'t have the correct permissions to do that')
         else:
             await ctx.send('He\'s gone for now')
 
@@ -62,19 +65,21 @@ class Admin:
         try:
             await user.ban()
         except discord.errors.Forbidden:
-            return await ctx.send('I don\'t have the correct permissions to do that')
+            return await ctx.send(
+                'I don\'t have the correct permissions to do that')
         else:
             await ctx.send('He\'s gone for good')
 
     @commands.command(name="prune")
-    async def _prune(self, ctx, amt: int=5):
+    async def _prune(self, ctx, amt: int = 5):
         is_admin = ctx.author.permissions_in(ctx.channel).manage_messages
 
         if can_override(self.bot, ctx.author.id):
             is_admin = True
 
         if not is_admin:
-            return await ctx.send('You don\'t have the required permissions to do that')
+            return await ctx.send(
+                'You don\'t have the required permissions to do that')
 
         if not 2 <= amt <= 100:
             return await ctx.send('Must prune between 2 and 100 messages')

@@ -61,7 +61,8 @@ class Math:
             return await ctx.send(ret)
 
         else:
-            return await ctx.send('must be simple\none operation type per calculation')
+            return await ctx.send(
+                'must be simple\none operation type per calculation')
 
     @commands.command(name="solve")
     async def _solve(self, ctx, equation: str):
@@ -102,11 +103,12 @@ class Math:
                     temp.append('**')
                 elif elem0 + elem1 + elem2 + elem3 == 'sqrt':
                     if not '(' in [elem4, elem5]:
-                        return await ctx.send('sqrt must be used with braces\nfor example ```\nsqrt(5)```works properly')
+                        return await ctx.send(
+                            'sqrt must be used with braces\nfor example ```\nsqrt(5)```works properly'
+                        )
                     else:
                         temp.append('sqrt')
                         temp.append('(')
-
         '''
         if '^' in equation:
             temp = equation.split('^')

@@ -14,7 +14,11 @@ class Reddit:
     description = "Read posts from anywhere on reddit"
 
     @commands.command(name="reddit")
-    async def reddit(self, ctx, target: str='all', search: str='new', index: int=1):
+    async def reddit(self,
+                     ctx,
+                     target: str = 'all',
+                     search: str = 'new',
+                     index: int = 1):
         if not 0 <= index <= 25:
             return await ctx.send('Index must be within 0 and 25')
 
@@ -42,26 +46,29 @@ class Reddit:
                 post = j['data']['children'][index]
 
                 if post['data']['over_18'] and not ctx.channel.is_nsfw():
-                    return await ctx.send('That post is nsfw, and must be requested in an nsfw channel')
+                    return await ctx.send(
+                        'That post is nsfw, and must be requested in an nsfw channel'
+                    )
 
                 embed = quick_embed(
                     ctx,
                     title='Post from {}'.format(target),
-                    description='Posted by {}'.format(
-                        post['data']['author']))
+                    description='Posted by {}'.format(post['data']['author']))
 
-                embed.add_field(name='Link', value=await shorten_url(post['data']['url']))
+                embed.add_field(
+                    name='Link', value=await shorten_url(post['data']['url']))
 
                 embed.add_field(name='Title', value=post['data']['title'])
                 embed.add_field(
                     name='Votes',
                     value='{ups} Upvotes & {downs} Downvotes'.format(
-                        ups=post['data']['ups'],
-                        downs=post['data']['downs']))
+                        ups=post['data']['ups'], downs=post['data']['downs']))
 
                 if not post['data']['selftext'] == '':
-                    embed.add_field(name='Selftext', value=post['data']['selftext'][:250] + (
-                        post['data']['selftext'][250:] and '...'))
+                    embed.add_field(
+                        name='Selftext',
+                        value=post['data']['selftext'][:250] +
+                        (post['data']['selftext'][250:] and '...'))
 
                 if is_embedable(post['data']['url']):
                     embed.set_image(url=post['data']['url'])
