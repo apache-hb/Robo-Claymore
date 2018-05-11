@@ -2,6 +2,7 @@ from discord.ext import commands
 
 from .utils import quick_embed
 
+
 class Help:
     def __init__(self, bot):
         self.bot = bot
@@ -31,14 +32,18 @@ class Help:
         target = self.bot.all_commands.get(command)
         aliases = target.aliases
 
-        try: description = target.description
-        except AttributeError: description = 'None'
+        try:
+            description = target.description
+        except AttributeError:
+            description = 'None'
 
         if description == '':
             description = 'None'
 
-        try: usage = target.usage
-        except AttributeError: usage = target.signature
+        try:
+            usage = target.usage
+        except AttributeError:
+            usage = target.signature
 
         if usage is None:
             usage = target.signature
@@ -46,7 +51,11 @@ class Help:
         if not aliases:
             aliases = None
 
-        embed = quick_embed(ctx, title=target.name, description='Inside cog {}'.format(target.cog_name))
+        embed = quick_embed(
+            ctx,
+            title=target.name,
+            description='Inside cog {}'.format(
+                target.cog_name))
         embed.add_field(name='Description', value=description)
         embed.add_field(name='Aliases', value=', '.join(aliases))
         embed.add_field(name='Usage', value=usage)
@@ -56,12 +65,15 @@ class Help:
     def cog_help(self, ctx, cog: str):
         target = self.bot.get_cog(cog)
 
-        try: description = target.description
-        except AttributeError: description = 'None'
+        try:
+            description = target.description
+        except AttributeError:
+            description = 'None'
 
-
-        embed=quick_embed(ctx, title='Information and subcommands in {}'.format(cog),
-        description=description)
+        embed = quick_embed(
+            ctx,
+            title='Information and subcommands in {}'.format(cog),
+            description=description)
         for command in self.bot.get_cog_commands(cog):
             if not command.hidden:
                 try:
@@ -72,15 +84,17 @@ class Help:
 
     @classmethod
     def full_help(self, ctx):
-        ret=''
+        ret = ''
         for cog in self.bot.cogs:
             cmd = self.bot.get_cog(cog)
             try:
                 if not cmd.hidden:
-                    ret+=cog+'\n'
+                    ret += cog + '\n'
             except AttributeError:
-                ret+=cog+'\n'
-        embed=quick_embed(ctx, title='All cogs for bot {}'.format(self.bot.user.name))
+                ret += cog + '\n'
+        embed = quick_embed(
+            ctx, title='All cogs for bot {}'.format(
+                self.bot.user.name))
         embed.add_field(name='All cogs', value=ret)
         return embed
 
@@ -91,6 +105,7 @@ class Help:
     @commands.command(name="report")
     async def _report(self, ctx, *, message: str):
         pass
+
 
 def setup(bot):
     bot.add_cog(Help(bot))

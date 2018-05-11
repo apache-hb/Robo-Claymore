@@ -3,6 +3,7 @@ from discord.ext import commands
 
 from .utils import can_override
 
+
 class Admin:
     def __init__(self, bot):
         self.bot = bot
@@ -11,7 +12,7 @@ class Admin:
     @commands.command(name="kick")
     async def _kick(self, ctx, user: discord.Member):
         is_admin = ctx.author.permissions_in(ctx.channel).kick_members
-        isTadmin = user.permissions_in(ctx.channel).administrator
+        is_tadmin = user.permissions_in(ctx.channel).administrator
 
         if can_override(self.bot, ctx.author.id):
             is_admin = True
@@ -19,7 +20,7 @@ class Admin:
         if not is_admin:
             return await ctx.send('You dont have the permissions required to use the ban command')
 
-        if isTadmin:
+        if is_tadmin:
             return await ctx.send('I can\'t kick admins')
 
         if user.id == ctx.author.id:
@@ -41,7 +42,7 @@ class Admin:
     @commands.command(name="ban")
     async def _ban(self, ctx, user: discord.Member):
         is_admin = ctx.author.permissions_in(ctx.channel).ban_members
-        isTadmin = user.permissions_in(ctx.channel).administrator
+        is_tadmin = user.permissions_in(ctx.channel).administrator
 
         if can_override(self.bot, ctx.author.id):
             is_admin = True
@@ -49,7 +50,7 @@ class Admin:
         if not is_admin:
             return await ctx.send('You don\'t have the permissions to do that')
 
-        if isTadmin:
+        if is_tadmin:
             return await ctx.send('I can\'t ban other admins')
 
         if user.id == self.bot.user.id:
@@ -84,6 +85,7 @@ class Admin:
             await ctx.send('I don\'t have the permissions to do that')
         else:
             await ctx.send('I pruned {} messages'.format(amt))
+
 
 def setup(bot):
     bot.add_cog(Admin(bot))

@@ -21,6 +21,7 @@ bot = commands.Bot(
 
 bot.remove_command('help')
 
+
 @bot.event
 async def on_ready():
     async with aiohttp.ClientSession() as session:
@@ -44,18 +45,21 @@ bot ready
         bot=__version__
     ))
 
+
 @bot.event
 async def on_message(message):
-    stats['total_messages']+=1
+    stats['total_messages'] += 1
     await bot.process_commands(message)
 
-    #stop autoreact from trying to react in direct messages
+    # stop autoreact from trying to react in direct messages
     if message.guild is None:
         return
 
+
 @bot.after_invoke
 async def after_any_command(ctx):
-    stats['total_commands']+=1
+    stats['total_commands'] += 1
+
 
 @bot.event
 async def on_command_error(ctx, exception):
@@ -66,7 +70,11 @@ async def on_command_error(ctx, exception):
     elif isinstance(exception, discord.ext.commands.CommandNotFound):
         return
 
-    traceback.print_exception(type(exception), exception, exception.__traceback__, file=sys.stderr)
+    traceback.print_exception(
+        type(exception),
+        exception,
+        exception.__traceback__,
+        file=sys.stderr)
 
 cogs = []
 
@@ -87,9 +95,9 @@ if __name__ == '__main__':
             print(e)
             failed_cogs.append(cog)
     if failed_cogs:
-        print('these cogs failed\n','\n'.join(failed_cogs))
+        print('these cogs failed\n', '\n'.join(failed_cogs))
     else:
         print('all cogs loaded successfully')
 
-#no point putting this in a try catch really
+# no point putting this in a try catch really
 bot.run(config['discord']['token'])

@@ -2,7 +2,7 @@ import json
 import sys
 import os
 
-#the bot config will be stored in here
+# the bot config will be stored in here
 config = json.load(open('cogs/store/config.json'))
 
 stats = json.load(open('cogs/store/stats.json'))

@@ -1,15 +1,18 @@
 import os
 import json
 
-#for making sure a file exists
-#ensure is the name of the file to check for existence
-#default is the default content to preint to it if it doesnt exist
+# for making sure a file exists
+# ensure is the name of the file to check for existence
+# default is the default content to preint to it if it doesnt exist
+
+
 def ensure_file(ensure: str, default):
     if not path.isfile(ensure):
         file = open(ensure, 'w')
         file.write(default)
         file.close()
         print('File {} was generated'.format(ensure))
+
 
 stats = {
     'total_commands': 0,
@@ -42,18 +45,18 @@ config = {
     }
 }
 
-#TODO there must be a way to do this with reflection
+# TODO there must be a way to do this with reflection
 store_files = [
-    {'name': 'tag','default': '[]'},
-    {'name': 'quote','default': '[]'},
-    {'name': 'autoreact','default': '[]'},
-    {'name': 'leave','default': '[]'},
-    {'name': 'join','default': '[]'},
-    {'name': 'autorole','default': '[]'},
-    {'name': 'blocked','default': '[]'},
-    {'name': 'whitelist','default': '[]'},
-    {'name': 'blacklist','default': '[]'},
-    {'name': 'config','default': json.dumps(config, indent=4)},
+    {'name': 'tag', 'default': '[]'},
+    {'name': 'quote', 'default': '[]'},
+    {'name': 'autoreact', 'default': '[]'},
+    {'name': 'leave', 'default': '[]'},
+    {'name': 'join', 'default': '[]'},
+    {'name': 'autorole', 'default': '[]'},
+    {'name': 'blocked', 'default': '[]'},
+    {'name': 'whitelist', 'default': '[]'},
+    {'name': 'blacklist', 'default': '[]'},
+    {'name': 'config', 'default': json.dumps(config, indent=4)},
     {'name': 'stats', 'default': json.dumps(stats, indent=4)}
 ]
 

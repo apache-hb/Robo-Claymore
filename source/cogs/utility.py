@@ -20,15 +20,15 @@ from datetime import datetime
 import time
 import platform
 
-#wikia fandom wikis
+# wikia fandom wikis
 WIKIA_API_URL = 'http://{lang}{sub_wikia}.wikia.com/api/v1/{action}'
 WIKIA_STANDARD_URL = 'http://{lang}{sub_wikia}.wikia.com/wiki/{page}'
 WIKIPEDIA_API_URL = 'http://en.wikipedia.org/w/api.php'
 
 USER_AGENT = '{type} (https://github.com/Apache-HB/Robo-Claymore)'
 
-#stolen from appuselfbot
-#https://github.com/appu1232/Discord-Selfbot
+# stolen from appuselfbot
+# https://github.com/appu1232/Discord-Selfbot
 emoji_dict = {
     'a': ['🇦 ', '🅰', '🍙', '🔼', '4⃣'],
     'b': ['🇧 ', '🅱', '8⃣'],
@@ -72,6 +72,7 @@ emoji_dict = {
     '\n': ['\n']
 }
 
+
 class Wolfram:
     def __init__(self, key):
         self.key = key
@@ -89,6 +90,7 @@ class Wolfram:
             async with session.get(url) as resp:
                 return fromstring(await resp.text())
 
+
 class Zalgo:
 
     def __init__(self, txt: str, intensity: int):
@@ -96,7 +98,9 @@ class Zalgo:
         self.intensity = intensity
 
     def __str__(self):
-        return self.zalgo(text=self.txt, intensity=self.intensity).decode('utf-8')
+        return self.zalgo(
+            text=self.txt,
+            intensity=self.intensity).decode('utf-8')
 
     def zalgo(self, text, intensity=50):
         zalgo_threshold = intensity
@@ -113,7 +117,6 @@ class Zalgo:
                 zalgoized.append(random.choice(zalgo_chars))
         response = random.choice(zalgo_chars).join(zalgoized)
         return response.encode('utf8', 'ignore')
-
 
     def _insert_randoms(self, text):
         random_extras = [chr(i) for i in range(0x1D023, 0x1D045 + 1)]
@@ -132,6 +135,7 @@ class Zalgo:
             return True
         return False
 
+
 class Utility:
     def __init__(self, bot):
         self.bot = bot
@@ -143,11 +147,11 @@ class Utility:
     description = "For extra\'s that don\'t fit in"
     hidden = True
 
-    #TODO: figure out why this doesnt work
+    # TODO: figure out why this doesnt work
 
     @commands.command(name="hastebin")
     async def _hastebin(self, ctx, *, message: str):
-        async with aiohttp.ClientSession() as session:#TODO test this
+        async with aiohttp.ClientSession() as session:  # TODO test this
             async with session.post('https://hastebin.com/documents', data=message.encode('utf-8')) as resp:
                 await ctx.send(await resp.text() + await resp.json()['key'])
 
@@ -158,9 +162,9 @@ class Utility:
         except Exception:
             await ctx.send('I cannot find and replace that')
 
-    #TODO a hell of alot of testing
+    # TODO a hell of alot of testing
     @commands.command(name="togif")
-    async def _togif(self, ctx, duration: int,*, message: str):
+    async def _togif(self, ctx, duration: int, *, message: str):
         images = []
         message = message.split(' ').split('\n')
         async with aiohttp.ClientSession() as session:
@@ -170,17 +174,17 @@ class Utility:
         imageio.mimsave('temp.gif', images)
         await ctx.send(file=discord.File(open('temp.gif')))
 
-
     @commands.command(name="charinfo")
     async def _charinfo(self, ctx, *, message: str):
-        ret=''
+        ret = ''
         for a in message[:5]:
-            ret+='``{}`` is ``{}`` in unicode\n'.format(a, unicodedata.name(a))
+            ret += '``{}`` is ``{}`` in unicode\n'.format(
+                a, unicodedata.name(a))
         await ctx.send(ret)
 
     @commands.command(name="randomcase")
     async def _randomcase(self, ctx, *, message: str):
-        await ctx.send(''.join(random.choice((str.upper,str.lower))(x) for x in message))
+        await ctx.send(''.join(random.choice((str.upper, str.lower))(x) for x in message))
 
     @commands.command(name="zalgo")
     async def _zalgo(self, ctx, *, text: str=None):
@@ -194,7 +198,7 @@ class Utility:
             text = ' '.join(text[:-1])
 
         try:
-            await ctx.send(Zalgo(txt=text , intensity=intensity))
+            await ctx.send(Zalgo(txt=text, intensity=intensity))
         except Exception:
             await ctx.send('Cannot zalgo this much text, this is discords fault, not mine')
 
@@ -203,12 +207,12 @@ class Utility:
         if text is None:
             text = 'bottom text'
 
-        ret=''
+        ret = ''
         for letter in text.lower():
             try:
-                ret+=emoji_dict[str(letter)][0]
+                ret += emoji_dict[str(letter)][0]
             except Exception:
-                ret+=emoji_dict[' '][0]
+                ret += emoji_dict[' '][0]
 
         try:
             await ctx.send(ret)
@@ -222,7 +226,7 @@ class Utility:
 
         ret = text + '\n'
         for letter in text:
-            ret+=letter+'\n'
+            ret += letter + '\n'
         try:
             await ctx.send(ret)
         except Exception:
@@ -275,19 +279,17 @@ class Utility:
     @prettyprint.command(name="html")
     async def _prettyprint_html(self, ctx, *, message: str):
         try:
-            await ctx.send('```html\n' + BeautifulSoup(message, 'html.parser').prettify() + '```' )
+            await ctx.send('```html\n' + BeautifulSoup(message, 'html.parser').prettify() + '```')
         except Exception:
             await ctx.send('Cannot print malformed html')
-
-
 
     @commands.group(invoke_without_command=True)
     @commands.guild_only()
     async def autoreact(self, ctx):
-        embed=quick_embed(ctx, title='All subcommands for autoreact')
-        c=[]
+        embed = quick_embed(ctx, title='All subcommands for autoreact')
+        c = []
         for a in self.autoreact.walk_commands():
-            if not a.name in c:#prevent duplicates
+            if a.name not in c:  # prevent duplicates
                 embed.add_field(name=a.name, value=a.brief)
             c.append(a.name)
         await ctx.send(embed=embed)
@@ -326,16 +328,24 @@ class Utility:
         for a in autoreact:
             if a['server_id'] == ctx.guild.id:
                 for b in a['contents']:
-                    if b['phrase'].lower() == phrase.lower() and b['react'] == react:
+                    if b['phrase'].lower() == phrase.lower(
+                    ) and b['react'] == react:
                         a['contents'].remove(b)
-                        json.dump(autoreact, open('cogs/store/autoreact.json', 'w'), indent=4)
+                        json.dump(
+                            autoreact,
+                            open(
+                                'cogs/store/autoreact.json',
+                                'w'),
+                            indent=4)
                         return await ctx.send('Autoreact removed')
         await ctx.send('No Autoreact found')
 
     @autoreact.command(name="purge")
     @commands.guild_only()
     async def _autoreact_purge(self, ctx):
-        if not (ctx.guild.owner == ctx.author or self.bot.is_owner(ctx.author.id)):
+        if not (
+            ctx.guild.owner == ctx.author or self.bot.is_owner(
+                ctx.author.id)):
             return await ctx.send('You must be the guild owner to do this')
 
         for a in autoreact:
@@ -354,12 +364,25 @@ class Utility:
         for a in autoreact:
             if a['server_id'] == ctx.guild.id:
                 for b in a['contents']:
-                    if b['phrase'].lower() == phrase.lower() and b['react'] == react:
+                    if b['phrase'].lower() == phrase.lower(
+                    ) and b['react'] == react:
                         embed = quick_embed(ctx, title='Autoreact info')
-                        embed.add_field(name='Times used', value=str(b['meta']['uses']))
-                        embed.add_field(name='Created in', value=self.bot.get_channel(b['meta']['created_in']).name)
-                        embed.add_field(name='Created by', value=self.bot.get_user(b['meta']['created_by']).name)
-                        embed.add_field(name='Time made', value=str(time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(b['meta']['time_created']))))
+                        embed.add_field(
+                            name='Times used', value=str(
+                                b['meta']['uses']))
+                        embed.add_field(
+                            name='Created in', value=self.bot.get_channel(
+                                b['meta']['created_in']).name)
+                        embed.add_field(
+                            name='Created by', value=self.bot.get_user(
+                                b['meta']['created_by']).name)
+                        embed.add_field(
+                            name='Time made',
+                            value=str(
+                                time.strftime(
+                                    '%Y-%m-%d %H:%M:%S',
+                                    time.localtime(
+                                        b['meta']['time_created']))))
                         embed.add_field(name='Phrase', value=b['phrase'])
                         embed.add_field(name='React', value=b['react'])
                         return await ctx.send(embed=embed)
@@ -368,19 +391,18 @@ class Utility:
     @autoreact.command(name="list")
     @commands.guild_only()
     async def _autoreact_list(self, ctx):
-        ret=''
+        ret = ''
         for a in autoreact:
             if a['server_id'] == ctx.guild.id:
                 for b in a['contents']:
-                    ret+='``{}`` is reacted with {}\n'.format(b['phrase'], b['react'])
+                    ret += '``{}`` is reacted with {}\n'.format(
+                        b['phrase'], b['react'])
                 break
 
-        temp = [ret[i:i+1500] for i in range(0, len(ret), 1500)]
+        temp = [ret[i:i + 1500] for i in range(0, len(ret), 1500)]
         for c in temp:
             await ctx.author.send(c)
         await ctx.send('I have delivered the list to you\'re inbox')
-
-
 
     @commands.group(invoke_without_command=True)
     async def quote(self, ctx, index: int=None):
@@ -405,8 +427,6 @@ class Utility:
     @quote.command(name="info")
     async def _quote_info(self, ctx, index: int):
         pass
-
-
 
     @commands.group(invoke_without_command=True)
     @commands.guild_only()
@@ -447,18 +467,24 @@ class Utility:
                 for b in a['contents']:
                     if name.lower() == b['name']:
                         if a['meta']['protected']:
-                            if not ctx.author.id in whitelist or self.bot.is_owner(ctx.author.id):
+                            if ctx.author.id not in whitelist or self.bot.is_owner(
+                                    ctx.author.id):
                                 if not is_admin:
                                     return await ctx.send('this tag is protected, and you don\'t have the permissions to remove it')
                         a['contents'].remove(b)
-                        json.dump(tags, open('cogs/store/tags.json', 'w'), indent=4)
+                        json.dump(
+                            tags,
+                            open(
+                                'cogs/store/tags.json',
+                                'w'),
+                            indent=4)
                         return await ctx.send('tag ``{}`` was removed'.format(name))
                 await ctx.send('no tag called ``{}`` was found'.format(name))
 
     @tag.command(name="protect")
     @commands.guild_only()
     async def _tag_protect(self, ctx, name: str):
-        if not ctx.author.id in whitelist or self.bot.is_owner(ctx.author.id):
+        if ctx.author.id not in whitelist or self.bot.is_owner(ctx.author.id):
             if not ctx.author.permissions_in(ctx.channel).administrator:
                 return await ctx.send('You must be an administrator to do this')
 
@@ -466,15 +492,19 @@ class Utility:
             if a['server_id'] == ctx.guild.id:
                 for b in a['contents']:
                     if b['name'] == name.lower():
-                        b['meta']['protected'] == True
-                        json.dump(tags, open('cogs/store/tags.json', 'w'), indent=4)
+                        b['meta']['protected']
+                        json.dump(
+                            tags,
+                            open(
+                                'cogs/store/tags.json',
+                                'w'),
+                            indent=4)
                         return await ctx.send('the tag ``{}`` is now protected'.format(name))
-
 
     @tag.command(name="purge")
     @commands.guild_only()
     async def _tag_purge(self, ctx):
-        if not ctx.author.id in whitelist or self.bot.is_owner(ctx.author.id):
+        if ctx.author.id not in whitelist or self.bot.is_owner(ctx.author.id):
             if not ctx.author.permissions_in(ctx.channel).administrator:
                 return await ctx.send('You must be an administrator to do this')
 
@@ -494,8 +524,6 @@ class Utility:
     async def _tag_info(self, ctx, name: str):
         pass
 
-
-
     @commands.group(invoke_without_command=True)
     async def welcome(self, ctx):
         pass
@@ -507,7 +535,6 @@ class Utility:
     @welcome.command(name="remove")
     async def _welcome_remove(self, ctx):
         pass
-
 
     @commands.group(invoke_without_command=True)
     async def leave(self, ctx):
@@ -538,15 +565,17 @@ class Utility:
                 while True:
                     try:
                         post = j['list'][self.a]
-                        self.a+=1
+                        self.a += 1
                         break
                     except Exception:
                         self.a = 0
                         post = j['list'][self.a]
                         break
 
-                embed=quick_embed(ctx, title='Definition of {}'.format(post['word']),
-                description='Posted by {}'.format(post['author']))
+                embed = quick_embed(
+                    ctx, title='Definition of {}'.format(
+                        post['word']), description='Posted by {}'.format(
+                        post['author']))
                 embed.add_field(name='Description', value=post['definition'])
                 embed.add_field(name='Example', value=post['example'])
                 embed.add_field(name='Permalink', value=post['permalink'])
@@ -558,28 +587,41 @@ class Utility:
 
     @commands.command(name="credits", aliases=['credit'])
     async def _credits(self, ctx):
-        embed=quick_embed(ctx,title='The services I use')
+        embed = quick_embed(ctx, title='The services I use')
         embed.add_field(name='Wolfram alpha api', value='')
         embed.add_field(name='Warframe api', value='')
         embed.add_field(name='Reddit api', value='')
 
     @commands.command(name="userinfo",
-    aliases=['memberinfo', 'playerinfo', 'aboutuser'])
+                      aliases=['memberinfo', 'playerinfo', 'aboutuser'])
     async def _userinfo(self, ctx, user: discord.Member=None):
         if user is None:
             user = ctx.message.author
-        embed=quick_embed(ctx, title='Info about {}'.format(
-            user.name+'#'+user.discriminator+' - ('+user.display_name+')'
-        ), description='ID: {}'.format(user.id))
+        embed = quick_embed(
+            ctx,
+            title='Info about {}'.format(
+                user.name +
+                '#' +
+                user.discriminator +
+                ' - (' +
+                user.display_name +
+                ')'),
+            description='ID: {}'.format(
+                user.id))
         embed.set_thumbnail(url=user.avatar_url)
         now = datetime.now()
         diffrence = now - user.joined_at
-        embed.add_field(name='Time spent in {}'.format(ctx.guild.name),
-        value='First joined at {}, thats {} days ago'.format(user.joined_at.date(), diffrence.days), inline=False)
+        embed.add_field(
+            name='Time spent in {}'.format(
+                ctx.guild.name), value='First joined at {}, thats {} days ago'.format(
+                user.joined_at.date(), diffrence.days), inline=False)
         diffrence = now - user.created_at
-        embed.add_field(name='Time spent on discord', value='First signed up at {}, thats over {} days ago'.format(
-            user.created_at.date(), diffrence.days
-        ), inline=False)
+        embed.add_field(
+            name='Time spent on discord',
+            value='First signed up at {}, thats over {} days ago'.format(
+                user.created_at.date(),
+                diffrence.days),
+            inline=False)
         roles = []
         for a in user.roles:
             roles.append(a.name)
@@ -587,35 +629,48 @@ class Utility:
         embed.add_field(name='Is a bot', value=user.bot)
         await ctx.send(embed=embed)
 
-
     @commands.command(name="selfinfo", aliases=['me'])
     async def _selfinfo(self, ctx):
         await ctx.invoke(self.bot.get_command("userinfo"))
 
     @commands.command(name="serverinfo")
     async def _serverinfo(self, ctx):
-        embed=quick_embed(ctx, title='Server information about {}'.format(ctx.guild.name),
-        description='ID: {}'.format(ctx.guild.id))
+        embed = quick_embed(
+            ctx, title='Server information about {}'.format(
+                ctx.guild.name), description='ID: {}'.format(
+                ctx.guild.id))
         now = datetime.now()
         diffrence = now - ctx.guild.created_at
-        embed.add_field(name='Created at', value='{}, thats over {} days ago'.format(
-            ctx.guild.created_at.date(),
-            diffrence.days
-        ), inline=False)
+        embed.add_field(
+            name='Created at',
+            value='{}, thats over {} days ago'.format(
+                ctx.guild.created_at.date(),
+                diffrence.days),
+            inline=False)
         embed.add_field(name='User Count', value=len(ctx.guild.members))
         embed.add_field(name='Owner', value=ctx.guild.owner.name)
-        embed.add_field(name='Text channels', value=len(ctx.guild.text_channels))
-        embed.add_field(name='Voice channels', value=len(ctx.guild.voice_channels))
+        embed.add_field(
+            name='Text channels', value=len(
+                ctx.guild.text_channels))
+        embed.add_field(
+            name='Voice channels', value=len(
+                ctx.guild.voice_channels))
         embed.set_thumbnail(url=ctx.guild.icon_url)
         await ctx.send(embed=embed)
 
     @commands.command(name="botinfo")
     async def _botinfo(self, ctx):
-        embed=quick_embed(ctx, title='Info about me, {}'.format(self.bot.user.name))
+        embed = quick_embed(
+            ctx, title='Info about me, {}'.format(
+                self.bot.user.name))
         embed.add_field(name='Working directory', value=dir_path)
         embed.set_thumbnail(url=self.bot.user.avatar_url)
         embed.add_field(name='discord.py version', value=discord.__version__)
-        embed.add_field(name='bot name and id', value="Name: {name}, ID: {id}".format(id=self.bot.user.id, name=self.bot.user.name))
+        embed.add_field(
+            name='bot name and id',
+            value="Name: {name}, ID: {id}".format(
+                id=self.bot.user.id,
+                name=self.bot.user.name))
         embed.add_field(name='Architecture', value=platform.machine())
         embed.add_field(name='Version', value=platform.version())
         embed.add_field(name='Platform', value=platform.platform())
@@ -631,8 +686,6 @@ class Utility:
             'query': search
         }
         api_url = WIKIPEDIA_API_URL.format(**params)'''
-
-
 
     @commands.command(name="wikia")
     async def _wikia(self, ctx, subwiki: str, *, search: str):
@@ -675,15 +728,18 @@ class Utility:
                         self.a = 0
                         a = j['collection']['items'][self.a]
 
-                embed=quick_embed(ctx,title=a['data'][0]['title'],
-                description='Created at {}'.format(a['data'][0]['date_created']))
+                embed = quick_embed(
+                    ctx,
+                    title=a['data'][0]['title'],
+                    description='Created at {}'.format(
+                        a['data'][0]['date_created']))
                 async with session.get(a['href']) as resp:
                     z = json.loads(await resp.text())
                     if is_embedable(z[0]):
                         embed.set_image(url=z[0])
                 await ctx.send(embed=embed)
 
-    #TODO make this nice
+    # TODO make this nice
     @commands.command(name="wolfram")
     async def _wolfram(self, ctx, *, query: str):
         if config['wolfram']['key'] is None:
@@ -695,16 +751,20 @@ class Utility:
                 for subobject in child:
                     for subsubobject in subobject:
                         if subsubobject.tag == 'plaintext':
-                            embed=quick_embed(ctx, title='From wolfram alpha',
-                            description='Awnser to the question {}'.format(query))
-                            embed.add_field(name='Awnser', value=subsubobject.text)
+                            embed = quick_embed(
+                                ctx,
+                                title='From wolfram alpha',
+                                description='Awnser to the question {}'.format(query))
+                            embed.add_field(
+                                name='Awnser', value=subsubobject.text)
                             return await ctx.send(embed=embed)
 
     @commands.command(name="shorten")
     async def _shorten(self, ctx, *, url: str=None):
-        if not url is None:
+        if url is not None:
             return await ctx.send(await shorten_url(long_url=url))
         return await ctx.send('You need to enter a url')
+
 
 def setup(bot):
     bot.add_cog(Utility(bot))
