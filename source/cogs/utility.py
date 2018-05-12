@@ -140,11 +140,10 @@ class Utility:
 
     short = "Miscellaneous functions"
     description = "For extra\'s that don\'t fit in"
-    hidden = True
 
     # TODO: figure out why this doesnt work
 
-    @commands.command(name="hastebin")
+    @commands.command(name="hastebin", hidden=True)
     async def _hastebin(self, ctx, *, message: str):
         async with aiohttp.ClientSession() as session:  # TODO test this
             async with session.post(
@@ -161,7 +160,7 @@ class Utility:
             await ctx.send('I cannot find and replace that')
 
     # TODO a hell of alot of testing
-    @commands.command(name="togif")
+    @commands.command(name="togif", hidden=True)
     async def _togif(self, ctx, duration: int, *, message: str):
         images = []
         message = message.split(' ').split('\n')
@@ -410,7 +409,7 @@ class Utility:
             await ctx.author.send(message)
         await ctx.send('I have delivered the list to you\'re inbox')
 
-    @commands.group(invoke_without_command=True)
+    @commands.group(invoke_without_command=True, hidden=True)
     async def quote(self, ctx, index: int = None):
         pass
 
@@ -434,7 +433,7 @@ class Utility:
     async def _quote_info(self, ctx, index: int):
         pass
 
-    @commands.group(invoke_without_command=True)
+    @commands.group(invoke_without_command=True, hidden=True)
     @commands.guild_only()
     async def tag(self, ctx, name: str = None):
         pass
@@ -529,7 +528,7 @@ class Utility:
     async def _tag_info(self, ctx, name: str):
         pass
 
-    @commands.group(invoke_without_command=True)
+    @commands.group(invoke_without_command=True, hidden=True)
     async def welcome(self, ctx):
         pass
 
@@ -541,7 +540,7 @@ class Utility:
     async def _welcome_remove(self, ctx):
         pass
 
-    @commands.group(invoke_without_command=True)
+    @commands.group(invoke_without_command=True, hidden=True)
     async def leave(self, ctx):
         pass
 
@@ -588,13 +587,6 @@ class Utility:
                 embed.set_footer(text='Votes: {up}/{down}'.format(
                     up=post['thumbs_up'], down=post['thumbs_down']))
                 await ctx.send(embed=embed)
-
-    @commands.command(name="credits", aliases=['credit'])
-    async def _credits(self, ctx):
-        embed = quick_embed(ctx, title='The services I use')
-        embed.add_field(name='Wolfram alpha api', value='')
-        embed.add_field(name='Warframe api', value='')
-        embed.add_field(name='Reddit api', value='')
 
     @commands.command(
         name="userinfo", aliases=['memberinfo', 'playerinfo', 'aboutuser'])
@@ -715,13 +707,12 @@ class Utility:
                 if not j['collection']['items']:
                     return await ctx.send(
                         'Nothing found for the search {}'.format(search))
-                while True:
-                    try:
-                        a = j['collection']['items'][self.loop]
-                        break
-                    except IndexError:
-                        self.loop = 0
-                        a = j['collection']['items'][self.loop]
+                try:
+                    a = j['collection']['items'][self.loop]
+                    break
+                except IndexError:
+                    self.loop = 0
+                    a = j['collection']['items'][self.loop]
 
                 embed = quick_embed(
                     ctx,
@@ -739,27 +730,19 @@ class Utility:
     async def _wolfram(self, ctx, *, query: str):
         if config['wolfram']['key'] is None:
             return await ctx.send('Wolfram has not been setup on this bot')
-
+        embed=quick_embed(ctx, title='Possible awnsers to {}'.format(query),
+        description='From wolfram alpha')
         root = await self.wolfram.query(query)
         for child in root:
-            if child.attrib['scanner'] == 'Simplification':
-                for subobject in child:
-                    for subsubobject in subobject:
-                        if subsubobject.tag == 'plaintext':
-                            embed = quick_embed(
-                                ctx,
-                                title='From wolfram alpha',
-                                description='Awnser to the question {}'.format(
-                                    query))
-                            embed.add_field(
-                                name='Awnser', value=subsubobject.text)
-                            return await ctx.send(embed=embed)
+            for subobject in child:
+                for subsubobject in subobject:
+                    if subsubobject.tag == 'plaintext':
+                        embed.add_field(name='Possible awnser', value=subsubobject.text)
+                        return await ctx.send(embed=embed)
 
     @commands.command(name="shorten")
-    async def _shorten(self, ctx, *, url: str = None):
-        if url is not None:
-            return await ctx.send(await shorten_url(long_url=url))
-        return await ctx.send('You need to enter a url')
+    async def _shorten(self, ctx, *, url: str):
+        await ctx.send(await shorten_url(long_url=url))
 
 
 def setup(bot):

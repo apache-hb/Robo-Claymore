@@ -7,16 +7,16 @@ import aiohttp
 import discord
 from discord.ext import commands
 
+from cogs.utils import can_override
 from cogs.store import (config, stats, FRAMES, whitelist, blacklist)
 
-__version__ = '0.0.1.4a'
+__version__ = '0.0.2.4a'
 
 bot = commands.Bot(
     command_prefix=config['discord']['prefix'],
     activity=discord.Game(name=config['discord']['activity']))
 
 bot.remove_command('help')
-
 
 @bot.event
 async def on_ready():
@@ -40,7 +40,6 @@ bot ready
         id=bot.user.id,
         discord=discord.__version__,
         bot=__version__))
-
 
 @bot.event
 async def on_message(message):
@@ -72,30 +71,34 @@ async def on_command_error(ctx, exception):
     traceback.print_exception(
         type(exception), exception, exception.__traceback__, file=sys.stderr)
 
+@bot.command(name="load")
+async def _load(ctx, *, target):
+    if can_override(bot, ctx.author):
+        try:
+            bot.load_extension('cogs.' + target.lower())
+            return await ctx.send('cog {} loaded'.format(target))
+        except Exception as e:
+            return await ctx.send(e)
+    await ctx.send('Nope')
 
-cogs = []
-
-for a in glob('cogs/*.py'):
-    cogs.append(a.replace('.py', '').replace('cogs/', 'cogs.'))
-
-#stop things that are not cogs from being loaded
-cogs.remove('cogs.__init__')
-cogs.remove('cogs.store')
-cogs.remove('cogs.utils')
-
-failed_cogs = []
+@bot.command(name="unload")
+async def _unload(ctx, *, target):
+    if can_override(bot, ctx.author):
+        try:
+            bot.unload_extension('cogs.' + target.lower())
+            return await ctx.send('cog {} unloaded'.format(target))
+        except Exception as e:
+            return await ctx.send(e)
+    await ctx.send('Nope')
 
 if __name__ == '__main__':
-    for cog in cogs:
-        try:
-            bot.load_extension(cog)
-        except Exception as e:
-            print(e)
-            failed_cogs.append(cog)
-    if failed_cogs:
-        print('these cogs failed\n', '\n'.join(failed_cogs))
-    else:
-        print('all cogs loaded successfully')
+    for cog in glob('cogs/*.py'):
+        cog = cog.replace('.py', '').replace('cogs/', 'cogs.')
+        if not cog in ['cogs.__init__', 'cogs.store', 'cogs.utils']:
+            try:
+                bot.load_extension(cog)
+            except Exception as e:
+                print(cog, 'failed to load because: ', e)
 
 # no point putting this in a try catch really
 bot.run(config['discord']['token'])

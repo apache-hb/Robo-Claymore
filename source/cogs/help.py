@@ -12,7 +12,7 @@ class Help:
     description = "Retrives a list of commands the bot has that the user can access"
 
     async def __local_check(self, ctx):
-        if self.bot.is_owner(ctx.author.id):
+        if ctx.bot.is_owner(ctx.author.id):
             return True
         return True
 
@@ -20,16 +20,16 @@ class Help:
     async def _help(self, ctx, command: str = None):
         if command is None:
             await ctx.send(embed=self.full_help(ctx))
-        elif command in self.bot.cogs:
+        elif command in ctx.bot.cogs:
             await ctx.send(embed=self.cog_help(ctx, command))
-        elif command in self.bot.all_commands:
+        elif command in ctx.bot.all_commands:
             await ctx.send(embed=self.command_help(ctx, command))
         else:
             await ctx.send('No cog or command called {} found'.format(command))
 
     @classmethod
     def command_help(self, ctx, command: str):
-        target = self.bot.all_commands.get(command)
+        target = ctx.bot.all_commands.get(command)
         aliases = target.aliases
 
         try:
@@ -62,7 +62,7 @@ class Help:
 
     @classmethod
     def cog_help(self, ctx, cog: str):
-        target = self.bot.get_cog(cog)
+        target = ctx.bot.get_cog(cog)
 
         try:
             description = target.description
@@ -73,7 +73,7 @@ class Help:
             ctx,
             title='Information and subcommands in {}'.format(cog),
             description=description)
-        for command in self.bot.get_cog_commands(cog):
+        for command in ctx.bot.get_cog_commands(cog):
             if not command.hidden:
                 try:
                     embed.add_field(name=command.name, value=command.brief)
@@ -84,15 +84,15 @@ class Help:
     @classmethod
     def full_help(self, ctx):
         ret = ''
-        for cog in self.bot.cogs:
-            cmd = self.bot.get_cog(cog)
+        for cog in ctx.bot.cogs:
+            cmd = ctx.bot.get_cog(cog)
             try:
                 if not cmd.hidden:
                     ret += cog + '\n'
             except AttributeError:
                 ret += cog + '\n'
         embed = quick_embed(
-            ctx, title='All cogs for bot {}'.format(self.bot.user.name))
+            ctx, title='All cogs for bot {}'.format(ctx.bot.user.name))
         embed.add_field(name='All cogs', value=ret)
         return embed
 

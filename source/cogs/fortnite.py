@@ -4,7 +4,6 @@ import json
 
 import aiofortnite
 
-
 class Fortnite:
     def __init__(self, bot):
         self.bot = bot
