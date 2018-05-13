@@ -728,7 +728,7 @@ class Utility:
     # TODO make this nice
     @commands.command(name="wolfram")
     async def _wolfram(self, ctx, *, query: str):
-        if config['wolfram']['key'] is None:
+        if config['wolfram']['key'] == '':
             return await ctx.send('Wolfram has not been setup on this bot')
         embed=quick_embed(ctx, title='Possible awnsers to {}'.format(query),
         description='From wolfram alpha')
