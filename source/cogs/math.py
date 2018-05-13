@@ -19,10 +19,11 @@ class Math:
     @commands.command(name="pointtoline")
     async def _pointtoline(self, ctx, x: float, y: float, m: float, k: float):
         await ctx.send(math.sqrt((((x+m*y-m*k)/(m**2) +1)-x)**2 + ((m * (x + (m * y) - m * k)/(m**2)) +k -y)**2))
-        # a = ((x + m * y - m * k)/(m**2) + 1) -x
-        # b = (m * (x + (m * y) - m * k)/(m**2)) +k -y
-        # d = math.sqrt(a**2 + b**2)
-        # await ctx.send(d)
+
+    @commands.command(name="equationfrompoints")
+    async def _equationfrompoints(self, ctx, x1, y1, x2, y2):
+        m = ((y2-y1)/(x2-x1))
+        
 
     @commands.command(name="inoutcircle")
     async def _inoutcircle(self, ctx, radius: int, locx: int, locy: int):
