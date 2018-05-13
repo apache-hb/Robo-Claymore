@@ -15,6 +15,7 @@ from .utils import quick_embed, shorten_url, is_emoji
 
 from .store import (config, quotes, tags, whitelist, blacklist)
 
+from inspect import getsource
 from datetime import datetime
 import time
 import platform
@@ -140,6 +141,16 @@ class Utility:
 
     short = "Miscellaneous functions"
     description = "For extra\'s that don\'t fit in"
+
+    @commands.command(name="source")
+    async def _source(self, ctx, *, command: str):
+        func = ctx.bot.get_command(command).callback
+        try:
+            await ctx.send('```py\n' + getsource(func) + '\n```')
+        except OSError:
+            await ctx.send('Code could not be retrived')
+        except Exception:
+            await ctx.send('The source for that command is too big to send')
 
     # TODO: figure out why this doesnt work
 

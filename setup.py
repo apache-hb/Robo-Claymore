@@ -7,7 +7,7 @@ import json
 
 
 def ensure_file(ensure: str, default):
-    if not path.isfile(ensure):
+    if not os.path.isfile(ensure):
         file = open(ensure, 'w')
         file.write(default)
         file.close()
@@ -67,4 +67,5 @@ for a in store_files:
         file.write(a['default'])
         file.close()
         print('{} file was generated'.format(a['name']))
+
 json.dump(config, open('source/cogs/store/config.json', 'w'), indent=4)

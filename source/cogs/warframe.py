@@ -152,7 +152,7 @@ class Warframe:
                         break
 
                 await ctx.send(embed=embed)
-
+    @classmethod
     def polarity_converter(self, polarities):
         return polarities.replace(
                         '<:madurai:319586146499690496>', 'Maduri').replace(
