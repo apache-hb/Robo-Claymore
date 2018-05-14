@@ -720,7 +720,6 @@ class Utility:
                         'Nothing found for the search {}'.format(search))
                 try:
                     a = j['collection']['items'][self.loop]
-                    break
                 except IndexError:
                     self.loop = 0
                     a = j['collection']['items'][self.loop]

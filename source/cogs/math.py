@@ -23,7 +23,6 @@ class Math:
     @commands.command(name="equationfrompoints")
     async def _equationfrompoints(self, ctx, x1, y1, x2, y2):
         m = ((y2-y1)/(x2-x1))
-        
 
     @commands.command(name="inoutcircle")
     async def _inoutcircle(self, ctx, radius: int, locx: int, locy: int):

@@ -42,13 +42,11 @@ def is_emoji(emoji: str):
 def guild_template(guild):
     return {"server_id": guild.id, "first_joined": int(time()), "contents": []}
 
-
 async def shorten_url(long_url: str):
     url = "http://tinyurl.com/api-create.php?url=" + long_url
     async with aiohttp.ClientSession() as session:
         async with session.get(url, timeout=10) as response:
             return await response.text()
-
 
 def is_embedable(url: str):
     url = pathname2url(url)
