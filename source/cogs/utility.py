@@ -10,6 +10,8 @@ from pyfiglet import figlet_format
 from defusedxml.ElementTree import fromstring
 from xml.dom.minidom import parseString
 from bs4 import BeautifulSoup as bs
+from datetime import datetime
+import platform
 
 class Utility:
     def __init__(self, bot):
@@ -122,6 +124,74 @@ class Utility:
                 embed.set_footer(text = 'Votes: {}/{}'.format(post['thumbs_up'], post['thumbs_down']))
 
                 await ctx.send(embed = embed)
+
+    @commands.command(name = "userinfo")
+    async def _userinfo(self, ctx, user: discord.Member = ctx.author):
+        embed = quick_embed(ctx,
+        title = 'Information about {}#{}'.format(user.name, user.discriminator),
+        description = 'User ID: {}'.format(user.id))
+
+        embed.set_thumbnail(url = user.avatar_url)
+
+        now = datetime.now()
+
+        if not ctx.guild is None:
+            diffrence = now - user.joined_at
+            embed.add_field(name = 'Time spent in {}'.format(ctx.guild.name),
+            value = 'First joined at {}, thats over {} days ago'.format(
+                user.joined_at.date(),
+                diffrence.days
+            ), inline = False)
+
+        diffrence = now - user.created_at
+        embed.add_field(name = 'Time spent on discord',
+        value = 'First joined at {}, thats over {} days ago'.format(
+            user.created_at.date(),
+            diffrence.days
+        ), inline = False)
+
+        if not ctx.guild is None:
+            roles = []
+            for role in user.roles:
+                roles.append(role.name)
+            embed.add_field(name = 'Roles', value = ', '.join(roles))
+        embed.add_field(name = 'Is the user a bot', value = user.bot)
+        await ctx.send(embed = embed)
+
+    @commands.command(name = "selfinfo")
+    async def _selfinfo(self, ctx):
+        await ctx.invoke(self.bot.get_command('userinfo'))
+
+    @commands.command(name = "serverinfo")
+    @commands.guild_only()
+    async def _serverinfo(self, ctx):
+        embed = quick_embed(ctx, title = 'Server information about {}'.format(ctx.guild.name), description = 'ID: {}'.format(ctx.guild.id))
+        now = datetime.now()
+        diffrence = now - ctx.guild.created_at
+        embed.add_field(name = 'Created at',
+        value = '{}, thats over {} days ago'.format(
+            ctx.guild.created_at.date(), diffrence.days
+        ),inline = False)
+        embed.add_field(name = 'User Count', value = len(ctx.guild.members))
+        embed.add_field(name = 'Owner', value = ctx.guild.owner.name)
+        embed.add_field(name = 'Text channels', value = len(ctx.guild.text_channels))
+        embed.add_field(name = 'Voice channels', value = len(ctx.guild.voice_channels))
+        embed.set_thumbnail(url = ctx.guild.icon_url)
+        await ctx.send(embed = embed)
+
+    @commands.command(name = "botinfo")
+    async def _botinfo(self, ctx):
+        embed = quick_embed(ctx, title='Info about me, {}'.format(self.bot.user.name))
+        embed.add_field(name = 'Working directory', value = dir_path)
+        embed.set_thumbnail(url = self.bot.user.avatar_url)
+        embed.add_field(name = 'discord.py version', value = discord.__version__)
+        embed.add_field(name = 'bot name and id',
+        value="Name: {name}, ID: {id}".format(id = self.bot.user.id, name = self.bot.user.name))
+        embed.add_field(name = 'Architecture', value = platform.machine())
+        embed.add_field(name = 'Version', value = platform.version())
+        embed.add_field(name = 'Platform', value = platform.platform())
+        embed.add_field(name = 'Processor', value = platform.processor())
+        await ctx.send(embed = embed)
 
     @commands.command(name = "reddit")
     async def _reddit(self, ctx, target: str = 'all', search: str = 'new', index: int = 1):
