@@ -1,5 +1,8 @@
 from discord.ext import commands
-from .store import whitelist, blacklist, hastebin, quick_embed, config
+import discord
+from .store import (whitelist, blacklist,
+hastebin, quick_embed, config,
+hastebin_error)
 from inspect import getsource
 import json
 import asyncio
@@ -35,12 +38,15 @@ class Owner:
     @commands.command(name = "source")
     async def _source(self, ctx, *, name: str):
 
-        func = ctx.bot.get_command(name).callback
+        func = ctx.bot.get_command(name)
 
-        ret = getsource(func)
+        if func is None:
+            return await ctx.send('No command called ``{}`` found'.format(name))
+
+        ret = getsource(func.callback)
 
         if not len(ret) <= 1800:
-            return await ctx.send(embed = await hastebin_error(ret))
+            return await ctx.send(embed = await hastebin_error(ctx, ret))
 
         await ctx.send('```py\n' + ret.replace('`', '\`') + '```')
 
@@ -58,7 +64,7 @@ class Owner:
         await ctx.send('{} seconds latency to discord'.format(ret))
 
 
-    @comamnds.command(name = "massdm")
+    @commands.command(name = "massdm")
     async def _massdm(self, ctx, count: int = 0, *, message: str = 'My name jeff'):
         for x in range(count):
             if self.spam:
