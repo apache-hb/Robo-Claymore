@@ -1,248 +1,139 @@
-import discord
 from discord.ext import commands
-from ast import literal_eval
-
+from .store import whitelist, blacklist, hastebin, quick_embed, config
+from inspect import getsource
 import json
-import emoji as e
-from .store import whitelist, blacklist
-from .utils import quick_embed, can_override
-
+import asyncio
 
 class Owner:
     def __init__(self, bot):
         self.bot = bot
-        print('Cog {} loaded'.format(self.__class__.__name__))
-
-    short = "Owner commands"
-    description = "Only the owner of the bot and whitelisted users can use these commands"
-    hidden = True
+        self.spam = True
+        self.hidden = True
+        print('cog {} loaded'.format(self.__class__.__name__))
 
     async def __local_check(self, ctx):
-        if can_override(self.bot, ctx.author.id):
+        if self.bot.is_owner(ctx.author) or ctx.author.id in whitelist:
             return True
-        await ctx.send('Go away')
+        await ctx.send('go away')
         return False
 
-    @commands.group(invoke_without_command=True)
-    async def whitelist(self, ctx):
-        embed = quick_embed(
-            ctx,
-            title='All whitelisted users',
-            description='These people have access to special commands')
-        ret = ''
-        if whitelist:
-            for person in whitelist:
-                user = await self.bot.get_user_info(person)
-                ret += '{}#{}:({})\n'.format(user.name, user.discriminator,
-                                             user.id)
-        else:
-            ret = 'There are no whitelisted users'
-        embed.add_field(name='All users', value=ret)
-        return await ctx.send(embed=embed)
-
-    @whitelist.command(name="add")
-    async def _whitelist_add(self, ctx, *, user: discord.Member):
-        ret = 'User {} was already in the whitelist'.format(user.name)
-        if user.id not in whitelist:
-            whitelist.append(user.id)
-            json.dump(
-                whitelist,
-                open('cogs/store/whitelist.json', 'w'),
-                indent=4)
-            ret = 'User {} was added to the whitelist'.format(user.name)
-            json.dump(
-                whitelist, open('store/whitelist.json', 'w'), indent=4)
-        embed = quick_embed(ctx, title='New user added to whitelist')
-        embed.add_field(name='User', value=ret)
-        await ctx.send(embed=embed)
-
-    @whitelist.command(name="remove")
-    async def _whitelist_remove(self, ctx, user: discord.Member):
-        if user.id in whitelist:
-            whitelist.remove(user.id)
-            embed = quick_embed(ctx, title='Whitelist removal')
-            embed.add_field(name=user.name, value='Was removed from whitelist')
-            json.dump(
-                whitelist,
-                open('cogs/store/whitelist.json', 'w'),
-                indent=4)
-            return await ctx.send(embed=embed)
-        embed = quick_embed(ctx, title='Whitelist')
-        embed.add_field(
-            name=user.name,
-            value=
-            'Cannot be removed from whitelist, because they are not in the whitelist'
-        )
-        await ctx.send(embed=embed)
-
-    @commands.group(invoke_without_command=True)
-    async def blacklist(self, ctx):
-        embed = quick_embed(
-            ctx,
-            title='All blacklisted users',
-            description='These people have been blocked from using me')
-        ret = ''
-        if blacklist:
-            for person in blacklist:
-                user = await self.bot.get_user_info(person)
-                ret += '{}#{}:({})\n'.format(user.name, user.discriminator,
-                                             user.id)
-        else:
-            ret = 'There are no blacklisted users'
-        embed.add_field(name='All users', value=ret)
-        return await ctx.send(embed=embed)
-
-    @blacklist.command(name="add")
-    async def _blacklist_add(self, ctx, user: discord.Member):
-        if user.id not in blacklist:
-            blacklist.append(user.id)
-            embed = quick_embed(ctx, title='Blacklist addition')
-            embed.add_field(name=user.name, value='Was blocked')
-            json.dump(
-                blacklist,
-                open('cogs/store/blacklist.json', 'w'),
-                indent=4)
-            return await ctx.send(embed=embed)
-        embed = quick_embed(ctx, title='Blacklist')
-        embed.add_field(name=user.name, value='Was already blacklisted')
-        return await ctx.send(embed=embed)
-
-    @blacklist.command(name="remove")
-    async def _blacklist_remove(self, ctx, user: discord.Member):
-        if user.id in blacklist:
-            blacklist.remove(user.id)
-            embed = quick_embed(ctx, title='Blacklist removal')
-            embed.add_field(name=user.name, value='Was removed from blacklist')
-            json.dump(
-                blacklist,
-                open('cogs/store/blacklist.json', 'w'),
-                indent=4)
-            return await ctx.send(embed=embed)
-        embed = quick_embed(ctx, title='Blacklist')
-        embed.add_field(
-            name=user.name,
-            value=
-            'Cannot be removed from blacklist, because they are not in the blacklist'
-        )
-        await ctx.send(embed=embed)
-
-    @commands.command(name="verifyconfig")
-    async def _verifyconfig(self, ctx):
-        for guild in self.bot.guilds:
-            add_guild(guild)
-        await ctx.send('Verified config files')
-
-    @commands.command(name="resetconfig")
-    async def _resetconfig(self, ctx):
-        reset_config()
-        await ctx.invoke(self.bot.get_command("verifyconfig"))
-
-    @commands.command(name="setpresence")
-    async def _setgame(self, ctx, *, name: str = 'Beep Boop'):
-        mode = name.split(' ')[0]
-        if mode.lower() == 'playing':
-            activity = discord.Game(name=name)
-        elif mode.lower() == 'streaming':
-            activity = discord.Streaming(name=name, url='BONELESS')
-
-        await self.bot.change_presence(activity=activity)
-        await ctx.send('Changed presence to {}'.format(name.split()[1:]))
-
-    @commands.command(name="setname")
-    async def _setname(self, ctx, *, name: str):
-        pass
-
-    @commands.command(name="invite")
+    @commands.command(name = "invite")
     async def _invite(self, ctx):
-        await ctx.send(
-            'https://discordapp.com/oauth2/authorize?client_id={}&scope=bot&permissions=66321471'.
-            format(self.bot.user.id))
+        await ctx.send('https://discordapp.com/oauth2/authorize?client_id={}&scope=bot&permissions=66321471'.format(self.bot.user.id))
 
-    @commands.command(name="massdm")
-    async def _massdm(self, ctx, *, message: str = 'Good day fleshy mammal'):
-        for user in ctx.guild.members:
-            try:
+    @commands.command(name = "eval")
+    async def _eval(self, ctx, *, text: str):
+        try:
+            await ctx.send(eval(text))
+        except Exception as e:
+            await ctx.send(e)
+
+    @commands.command(name = "echo")
+    async def _echo(self, ctx, *, text: str):
+        await ctx.send(text)
+
+    @commands.command(name = "source")
+    async def _source(self, ctx, *, name: str):
+
+        func = ctx.bot.get_command(name).callback
+
+        ret = getsource(func)
+
+        if not len(ret) <= 1800:
+            return await ctx.send(embed = await hastebin_error(ret))
+
+        await ctx.send('```py\n' + ret.replace('`', '\`') + '```')
+
+    @commands.command(name = "panic")
+    async def _panic(self, ctx):
+        self.spam = False
+        ret = await ctx.send('Stopping spam')
+        asyncio.sleep(15)
+        self.spam = True
+        await ret.edit('The spam should be over')
+
+    @commands.command(name = "ping")
+    async def _ping(self, ctx):
+        ret = '%.{}f'.format(3) % ctx.bot.latency
+        await ctx.send('{} seconds latency to discord'.format(ret))
+
+
+    @comamnds.command(name = "massdm")
+    async def _massdm(self, ctx, count: int = 0, *, message: str = 'My name jeff'):
+        for x in range(count):
+            if self.spam:
+                for user in ctx.guilds.members:
+                    await user.send(message)
+            else:
+                return await ctx.send('The spam has been inturrupted')
+
+    @commands.command(name = "prod")
+    async def _prod(self, ctx, user: discord.Member, count: int = 10, *, message: str = 'Skidaddle skidoodle'):
+        for x in range(count):
+            if self.spam:
                 await user.send(message)
-            except discord.errors.Forbidden:
-                pass
+            else:
+                return await ctx.send('The spam has been inturrupted')
 
-    @commands.command(name="prod")
-    async def _prod(self,
-                    ctx,
-                    user: discord.Member,
-                    amt: int = 50,
-                    *,
-                    message: str = 'Barzoople'):
-        for x in range(amt):
-            try:
-                await user.send(message + str(x))
-            except discord.errors.Forbidden:
-                return await ctx.send('This user has blocked me')
+    @commands.group(name = "cogs", invoke_without_command = True)
+    async def cogs(self, ctx):
+        ret = ''
 
-    @commands.command(name="serverlist")
-    async def _serverlist(self, ctx):
-        embed = quick_embed(ctx, title='First 25 servers')
-        for guild in self.bot.guilds[:25]:
-            try:
-                embed.add_field(
-                    name='{}#{}'.format(guild.name, guild.id),
-                    value=guild.create_invite(unique=False))
-            except Exception:
-                embed.add_field(
-                    name='{}#{}'.format(guild.name, guild.id),
-                    value='Invite creation blocked')
+        for cog in ctx.bot.cogs:
+            ret += cog + '\n'
 
-    @commands.command(name="remoteserverinfo")
-    async def _remoteserverinfo(self, ctx, server: int):
-        guild = self.bot.get_guild(server)
-        ret = '```Server info about: {}\n\n'.format(guild.name)
-        for channel in guild.channels:
-            ret += '{}#{}\n'.format(channel.name, channel.id)
-        await ctx.send(ret + '```')
+        embed = quick_embed(ctx, title = 'All cogs currently registered',
+        description = 'Disable and enable them with subcommands')
+        embed.add_field(name = 'Currently loaded', value = ret)
 
-    @commands.command(name="remotemessage")
-    async def _remotemessage(self, ctx, id: int, *, message: str):
-        channel = self.bot.get_channel(id)
+        return await ctx.send(embed = embed)
+
+    @cogs.command(name = "load")
+    async def _cogs_load(self, ctx, name: str):
         try:
-            await channel.send(message)
+            self.bot.load_extension('cogs.' + name.lower())
         except Exception as e:
-            await ctx.send(
-                'I could not send a message to that channel for some reason\n\n```{}```'.
-                format(e))
+            return await ctx.send(e)
+        return await ctx.send('Cog {} loaded correctly'.format(name))
 
-    @commands.command(name="remotedirectmessage")
-    async def _remotedirectmessage(self, ctx, id: int, *, message: str):
-        user = await self.bot.get_user_info(id)
+    @cogs.command(name = "unload")
+    async def _cogs_unload(self, ctx, name: str):
         try:
-            await user.send(message)
+            self.bot.unload_extension('cogs.' + name.lower())
         except Exception as e:
-            await ctx.send(
-                'I could not message that user for some reason\n\n```{}```'.
-                format(e))
+            return await ctx.send(e)
+        return await ctx.send('Cog {} unloaded'.format(name))
 
-    @commands.command(name="echo")
-    async def _echo(self, ctx, *, msg: str):
-        await ctx.send(msg)
+    @cogs.command(name = "reload")
+    async def _cogs_reload(self, ctx, name: str):
+        try:
+            self.bot.unload_extension('cogs.' + name.lower())
+            self.bot.load_extension('cogs.' + name.lower())
+        except Exception as e:
+            return await ctx.send(e)
+        return await ctx.send('Cog {} reloaded correctly'.format(name))
 
-    @commands.command(name="eval")
-    async def _eval(self, ctx, *, todo: str):
-        await ctx.send(literal_eval(todo))
+    @cogs.command(name = "enable")
+    async def _cogs_enable(self, ctx, name: str):
+        if ctx.bot.get_cog(name.lower()) is None:
+            return await ctx.send('{} is not a cog'.format(name))
 
-    @commands.command(name="test")
-    async def _test(self, ctx, emoji: str):
-        is_anim = True if emoji.startswith('<a:') else False
+        if not name.lower() in config['disabled']['cogs']:
+            return await ctx.send('That cog isn\'t disabled')
 
-        if emoji.startswith('<') and emoji.endswith('>') and emoji.count(
-                ':') == 2:
-            emoji = emoji[3:] if is_anim else emoji[2:]
-            while not emoji.startswith(':'):
-                emoji = emoji[1:]
-            emoji = emoji[1:-1]
-            if len(emoji):
-                await ctx.send('Is an emoji')
-        elif emoji in e.UNICODE_EMOJI:
-            await ctx.send('Is an emoji')
+        config['disabled']['cogs'].remove(name.lower())
+        json.dump(config, open('cogs/store/config.json', 'w'), indent = 4)
 
+    @cogs.command(name = "disable")
+    async def _cogs_disable(self, ctx, name: str):
+        if ctx.bot.get_cog(name.lower()) is None:
+            return await ctx.send('{} is not a cog'.format(name))
+
+        if name.lower() in config['disabled']['cogs']:
+            return await ctx.send('That cog is already disabled')
+
+        config['disabled']['cogs'].append(name.lower())
+        json.dump(config, open('cogs/store/config.json', 'w'), indent = 4)
 
 def setup(bot):
     bot.add_cog(Owner(bot))

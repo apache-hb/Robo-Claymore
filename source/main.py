@@ -1,104 +1,72 @@
-from glob import glob
-import json
-import sys
-import traceback
-
-import aiohttp
 import discord
 from discord.ext import commands
-
-from cogs.utils import can_override
-from cogs.store import (config, stats, FRAMES, whitelist, blacklist)
-
-__version__ = '0.0.2.4a'
+import json
+from glob import glob
+import aiohttp
+import traceback
+import sys
+from cogs.store import whitelist, blacklist, config, quick_embed
 
 bot = commands.Bot(
-    command_prefix=config['discord']['prefix'],
-    activity=discord.Game(name=config['discord']['activity']))
+    command_prefix = config['discord']['prefix'],
+    activity = discord.Game(name = config['discord']['activity']),
+    owner_id = int(config['discord']['owner']))
 
+#get rid of the help command to allow for a custom one
 bot.remove_command('help')
+
+__version__ = '0.0.1.0a'
 
 @bot.event
 async def on_ready():
-    async with aiohttp.ClientSession() as session:
-        async with session.get(
-                'https://api.warframestat.us/warframes') as resp:
-            print('warframe data aquired')
-            FRAMES = json.loads(await resp.text())
     print('''
---------------------------------------
-my name is: {name}#{discrim}
-my id is: {id}
-invite me with: https://discordapp.com/oauth2/authorize?client_id={id}&scope=bot&permissions=66321471
---------------------------------------
-running with version {discord} of discord.py
+name: {name}#{dis}
+id: {id}
+invite: https://discordapp.com/oauth2/authorize?client_id={id}&scope=bot&permissions=66321471
+discord.py version: {discord}
 bot version: {bot}
-bot ready
-    '''.format(
-        name=bot.user.name,
-        discrim=bot.user.discriminator,
-        id=bot.user.id,
-        discord=discord.__version__,
-        bot=__version__))
+bot ready'''.format(name = bot.user.name, dis = bot.user.discriminator, id = bot.user.id, discord = discord.__version__, bot = __version__))
 
 @bot.event
-async def on_message(message):
-    stats['total_messages'] += 1
-    await bot.process_commands(message)
-
-    json.dump(stats, open('cogs/store/stats.json', 'w'), indent=4)
-    # stop autoreact from trying to react in direct messages
-    if message.guild is None:
-        return
-
-@bot.after_invoke
-async def after_any_command(ctx):
-    stats['total_commands'] += 1
-    json.dump(stats, open('cogs/store/stats.json', 'w'), indent=4)
-
+async def on_message(context):
+    await bot.process_commands(context)
 
 @bot.event
 async def on_command_error(ctx, exception):
-    if isinstance(exception, discord.ext.commands.errors.CheckFailure):
-        return await ctx.send(
-            'You do not have the required permissions to do that')
-    elif isinstance(exception,
-                    discord.ext.commands.errors.MissingRequiredArgument):
-        return await ctx.send('You have missing arguments')
-    elif isinstance(exception, discord.ext.commands.CommandNotFound):
-        return
+    if isinstance(exception, discord.ext.commands.errors.MissingRequiredArgument):
+        embed = quick_embed(ctx, title = 'Incorrect command usage', description = 'When using command {}'.format(ctx.command.name))
+        embed.add_field(name = 'The correct usage is', value = ctx.command.signature)
+        return await ctx.send(embed = embed)
 
-    traceback.print_exception(
-        type(exception), exception, exception.__traceback__, file=sys.stderr)
+    traceback.print_exception(type(exception), exception, exception.__traceback__, file=sys.stderr)
 
-@bot.command(name="load")
-async def _load(ctx, *, target):
-    if can_override(bot, ctx.author):
-        try:
-            bot.load_extension('cogs.' + target.lower())
-            return await ctx.send('cog {} loaded'.format(target))
-        except Exception as e:
-            return await ctx.send(e)
-    await ctx.send('Nope')
+@bot.check
+async def check_commands(ctx):
+    #let the bot owner and whitelisted users always override
+    if ctx.bot.is_owner(ctx.author) or ctx.author.id in whitelist:
+        return True
 
-@bot.command(name="unload")
-async def _unload(ctx, *, target):
-    if can_override(bot, ctx.author):
-        try:
-            bot.unload_extension('cogs.' + target.lower())
-            return await ctx.send('cog {} unloaded'.format(target))
-        except Exception as e:
-            return await ctx.send(e)
-    await ctx.send('Nope')
+    if ctx.author.id in blacklist:#make sure to tell blocked people to eat pant
+        await ctx.send('Go away')
+        return False
+
+    if ctx.command.name.lower() in config['disabled']['commands']:
+        await ctx.send('That command has been disabled globally')
+        return False
+
+    if ctx.command.name.cog_name.lower() in config['disabled']['cogs']:
+        await ctx.send('That cog has been disabled globally')
+        return False
+
+    return True
 
 if __name__ == '__main__':
     for cog in glob('cogs/*.py'):
-        cog = cog.replace('.py', '').replace('cogs/', 'cogs.')
-        if not cog in ['cogs.__init__', 'cogs.store', 'cogs.utils']:
+        if not cog in ['cogs/__init__.py', 'cogs/store.py']:
             try:
-                bot.load_extension(cog)
+                bot.load_extension(cog.replace('cogs/', 'cogs.').replace('.py', ''))
             except Exception as e:
-                print(cog, 'failed to load because: ', e)
+                print(cog, 'failed to load becuase: ', e)
 
-# no point putting this in a try catch really
+#no point catching exceptions here
 bot.run(config['discord']['token'])

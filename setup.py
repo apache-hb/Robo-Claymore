@@ -1,71 +1,49 @@
 import os
 import json
 
-# for making sure a file exists
-# ensure is the name of the file to check for existence
-# default is the default content to preint to it if it doesnt exist
+if not os.path.isdir('source/cogs/store'):
+    os.mkdir('soruce/cogs/store')
 
+print('{:=^50}'.format('Robo Claymore setup script'))
+print('{:^50}'.format('To skip a token, just press enter'))
 
-def ensure_file(ensure: str, default):
-    if not os.path.isfile(ensure):
-        file = open(ensure, 'w')
-        file.write(default)
-        file.close()
-        print('File {} was generated'.format(ensure))
-
-
-stats = {'total_commands': 0, 'total_messages': 0}
-
-print('''
-+---------------------------------------------------------------+
-|   welcome to the setup for robo claymore                      |
-|   the discord token and prefix are the only mandatory inputs  |
-|   all the other tokens can be skipped by entering nothing     |
-+---------------------------------------------------------------+
-''')
-
-config = {
+default = {
     'discord': {
-        'token': input('input discord token\n'),
-        'prefix': input('input discord prefix\n'),
-        'activity': input('input default discord activity\n'),
-        'description': input('input bot description\n')
+        'token': input('(required) input your discord bot token\n'),
+        'prefix': input('(required) input your bots desired prefix\n'),
+        'activity': input('(optional) input the bots default activity\n'),
+        'description': input('(optional) input the help flavor text\n'),
+        'owner': input('(optional) input your own user id so the bot can know who you are\n')
     },
     'fortnite': {
-        'launcher_token': input('input fortnite launcher token\n'),
-        'user_token': input('input fortnite user token\n'),
-        'password': input('input fortnite password\n'),
-        'email': input('input fortnite email\n')
+        'key': input('(optional) input a fortnite bot key to enable the fortnite commands\n')
     },
     'wolfram': {
-        'key': input('input wolfram key\n')
+        'key': input('(optional) input a wolfram alpha key to enable the wolfram command\n')
+    },
+    'fortnite': {
+        'key': input('(optional) input a fortnite key to enable fortnite support\n')
+    },
+    'disabled': {
+        'cogs': [
+
+        ],
+        'commands': [
+
+        ]
     }
 }
 
-# TODO there must be a way to do this with reflection
-store_files = [
-    {'name': 'tag', 'default': '[]'},
-    {'name': 'quote', 'default': '[]'},
-    {'name': 'autoreact', 'default': '[]'},
-    {'name': 'leave', 'default': '[]'},
-    {'name': 'join', 'default': '[]'},
-    {'name': 'autorole', 'default': '[]'},
-    {'name': 'blocked', 'default': '[]'},
-    {'name': 'whitelist', 'default': '[]'},
-    {'name': 'blacklist', 'default': '[]'},
-    {'name': 'config', 'default': json.dumps(config, indent=4)},
-    {'name': 'stats', 'default': json.dumps(stats, indent=4)}
+json.dump(default, open('source/cogs/store/config.json', 'w'), indent = 4)
+
+files = [
+    'whitelist',
+    'blacklist'
 ]
 
-if not os.path.isdir('source/cogs/store'):
-    os.mkdir('source/cogs/store')
-    print('store file was made')
-
-for a in store_files:
-    if not os.path.isfile('source/cogs/store/' + a['name'] + '.json'):
-        file = open('source/cogs/store/' + a['name'] + '.json', 'w')
-        file.write(a['default'])
-        file.close()
-        print('{} file was generated'.format(a['name']))
-
-json.dump(config, open('source/cogs/store/config.json', 'w'), indent=4)
+for a in files:
+    if not os.path.isfile('source/cogs/store/{}.json'.format(a)):
+        b = open('source/cogs/store/{}.json'.format(a), 'w')
+        b.write('[]')
+        b.close()
+        print('{} file was generated'.format(a))
