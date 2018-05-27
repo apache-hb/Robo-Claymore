@@ -1,23 +1,112 @@
-import discord
-from discord.ext import commands
-from .store import (quick_embed, hastebin,
-emoji_dict, hastebin_error,
-tinyurl, embedable, whitelist)
-import random
-import aiohttp
 import json
-from pyfiglet import figlet_format
-from defusedxml.ElementTree import fromstring
-from xml.dom.minidom import parseString
-from bs4 import BeautifulSoup as bs
-from datetime import datetime
 import platform
+import random
+from datetime import datetime
+from xml.dom.minidom import parseString
+
+import aiohttp
+import discord
+from bs4 import BeautifulSoup as bs
+from defusedxml.ElementTree import fromstring
+from discord.ext import commands
+from pyfiglet import figlet_format
+import time
+
+from .store import (embedable, emoji_dict, hastebin, hastebin_error,
+                    quick_embed, tinyurl, whitelist, config)
+
+# wikia fandom wikis
+WIKIA_API_URL = 'http://{lang}{sub_wikia}.wikia.com/api/v1/{action}'
+WIKIA_STANDARD_URL = 'http://{lang}{sub_wikia}.wikia.com/wiki/{page}'
+WIKIPEDIA_API_URL = 'http://en.wikipedia.org/w/api.php'
+
+USER_AGENT = '{type} (https://github.com/Apache-HB/Robo-Claymore)'
+
+class Wolfram:
+    def __init__(self, key):
+        self.key = key
+        print('Wolfram loaded')
+
+    async def query(self, question, params=(), **kwargs):
+        data = dict(input=question, appid=self.key)
+        data = chain(params, data.items(), kwargs.items())
+        query = urlencode(tuple(data))
+        url = 'https://api.wolframalpha.com/v2/query?' + query
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url) as resp:
+                return fromstring(await resp.text())
+
+
+class Zalgo:
+    def __init__(self, txt: str, intensity: int):
+        self.txt = txt
+        self.intensity = intensity
+
+    def __str__(self):
+        return self.zalgo(
+            text=self.txt, intensity=self.intensity).decode('utf-8')
+
+    def zalgo(self, text, intensity=50):
+        zalgo_threshold = intensity
+        zalgo_chars = [chr(i) for i in range(0x0300, 0x036F + 1)]
+        zalgo_chars.extend([u'\u0488', u'\u0489'])
+        source = text.upper()
+        if not self._is_narrow_build:
+            source = self._insert_randoms(source)
+        zalgoized = []
+        for letter in source:
+            zalgoized.append(letter)
+            zalgo_num = random.randint(0, zalgo_threshold) + 1
+            for _ in range(zalgo_num):
+                zalgoized.append(random.choice(zalgo_chars))
+        response = random.choice(zalgo_chars).join(zalgoized)
+        return response.encode('utf8', 'ignore')
+
+    @classmethod
+    def _insert_randoms(self, text):
+        random_extras = [chr(i) for i in range(0x1D023, 0x1D045 + 1)]
+        newtext = []
+        for char in text:
+            newtext.append(char)
+            if random.randint(1, 5) == 1:
+                newtext.append(random.choice(random_extras))
+        return u''.join(newtext)
+
+    @classmethod
+    def _is_narrow_build(self):
+        try:
+            chr(0x10000)
+        except ValueError:
+            return True
+        return False
+
 
 class Utility:
     def __init__(self, bot):
         self.bot = bot
         self.hidden = False
         print('cog {} loaded'.format(self.__class__.__name__))
+
+    @commands.command(name = "zalgo")
+    async def _zalgo(self, ctx, *, text: str = 'zalgo 50'):
+        text = text.split(' ')
+        try:
+            intensity = int(text[-1])
+        except Exception:
+            intensity = 50
+            text = ' '.join(text)
+        else:
+            text = ' '.join(text[:-1])
+
+        if not 1 <= intensity <= 1000:
+            return await ctx.send('Intensity must be between 1 and 1000')
+
+        ret = Zalgo(txt = text, intensity = intensity)
+
+        try:
+            await ctx.send(ret)
+        except Exception:
+            await ctx.send(embed = await hastebin_error(ctx, content = ret))
 
     @commands.command(name = "tinyurl")
     async def _tinyurl(self, ctx, *, url: str):
@@ -126,7 +215,9 @@ class Utility:
                 await ctx.send(embed = embed)
 
     @commands.command(name = "userinfo")
-    async def _userinfo(self, ctx, user: discord.Member = ctx.author):
+    async def _userinfo(self, ctx, user: discord.Member = None):
+        if user is None:
+            user = ctx.author
         embed = quick_embed(ctx,
         title = 'Information about {}#{}'.format(user.name, user.discriminator),
         description = 'User ID: {}'.format(user.id))
@@ -193,6 +284,22 @@ class Utility:
         embed.add_field(name = 'Processor', value = platform.processor())
         await ctx.send(embed = embed)
 
+    @commands.command(name = "wolfram")
+    async def _wolfram(self, ctx, *, question: str):
+        if config['wolfram']['key'] == '':
+            return await ctx.send('Wolfram has not been setup on this bot')
+
+        embed = quick_embed(ctx, title = 'All possible awnsers from wolfram')
+        root = await self.wolfram.query(question)
+
+        for child in root:
+            for subobject in child:
+                for subsubobject in subobject:
+                    if subsubobject.tag == 'plaintext':
+                        embed.add_field(name='Possible awnser', value=subsubobject.text)
+                        return await ctx.send(embed=embed)
+
+
     @commands.command(name = "reddit")
     async def _reddit(self, ctx, target: str = 'all', search: str = 'new', index: int = 1):
         if not 0 <= index <= 25:
@@ -242,6 +349,10 @@ class Utility:
                     embed.set_image(url = post['data']['url'])
 
                 return await ctx.send(embed = embed)
+
+    @commands.group(invoke_without_command = True)
+    async def google(self, ctx):
+        pass
 
     @commands.group(invoke_without_command = True)
     async def prettyprint(self, ctx):

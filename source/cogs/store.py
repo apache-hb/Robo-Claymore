@@ -7,6 +7,9 @@ from emoji import UNICODE_EMOJI as uemoji
 
 MIME = MimeTypes()
 
+def can_override(ctx, user):
+    return ctx.bot.is_owner(user) or user.id in whitelist
+
 def quick_embed(ctx, title: str, description: str = None, colour: int = 0x023cfc):
     try: colour = ctx.me.colour
     except AttributeError: pass

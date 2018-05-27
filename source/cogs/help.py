@@ -97,8 +97,8 @@ class Help:
         if usage is None:
             usage = command.signature
 
-        if not command.aliases:
-            aliases = [None]
+        try: aliases = commands.aliases
+        except AttributeError: aliases = ['None']
 
         embed = quick_embed(ctx, title = command.name, description = 'Inside cog: {}'.format(command.cog_name))
         embed.add_field(name = 'Description', value = description)
