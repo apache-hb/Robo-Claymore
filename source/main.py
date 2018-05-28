@@ -38,6 +38,12 @@ async def on_command_error(ctx, exception):
         embed.add_field(name = 'The correct usage is', value = ctx.command.signature)
         return await ctx.send(embed = embed)
 
+    elif isinstance(exception, discord.ext.commands.errors.CheckFailure):
+        return
+
+    elif isinstance(excpetion, discord.ext.commands.errors.CommandNotFound):
+        return
+
     traceback.print_exception(type(exception), exception, exception.__traceback__, file=sys.stderr)
 
 @bot.check

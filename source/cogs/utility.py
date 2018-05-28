@@ -11,6 +11,7 @@ from defusedxml.ElementTree import fromstring
 from discord.ext import commands
 from pyfiglet import figlet_format
 import time
+from inspect import getsource
 
 from .store import (embedable, emoji_dict, hastebin, hastebin_error,
                     quick_embed, tinyurl, whitelist, config)
@@ -187,6 +188,24 @@ class Utility:
             return await ctx.send(embed = await hastebin_error(ctx, ret))
 
         await ctx.send(ret)
+
+    @commands.command(name = "source")
+    async def _source(self, ctx, *, name: str = None):
+
+        if name is None:
+            return await ctx.send('https://github.com/Apache-HB/Robo-Claymore/tree/Rewrite')
+
+        func = ctx.bot.get_command(name)
+
+        if func is None:
+            return await ctx.send('No command called ``{}`` found'.format(name))
+
+        ret = getsource(func.callback)
+
+        if not len(ret) <= 1800:
+            return await ctx.send(embed = await hastebin_error(ctx, ret))
+
+        await ctx.send('```py\n' + ret.replace('`', '\`') + '```')
 
     @commands.command(name = "urban")
     async def _urban(self, ctx, *, search: str = None):

@@ -3,7 +3,6 @@ import discord
 from .store import (whitelist, blacklist,
 hastebin, quick_embed, config,
 hastebin_error)
-from inspect import getsource
 import json
 import asyncio
 
@@ -15,7 +14,7 @@ class Owner:
         print('cog {} loaded'.format(self.__class__.__name__))
 
     async def __local_check(self, ctx):
-        if self.bot.is_owner(ctx.author) or ctx.author.id in whitelist:
+        if ctx.author.id == int(config['discord']['owner']) or ctx.author.id in whitelist:
             return True
         await ctx.send('go away')
         return False
@@ -32,21 +31,6 @@ class Owner:
     @commands.command(name = "echo")
     async def _echo(self, ctx, *, text: str):
         await ctx.send(text)
-
-    @commands.command(name = "source")
-    async def _source(self, ctx, *, name: str):
-
-        func = ctx.bot.get_command(name)
-
-        if func is None:
-            return await ctx.send('No command called ``{}`` found'.format(name))
-
-        ret = getsource(func.callback)
-
-        if not len(ret) <= 1800:
-            return await ctx.send(embed = await hastebin_error(ctx, ret))
-
-        await ctx.send('```py\n' + ret.replace('`', '\`') + '```')
 
     @commands.command(name = "panic")
     async def _panic(self, ctx):

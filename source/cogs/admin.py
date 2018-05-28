@@ -108,7 +108,7 @@ class Admin:
     @commands.guild_only()
     @manage_messages()
     async def _clean(self, ctx, amount: int = 5):
-        if 5 <= amount <= 100:
+        if not 5 <= amount <= 100:
             return await ctx.send('Amount must be between 5 and 100')
 
         try:
