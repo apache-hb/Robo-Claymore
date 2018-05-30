@@ -80,7 +80,6 @@ class Help:
 
         return embed
 
-
     @classmethod
     def __command(self, ctx, name: str):
         command = ctx.bot.all_commands.get(name)

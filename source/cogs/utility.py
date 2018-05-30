@@ -14,7 +14,7 @@ import time
 from inspect import getsource
 
 from .store import (embedable, emoji_dict, hastebin, hastebin_error,
-                    quick_embed, tinyurl, whitelist, config)
+                    quick_embed, tinyurl, whitelist, config, inverted_dict)
 
 # wikia fandom wikis
 WIKIA_API_URL = 'http://{lang}{sub_wikia}.wikia.com/api/v1/{action}'
@@ -44,8 +44,7 @@ class Zalgo:
         self.intensity = intensity
 
     def __str__(self):
-        return self.zalgo(
-            text=self.txt, intensity=self.intensity).decode('utf-8')
+        return self.zalgo(text = self.txt, intensity = self.intensity).decode('utf-8')
 
     def zalgo(self, text, intensity=50):
         zalgo_threshold = intensity
@@ -109,6 +108,25 @@ class Utility:
         except Exception:
             await ctx.send(embed = await hastebin_error(ctx, content = ret))
 
+    @commands.command(name = "flip")
+    async def _flip(self, ctx, *, text: str):
+        ret = ''
+        for char in text:
+            try: ret += inverted_dict[char.lower()]
+            except KeyError: pass
+
+        return ret
+
+    @commands.command(name = "staggercase")
+    async def _staggercase(self, ctx, *, text: str):
+        ret = ''
+        upper = True
+        for char in text:
+            ret += char.upper() if upper else char.lower()
+            upper = not upper
+
+        await ctx.send(ret)
+
     @commands.command(name = "tinyurl")
     async def _tinyurl(self, ctx, *, url: str):
         await ctx.send(await tinyurl(url))
@@ -148,7 +166,7 @@ class Utility:
         ret = ''
         for a in text:
             try:
-                ret += random.choice(emoji_dict[a])
+                ret += emoji_dict[a][0]
             except KeyError:
                 ret += emoji_dict[' '][0]
 

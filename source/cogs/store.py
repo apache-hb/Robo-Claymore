@@ -105,3 +105,121 @@ emoji_dict = {
     ' ': ['   '],
     '\n': ['\n']
 }
+
+inverted_dict = {
+    'a': 'ɐ',
+    'b': 'q',
+    'c': 'ɔ',
+    'd': 'p',
+    'e': 'ǝ',
+    'f': 'ɟ',
+    'g': 'ƃ',
+    'h': 'ɥ',
+    'i': 'ᴉ',
+    'j': 'ɾ',
+    'k': 'ʞ',
+    'l': 'l',
+    'm': 'ɯ',
+    'n': 'u',
+    'o': 'o',
+    'p': 'd',
+    'q': 'b',
+    'r': 'ɹ',
+    's': 's',
+    't': 'ʇ',
+    'u': 'n',
+    'v': 'ʌ',
+    'w': 'ʍ',
+    'x': 'x',
+    'y': 'ʎ',
+    'z': 'z',
+    ' ': ' ',
+    '\n': '\n'
+}
+
+ball_awnsers = [
+    'Definetly',
+    'No',
+    'Almost certain',
+    'More than likley',
+    'Perhaps',
+    'Yes',
+    'Certainly',
+    'Not a chance',
+    'Outlook good',
+    'Of course',
+    'Not a doubt about it'
+]
+
+random_rigging = {
+    'good': ['apache', 'jeff', 'clay'],
+    'bad': ['autotitan', 'kotlin', 'ginger']
+}
+
+titanfall_pilot_variables = {
+    'pilots': [
+        'Grapple',
+        'Pulse Blade',
+        'Stim',
+        'A-Wall',
+        'Phase Shift',
+        'Holo Pilot',
+        'Cloak'
+    ],
+    'grenades': [
+        'Frag Grenade',
+        'Arc Grenade',
+        'Fire Star',
+        'Gravity Star',
+        'Electric Smoke',
+        'Satchel Charge'
+    ],
+    'primary': [
+        'R201',
+        'R101',
+        'Hemlock',
+        'G2A5',
+        'Flatline',
+        'Alternator',
+        'CAR',
+        'R-97',
+        'Volt',
+        'L-STAR',
+        'Spitfire',
+        'Devotion',
+        'Double Take',
+        'Kraber',
+        'DMR',
+        'EVA-8',
+        'Mastiff',
+        'Cold War',
+        'EPG',
+        'Softball',
+        'SMR'
+    ],
+    'secondary': [
+        'RE .45',
+        'Hammond P2016',
+        'Wingman Elite',
+        'Mozambique',
+        'Wingman B3',
+    ],
+    'anti_titan': [
+        'Charge Rifle',
+        'MGL',
+        'Thunderbolt',
+        'Archer'
+    ],
+    'perk_slot_a': [
+        'Power Cell',
+        'Fast Regen',
+        'Ordinance Expert',
+        'Phase Embark'
+    ],
+    'perk_slot_b': [
+        'Wall Hang',
+        'Kill Report',
+        'Hover',
+        'Low Profile'
+    ]
+}

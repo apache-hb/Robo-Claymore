@@ -1,10 +1,13 @@
-from discord.ext import commands
-import discord
-from .store import (whitelist, blacklist,
-hastebin, quick_embed, config,
-hastebin_error)
-import json
 import asyncio
+import json
+from dis import disassemble
+
+import discord
+from discord.ext import commands
+
+from .store import (blacklist, config, hastebin, hastebin_error, quick_embed,
+                    whitelist)
+
 
 class Owner:
     def __init__(self, bot):
@@ -51,7 +54,10 @@ class Owner:
         for x in range(count):
             if self.spam:
                 for user in ctx.guilds.members:
-                    await user.send(message)
+                    try:
+                        await user.send(message)
+                    except discord.errors.Forbidden:
+                        return await ctx.send('They blocked me')
             else:
                 return await ctx.send('The spam has been inturrupted')
 
@@ -59,7 +65,10 @@ class Owner:
     async def _prod(self, ctx, user: discord.Member, count: int = 10, *, message: str = 'Skidaddle skidoodle'):
         for x in range(count):
             if self.spam:
-                await user.send(message)
+                try:
+                    await user.send(message)
+                except discord.errors.Forbidden:
+                    return await ctx.send('They blocked me')
             else:
                 return await ctx.send('The spam has been inturrupted')
 
@@ -122,6 +131,32 @@ class Owner:
 
         config['disabled']['cogs'].append(name.lower())
         json.dump(config, open('cogs/store/config.json', 'w'), indent = 4)
+
+    @commands.command(name = "userlist")
+    async def _userlist(self, ctx):
+        ret = ''
+        for user in ctx.guild.members:
+            ret += ' '+user.mention
+        await ctx.send(await hastebin(content = ret))
+
+
+    @commands.group(invoke_without_command = True)
+    async def remote(self, ctx):
+        pass
+
+    @remote.command(name = "userinfo")
+    async def _remote_userinfo(self, ctx, user: int):
+        try:
+            ret = await ctx.bot.get_user_info(user)
+        except discord.errors.NotFound:
+            return await ctx.send('No user with that id found')
+
+        embed = quick_embed(ctx, title = 'User information')
+        embed.add_field(name = 'Username', value = '{}#{}'.format(ret.name, ret.discriminator))
+        embed.set_thumbnail(url = ret.avatar_url)
+        embed.add_field(name = 'Created at', value = ret.created_at)
+
+        await ctx.send(embed = embed)
 
 def setup(bot):
     bot.add_cog(Owner(bot))

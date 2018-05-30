@@ -1,9 +1,10 @@
 from discord.ext import commands
 import discord
-from .store import quick_embed
+from .store import quick_embed, titanfall_pilot_variables
 import aiohttp
 import time
 import json
+import random
 
 class Games:
     def __init__(self, bot):
@@ -51,7 +52,7 @@ class Games:
                     embed.add_field(name = 'Base damage',
                     value = 'A total of {} damage comprised of {} slash, {} puncture and {} impact'.format(
                         ret[0]['damage'],
-                        re[0]['slash'],
+                        ret[0]['slash'],
                         ret[0]['puncture'],
                         ret[0]['impact']
                     ))
@@ -257,6 +258,28 @@ class Games:
                 embed.add_field(name = 'Quick info', value = ret['shortString'])
 
                 await ctx.send(embed = embed)
+
+    @commands.group(invoke_without_command = True)
+    async def titanfall(self, ctx):
+        pass
+
+    @titanfall.command(name = "randompilot")
+    async def _titanfall_randompilot(self, ctx):
+        ret = '{} Here is a random loadout```diff\n'.format(ctx.author.mention)
+
+        ret += '+ Pilot: ' + random.choice(titanfall_pilot_variables['pilots']) + '\n'
+        ret += '- Grenade: ' + random.choice(titanfall_pilot_variables['grenades']) + '\n'
+        ret += '+ Primary: ' + random.choice(titanfall_pilot_variables['primary']) + '\n'
+        ret += '- Secondary: ' + random.choice(titanfall_pilot_variables['secondary']) + '\n'
+        ret += '+ Anti Titan: ' + random.choice(titanfall_pilot_variables['anti_titan']) + '\n'
+        ret += '- First Perk: ' + random.choice(titanfall_pilot_variables['perk_slot_a']) + '\n'
+        ret += '+ Second Perk: ' + random.choice(titanfall_pilot_variables['perk_slot_b']) + '\n'
+        ret += '\n```'
+        await ctx.send(ret)
+
+    @titanfall.command(name = "randomtitan")
+    async def _titanfall_randomtitan(self, ctx):
+        await ctx.send('soon™')
 
 def setup(bot):
     bot.add_cog(Games(bot))

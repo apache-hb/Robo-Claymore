@@ -41,8 +41,12 @@ async def on_command_error(ctx, exception):
     elif isinstance(exception, discord.ext.commands.errors.CheckFailure):
         return
 
-    elif isinstance(excpetion, discord.ext.commands.errors.CommandNotFound):
+    elif isinstance(exception, discord.ext.commands.errors.CommandNotFound):
         return
+
+    elif isinstance(exception, discord.ext.commands.CommandInvokeError):
+        if 'Cannot connect to host' in str(exception.original):
+            return await ctx.send('My internet connection to that site has been blocked')
 
     traceback.print_exception(type(exception), exception, exception.__traceback__, file=sys.stderr)
 
