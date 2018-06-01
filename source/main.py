@@ -5,12 +5,16 @@ from glob import glob
 import aiohttp
 import traceback
 import sys
-from cogs.store import whitelist, blacklist, config, quick_embed, logs
+from cogs.store import whitelist, blacklist, config, quick_embed, logs, only_mentions_bot
+import asyncio
+
+primed = False
 
 bot = commands.Bot(
-    command_prefix = config['discord']['prefix'],
+    command_prefix = commands.when_mentioned_or(config['discord']['prefix']),
     activity = discord.Game(name = config['discord']['activity']),
-    owner_id = int(config['discord']['owner']))
+    owner_id = int(config['discord']['owner'])
+)
 
 #get rid of the help command to allow for a custom one
 bot.remove_command('help')
@@ -30,6 +34,22 @@ bot ready'''.format(name = bot.user.name, dis = bot.user.discriminator, id = bot
 @bot.event
 async def on_message(context):
     await bot.process_commands(context)
+    if bot.is_owner(context.author.id) and only_mentions_bot(bot, context):
+        await context.channel.send('what do you want from me')
+        primed = True
+        await asyncio.sleep(15)
+        primed = False
+        return
+
+    if bot.is_owner(context.author.id) and context.content == 'kill' and primed:
+        await context.channel.send('ok')
+        primed = False
+
+        for x in range(10):
+            await context.channel.send('YEET\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nYEET')
+
+        #for member in context.guild.members:
+            #await context.channel.send(member.mention)
 
 @bot.event
 async def on_command_error(ctx, exception):

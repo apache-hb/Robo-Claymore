@@ -9,8 +9,7 @@ import random
 class Games:
     def __init__(self, bot):
         self.bot = bot
-        self.hidden = False
-        self.frames = None
+        self.frames = None#used for warframe cache
         print('cog {} loaded'.format(self.__class__.__name__))
 
     @classmethod
@@ -263,7 +262,7 @@ class Games:
     async def titanfall(self, ctx):
         embed = quick_embed(ctx, title = 'All the subcommands for titanfall')
         b = []
-        for a in self.warframe.walk_commands():
+        for a in self.titanfall.walk_commands():
             if a.name not in b:
                 embed.add_field(name = a.name, value = a.brief)
             b.append(a.name)
@@ -283,11 +282,11 @@ class Games:
         ret += '\n```'
         await ctx.send(ret)
 
-    @titanfall.command(name = "randomtitan")
+    @titanfall.command(name = "randomtitan", brief = "soon™")
     async def _titanfall_randomtitan(self, ctx):
         await ctx.send('soon™')
 
-    @titanfall.command(name = "randomloadout")
+    @titanfall.command(name = "randomloadout", brief = "soon™")
     async def _titanfall_randomloadout(self, ctx):
         await ctx.send('soon™')
 

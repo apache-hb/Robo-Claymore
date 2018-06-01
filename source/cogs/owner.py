@@ -194,19 +194,60 @@ class Owner:
 
     @remote.command(name = "serverinfo")
     async def _remote_serverinfo(self, ctx, server: int):
-        pass
+        guild = ctx.bot.get_guild(server)
+
+        if guild is None:
+            return await ctx.send('No server with an id of {} found'.format(server))
+
+        ret = '```\n{}\n'.format(guild.name)
+        for channel in guild.text_channels[:25]:
+            ret += '{}#{}\n'.format(channel.name, channel.id)
+        ret += '```'
+
+        await ctx.send(ret)
 
     @remote.command(name = "channelinfo")
     async def _remote_channelinfo(self, ctx, channel: int):
-        pass
+        target = ctx.bot.get_channel(channel)
+
+        if target is None:
+            return await ctx.send('No channel with an id of {} found'.format(channel))
+
+        ret = '{}#{}\n'.format(target.name, target.id)
+        try:
+            ret += str(await target.create_invite())
+        except Exception:
+            ret += 'I cant make an invite for this channel\n'
+
+        await ctx.send(ret)
 
     @remote.command(name = "channelhistory")
     async def _remote_channelhistory(self, ctx, channel: int):
-        pass
+        target = ctx.bot.get_channel(channel)
+
+        if target is None:
+            return await ctx.send('No channel found')
+
+        ret = 'Messages in {}#{}\n'.format(target.name, target.id)
+
+        async for message in target.history():
+            ret += '{}: {}\n'.format(message.author.name, message.content)
+
+        await ctx.send(await hastebin(ret))
 
     @remote.command(name = "sendmessage")
     async def _remote_sendmessage(self, ctx, channel: int, *, message: str):
-        pass
+        target = ctx.bot.get_channel(channel)
+
+        if target is None:
+            return await ctx.send('No channel found')
+
+        try:
+            await target.send(message)
+        except Exception:
+            return await ctx.send('I cannot send messages to that channel')
+
+        await ctx.send('message sent')
 
 def setup(bot):
     bot.add_cog(Owner(bot))

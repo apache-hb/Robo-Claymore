@@ -18,6 +18,7 @@ class Nsfw:
 
         if tags is None:
             url = 'https://e621.net/post/index.json?limit=25'
+
         else:
             url = 'https://e621.net/post/index.json?tags={}&limit=25'.format(tags)
 
@@ -92,8 +93,11 @@ class Nsfw:
 
     @commands.command(name = "danbooru")
     async def _danbooru(self, ctx, *, tags: str = None):
-        if tags is None: url = 'https://danbooru.donmai.us/posts.json?random=true'
-        else: url = 'https://danbooru.donmai.us/posts.json?limit=50?tags=\"{}\"'.format(tags.split(' '))
+        if tags is None:
+            url = 'https://danbooru.donmai.us/posts.json?random=true'
+
+        else:
+            url = 'https://danbooru.donmai.us/posts.json?limit=50?tags=\"{}\"'.format(tags.split(' '))
 
         async with aiohttp.ClientSession() as session:
             async with session.get(url) as resp:

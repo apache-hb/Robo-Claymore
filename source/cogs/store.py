@@ -57,6 +57,15 @@ def emoji(emoji: str):
         return True
     return False
 
+def only_mentions_bot(bot, context):
+    if context.content == '<@!{}>'.format(bot.user.id):
+        return True
+
+    if context.content == '<@{}>'.format(bot.user.id):
+        return True
+
+    return False
+
 config = json.load(open('cogs/store/config.json'))
 
 whitelist = json.load(open('cogs/store/whitelist.json'))
