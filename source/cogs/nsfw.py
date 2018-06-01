@@ -13,6 +13,36 @@ class Nsfw:
         self.hidden = False
         print('cog {} loaded'.format(self.__class__.__name__))
 
+    @commands.command(name = "e621")
+    async def _esixtwoone(self, ctx, *, tags: str = None):
+
+        if tags is None:
+            url = 'https://e621.net/post/index.json?limit=25'
+        else:
+            url = 'https://e621.net/post/index.json?tags={}&limit=25'.format(tags)
+
+        headers = {
+            'User-Agent': 'RoboClaymore (by ApacheActual#6945 on discord)'
+        }
+
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url, headers = headers) as resp:
+
+                ret = json.loads(await resp.text())
+
+                if not ret:
+                    return await ctx.send('Nothing with tags {} found'.format(tags))
+
+                post = random.choice(ret)
+
+                embed = quick_embed(ctx, title = 'A post from e621')
+                embed.add_field(name = 'Image source', value = await tinyurl(post['file_url']))
+
+                if embedable(post['file_url']):
+                    embed.set_image(url = post['file_url'])
+
+                await ctx.send(embed = embed)
+
     @commands.command(name = "rule34")
     async def _rule34(self, ctx, *, tags: str):
         url = 'https://rule34.xxx/index.php?page=dapi&s=post&q=index&tags={}'.format(tags)
@@ -21,7 +51,7 @@ class Nsfw:
             async with session.get(url) as resp:
                 root = fromstring(await resp.text())
 
-                if root == 0:
+                if not root:
                     return await ctx.send('Nothing with tags {} found'.format(tags))
 
                 post = random.choice(root)
@@ -36,11 +66,6 @@ class Nsfw:
 
                 if embedable(file_url):
                     embed.set_image(url = file_url)
-
-                formatted_tags = ''.join(tags)
-                formatted_tags = formatted_tags.split(' ')
-
-                embed.set_footer(text = 'With tags: {}'.format(', '.join(formatted_tags)))
 
                 await ctx.send(embed = embed)
 
@@ -62,8 +87,6 @@ class Nsfw:
 
                 if embedable(post['file_url']):
                     embed.set_image(url = post['file_url'])
-
-                embed.set_footer(text = 'With the tags {}'.format(''.join(post['tags'])))
 
                 return await ctx.send(embed = embed)
 

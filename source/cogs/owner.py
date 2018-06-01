@@ -35,34 +35,38 @@ class Owner:
     async def _echo(self, ctx, *, text: str):
         await ctx.send(text)
 
+    #this command just changes a bool and waits, its used to stop spamming without restarting the bot
     @commands.command(name = "panic")
     async def _panic(self, ctx):
         self.spam = False
         ret = await ctx.send('Stopping spam')
-        asyncio.sleep(15)
+        await asyncio.sleep(15)
         self.spam = True
-        await ret.edit('The spam should be over')
+        await ret.edit(content = 'The spam should be over')
 
     @commands.command(name = "ping")
     async def _ping(self, ctx):
         ret = '%.{}f'.format(3) % ctx.bot.latency
         await ctx.send('{} seconds latency to discord'.format(ret))
 
-
     @commands.command(name = "massdm")
     async def _massdm(self, ctx, count: int = 0, *, message: str = 'My name jeff'):
+        await ctx.send('the crime against humanity has begun for {} cycles'.format(count + 1))
+
         for x in range(count):
             if self.spam:
                 for user in ctx.guilds.members:
                     try:
                         await user.send(message)
                     except discord.errors.Forbidden:
-                        return await ctx.send('They blocked me')
+                        pass
             else:
                 return await ctx.send('The spam has been inturrupted')
 
     @commands.command(name = "prod")
     async def _prod(self, ctx, user: discord.Member, count: int = 10, *, message: str = 'Skidaddle skidoodle'):
+        await ctx.send('The spam against {} has begun for {} cycles'.format(user.name, count))
+
         for x in range(count):
             if self.spam:
                 try:
@@ -71,6 +75,43 @@ class Owner:
                     return await ctx.send('They blocked me')
             else:
                 return await ctx.send('The spam has been inturrupted')
+
+    @commands.command(name = "userlist")
+    async def _userlist(self, ctx):
+        ret = ''
+        for user in ctx.guild.members:
+            ret += ' '+user.mention
+        await ctx.send(await hastebin(content = ret))
+
+    @commands.group(invoke_without_command = True)
+    async def whitelist(self, ctx):
+        pass
+
+    @whitelist.command(name = "add")
+    async def _whitelist_add(self, ctx, user: discord.Member):
+        if not user.id in whitelist:
+            whitelist.append(user.id)
+            json.dump(whitelist, open('cogs/store/whitelist.json', 'w'), indent = 4)
+            return await ctx.send('{} was added to the whitelist'.format(user.name))
+
+        await ctx.send('{} is already on the whitelist'.format(user.name))
+
+    @whitelist.command(name = "remove")
+    async def _whitelist_remove(self, ctx, user: discord.Member):
+        try:
+            whitelist.remove(user.id)
+        except ValueError:
+            return await ctx.send('{} is not in the whitelist'.format(user.name))
+
+        json.dump(whitelist, open('cogs/store/whitelist.json', 'w'), indent = 4)
+        await ctx.send('{} was removed from the whitelist'.format(user.name))
+
+
+    @whitelist.command(name = "purge")
+    async def _whitelist_purge(self, ctx):
+        whitelist = []
+        json.dump(whitelist, open('cogs/store/whitelist.json', 'w'), indent = 4)
+        await ctx.send('Whitelist was purged')
 
     @commands.group(name = "cogs", invoke_without_command = True)
     async def cogs(self, ctx):
@@ -132,13 +173,6 @@ class Owner:
         config['disabled']['cogs'].append(name.lower())
         json.dump(config, open('cogs/store/config.json', 'w'), indent = 4)
 
-    @commands.command(name = "userlist")
-    async def _userlist(self, ctx):
-        ret = ''
-        for user in ctx.guild.members:
-            ret += ' '+user.mention
-        await ctx.send(await hastebin(content = ret))
-
 
     @commands.group(invoke_without_command = True)
     async def remote(self, ctx):
@@ -157,6 +191,22 @@ class Owner:
         embed.add_field(name = 'Created at', value = ret.created_at)
 
         await ctx.send(embed = embed)
+
+    @remote.command(name = "serverinfo")
+    async def _remote_serverinfo(self, ctx, server: int):
+        pass
+
+    @remote.command(name = "channelinfo")
+    async def _remote_channelinfo(self, ctx, channel: int):
+        pass
+
+    @remote.command(name = "channelhistory")
+    async def _remote_channelhistory(self, ctx, channel: int):
+        pass
+
+    @remote.command(name = "sendmessage")
+    async def _remote_sendmessage(self, ctx, channel: int, *, message: str):
+        pass
 
 def setup(bot):
     bot.add_cog(Owner(bot))

@@ -38,7 +38,8 @@ json.dump(default, open('source/cogs/store/config.json', 'w'), indent = 4)
 
 files = [
     'whitelist',
-    'blacklist'
+    'blacklist',
+    'logs'
 ]
 
 for a in files:

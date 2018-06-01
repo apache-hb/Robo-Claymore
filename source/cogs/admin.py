@@ -10,7 +10,7 @@ class Admin:
 
     def can_kick():
         async def predicate(ctx):
-            if not ctx.author.permissions_in(ctx.channel).kick_members or not can_override(ctx, ctx.author):
+            if not ctx.author.permissions_in(ctx.channel).kick_members or not can_override(ctx):
                 await ctx.send('You dont have the permission to kick')
                 return False
             return True
@@ -18,7 +18,7 @@ class Admin:
 
     def can_ban():
         async def predicate(ctx):
-            if not ctx.author.permissions_in(ctx.channel).ban_members or not can_override(ctx, ctx.author):
+            if not ctx.author.permissions_in(ctx.channel).ban_members or not can_override(ctx):
                 await ctx.send('You dont have the permission to ban')
                 return False
             return True
@@ -26,7 +26,7 @@ class Admin:
 
     def manage_messages():
         async def predicate(ctx):
-            if not ctx.author.permissions_in(ctx.channel).manage_messages or not can_override(ctx, ctx.author):
+            if not ctx.author.permissions_in(ctx.channel).manage_messages or not can_override(ctx):
                 await ctx.send('You dont have the permission to delete messages')
                 return False
             return True

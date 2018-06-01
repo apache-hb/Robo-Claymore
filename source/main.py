@@ -5,7 +5,7 @@ from glob import glob
 import aiohttp
 import traceback
 import sys
-from cogs.store import whitelist, blacklist, config, quick_embed
+from cogs.store import whitelist, blacklist, config, quick_embed, logs
 
 bot = commands.Bot(
     command_prefix = config['discord']['prefix'],
@@ -69,6 +69,21 @@ async def check_commands(ctx):
         return False
 
     return True
+
+@bot.after_invoke
+async def after_any_command(ctx):
+    logs.append('{}#{} invoked command {}'.format(
+        ctx.author.name,
+        ctx.author.id,
+        ctx.invoked_with
+    ))
+    json.dump(logs, open('cogs/store/logs.json', 'w'), indent = 4)
+
+    if ctx.cog.__class__.__name__ == 'Owner':#specifically log if an owner oly command is used
+        print('{} tried to use {}'.format(
+            ctx.author.name,
+            ctx.invoked_with
+        ))
 
 if __name__ == '__main__':
     for cog in glob('cogs/*.py'):

@@ -7,7 +7,9 @@ from emoji import UNICODE_EMOJI as uemoji
 
 MIME = MimeTypes()
 
-def can_override(ctx, user):
+def can_override(ctx, user = None):
+    if user is None:
+        user = ctx.author
     return ctx.bot.is_owner(user) or user.id in whitelist
 
 def quick_embed(ctx, title: str, description: str = None, colour: int = 0x023cfc):
@@ -60,6 +62,8 @@ config = json.load(open('cogs/store/config.json'))
 whitelist = json.load(open('cogs/store/whitelist.json'))
 
 blacklist = json.load(open('cogs/store/blacklist.json'))
+
+logs = json.load(open('cogs/store/logs.json'))
 
 # stolen from appuselfbot
 # https://github.com/appu1232/Discord-Selfbot
@@ -152,7 +156,7 @@ ball_awnsers = [
 ]
 
 random_rigging = {
-    'good': ['apache', 'jeff', 'clay'],
+    'good': ['apache', 'jeff', 'clay', 'ion'],
     'bad': ['autotitan', 'kotlin', 'ginger']
 }
 

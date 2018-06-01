@@ -261,7 +261,13 @@ class Games:
 
     @commands.group(invoke_without_command = True)
     async def titanfall(self, ctx):
-        pass
+        embed = quick_embed(ctx, title = 'All the subcommands for titanfall')
+        b = []
+        for a in self.warframe.walk_commands():
+            if a.name not in b:
+                embed.add_field(name = a.name, value = a.brief)
+            b.append(a.name)
+        await ctx.send(embed = embed)
 
     @titanfall.command(name = "randompilot")
     async def _titanfall_randompilot(self, ctx):
@@ -279,6 +285,10 @@ class Games:
 
     @titanfall.command(name = "randomtitan")
     async def _titanfall_randomtitan(self, ctx):
+        await ctx.send('soon™')
+
+    @titanfall.command(name = "randomloadout")
+    async def _titanfall_randomloadout(self, ctx):
         await ctx.send('soon™')
 
 def setup(bot):
