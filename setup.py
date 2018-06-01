@@ -1,69 +1,50 @@
-#this is empty for now so pip doesnt complain when updating
-#TODO pip is still fucking complaining
-#if you want to run the bot just check inside /source and run the script called runself
-#python3 runself.py
-
 import os
 import json
 
-dir_path = os.path.dirname(os.path.realpath(__file__))
+if not os.path.isdir('source/cogs/store'):
+    os.mkdir('soruce/cogs/store')
 
-os.system('pip3 install -r requirements.txt')
+print('{:=^50}'.format('Robo Claymore setup script'))
+print('{:^50}'.format('To skip a token, just press enter'))
 
-def ensure_file(ensure: str, default: str):
-    if not os.path.isfile(ensure):
-        file = open(ensure, 'w')
-        file.write(default)
-        file.close()
-        return True
-    return False
+default = {
+    'discord': {
+        'token': input('(required) input your discord bot token\n'),
+        'prefix': input('(required) input your bots desired prefix\n'),
+        'activity': input('(optional) input the bots default activity\n'),
+        'description': input('(optional) input the help flavor text\n'),
+        'owner': input('(optional) input your own user id so the bot can know who you are\n')
+    },
+    'fortnite': {
+        'key': input('(optional) input a fortnite bot key to enable the fortnite commands\n')
+    },
+    'wolfram': {
+        'key': input('(optional) input a wolfram alpha key to enable the wolfram command\n')
+    },
+    'fortnite': {
+        'key': input('(optional) input a fortnite key to enable fortnite support\n')
+    },
+    'disabled': {
+        'cogs': [
 
-if not os.path.exists(os.path.join(dir_path, 'source/cogs/store')):
-    os.mkdir(os.path.join(dir_path, 'source/cogs/store'))
+        ],
+        'commands': [
 
-if ensure_file('./source/cogs/store/bot.log', 'logging file \n'):
-    print('logfile was generated')
-
-if ensure_file('./source/cogs/store/direct.log', 'direct messages file \n'):
-    print('direct messages was generated')
-
-statistic_dict = {
-    "messages_processed": 0,
-    "commands_used": 0
+        ]
+    }
 }
 
-if ensure_file('./source/cogs/store/statistics.json', json.dumps(statistic_dict, indent=4)):
-    print('statistics file was generated')
+json.dump(default, open('source/cogs/store/config.json', 'w'), indent = 4)
 
-if ensure_file('./source/cogs/store/symbiosis.json', '[]'):
-    print('symbiosis file was generated')
+files = [
+    'whitelist',
+    'blacklist',
+    'logs'
+]
 
-if ensure_file('./source/cogs/store/tags.json', '[]'):
-    print('tags file was generated')
-
-if ensure_file('./source/cogs/store/quotes.json', '[]'):
-    print('quotes file was generated')
-
-if ensure_file('./source/cogs/store/autoreact.json', '[]'):
-    print('autoreact file was generated')
-
-if ensure_file('./source/cogs/store/autorole.json', '[]'):
-    print('autorole file was generated')
-
-if ensure_file('./source/cogs/store/disabled.json', '[]'):
-    print('disabled file was generated')
-
-if ensure_file('./source/cogs/store/blacklist.json', '[]'):
-    print('blacklist file was generated')
-
-if ensure_file('./source/cogs/store/blocked.json', '[]'):
-    print('blocked file was generated')
-
-if ensure_file('./source/cogs/store/whitelist.json', '[]'):
-    print('whitelist file was generated')
-
-if ensure_file('./source/cogs/store/welcome.json', '[]'):
-    print('welcome file was generated')
-
-if ensure_file('./source/cogs/store/leave.json', '[]'):
-    print('leave file was generated')
+for a in files:
+    if not os.path.isfile('source/cogs/store/{}.json'.format(a)):
+        b = open('source/cogs/store/{}.json'.format(a), 'w')
+        b.write('[]')
+        b.close()
+        print('{} file was generated'.format(a))

@@ -1,89 +1,122 @@
 import discord
 from discord.ext import commands
+from .store import can_override
 
-from .store import pyout, Store
 
 class Admin:
     def __init__(self, bot):
         self.bot = bot
-        pyout('Cog {} loaded'.format(self.__class__.__name__))
+        print('Cog {} loaded'.format(self.__class__.__name__))
 
-    @commands.command(name="kick")
+    def can_kick():
+        async def predicate(ctx):
+            if not ctx.author.permissions_in(ctx.channel).kick_members or not can_override(ctx):
+                await ctx.send('You dont have the permission to kick')
+                return False
+            return True
+        return commands.check(predicate)
+
+    def can_ban():
+        async def predicate(ctx):
+            if not ctx.author.permissions_in(ctx.channel).ban_members or not can_override(ctx):
+                await ctx.send('You dont have the permission to ban')
+                return False
+            return True
+        return commands.check(predicate)
+
+    def manage_messages():
+        async def predicate(ctx):
+            if not ctx.author.permissions_in(ctx.channel).manage_messages or not can_override(ctx):
+                await ctx.send('You dont have the permission to delete messages')
+                return False
+            return True
+        return commands.check(predicate)
+
+    @commands.command(name = "kick")
+    @commands.guild_only()
+    @can_kick()
     async def _kick(self, ctx, user: discord.Member):
-        is_admin = ctx.author.permissions_in(ctx.channel).kick_members
-        isTadmin = user.permissions_in(ctx.channel).administrator
-
-        if ctx.author.id in Store.whitelist or self.bot.is_owner(ctx.author.id):
-            is_admin = True
-
-        if not is_admin:
-            return await ctx.send('You dont have the permissions required to use the ban command')
-
-        if isTadmin:
-            return await ctx.send('I can\'t kick admins')
-
-        if user.id == ctx.author.id:
-            return await ctx.send('I can\'t kick you')
+        if not can_override(ctx, user):
+            return await ctx.send('I Dont want to kick that user')
 
         if user.id == self.bot.user.id:
-            return await ctx.send('I\'m not going to kick myself')
+            return await ctx.send('I wont kick myself')
 
-        if self.bot.is_owner(user.id) or user.id in Store.whitelist:
-            return await ctx.send('I don\'t want to kick them')
+        if user.id == ctx.author.id:
+            return await ctx.send('I wont let you kick yourself')
+
+        if user.permissions_in(ctx.channel).administrator:
+            await ctx.send('I wont ban admins')
 
         try:
             await user.kick()
         except discord.errors.Forbidden:
-            return await ctx.send('I Don\'t have the correct permissions to do that')
+            await ctx.send('I dont have the correct permissions to kick him')
         else:
-            await ctx.send('He\'s gone for now')
+            await ctx.send('So long sucker')
 
-    @commands.command(name="ban")
+    @commands.command(name = "ban", aliases = ['yeet'])
+    @commands.guild_only()
+    @can_ban()
     async def _ban(self, ctx, user: discord.Member):
-        is_admin = ctx.author.permissions_in(ctx.channel).ban_members
-        isTadmin = user.permissions_in(ctx.channel).administrator
-
-        if ctx.author.id in Store.whitelist or self.bot.is_owner(ctx.author.id):
-            is_admin = True
-
-        if not is_admin:
-            return await ctx.send('You don\'t have the permissions to do that')
-
-        if isTadmin:
-            return await ctx.send('I can\'t ban other admins')
+        if not can_override(ctx, user):
+            return await ctx.send('I Dont want to ban that user')
 
         if user.id == self.bot.user.id:
-            return await ctx.send('I can\'t ban myself')
+            return await ctx.send('I wont kick myself')
 
-        if self.bot.is_owner(user.id) or user.id in Store.whitelist:
-            return await ctx.send('I don\'t want to ban them')
+        if user.id == ctx.author.id:
+            return await ctx.send('I wont let you kick yourself')
+
+        if user.permissions_in(ctx.channel).administrator:
+            await ctx.send('I wont ban admins')
 
         try:
             await user.ban()
         except discord.errors.Forbidden:
-            return await ctx.send('I don\'t have the correct permissions to do that')
+            await ctx.send('I dont have the correct permissions to ban that user')
         else:
-            await ctx.send('He\'s gone for good')
+            await ctx.send('And their gone')
 
-    @commands.command(name="prune")
-    async def _prune(self, ctx, amt: int=5):
-        is_admin = ctx.author.permissions_in(ctx.channel).manage_messages
+    @commands.command(name = "softban")
+    @commands.guild_only()
+    @can_kick()
+    async def _softban(self, ctx, user: discord.Member):
+        if not can_override(ctx, user):
+            return await ctx.send('I Dont want to softban that user')
 
-        if ctx.author.id in Store.whitelist or self.bot.is_owner(ctx.author.id):
-            is_admin = True
+        if user.id == self.bot.user.id:
+            return await ctx.send('I wont kick myself')
 
-        if not is_admin:
-            return await ctx.send('You don\'t have the required permissions to do that')
+        if user.id == ctx.author.id:
+            return await ctx.send('I wont let you kick yourself')
 
-        if not 2 <= amt <= 100:
-            return await ctx.send('Must prune between 2 and 100 messages')
+        if user.permissions_in(ctx.channel).administrator:
+            await ctx.send('I wont ban admins')
 
         try:
-            await ctx.channel.purge(limit=amt)
+            await user.ban()
+            await asyncio.sleep(15)
+            await user.unban()
+            await user.send(await ctx.channel.create_invite(max_uses = 1))
         except discord.errors.Forbidden:
-            await ctx.send('I don\'t have the permissions to do that')
+            await ctx.send('I dont have the permissions to do that')
         else:
-            await ctx.send('I pruned {} messages'.format(amt))
+            await ctx.send('their gone now')
+
+    @commands.command(name = "clean")
+    @commands.guild_only()
+    @manage_messages()
+    async def _clean(self, ctx, amount: int = 5):
+        if not 5 <= amount <= 100:
+            return await ctx.send('Amount must be between 5 and 100')
+
+        try:
+            await ctx.channel.purge(limit = amount)
+        except discord.errors.Forbidden:
+            await ctx.send('I dont have the permissions to delete messages')
+        else:
+            await ctx.send('{} messages have been purged'.format(amount))
 
 def setup(bot):
     bot.add_cog(Admin(bot))

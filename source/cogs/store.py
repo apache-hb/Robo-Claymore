@@ -1,145 +1,238 @@
 import json
-
-import sys
-import os
-
 import discord
-import time
-
-import emoji as e
-#for embed checking
+import aiohttp
 from urllib.request import pathname2url
 from mimetypes import MimeTypes
+from emoji import UNICODE_EMOJI as uemoji
 
-#keep this file as minimal as possible
+MIME = MimeTypes()
 
-dir_path = dir_path = os.path.dirname(os.path.realpath(__file__))
+def can_override(ctx, user = None):
+    if user is None:
+        user = ctx.author
+    return ctx.bot.is_owner(user) or user.id in whitelist
 
-def reset_config():
-    clean_file('./cogs/store/bot.log', 'logging file \n')
-    clean_file('./cogs/store/direct.log', 'direct messages file \n')
-    clean_file('./cogs/store/statistics.json', json.dumps(statistic_dict, indent=4))
-    clean_file('./cogs/store/symbiosis.json', '[]')
-    clean_file('./cogs/store/tags.json', '[]')
-    clean_file('./cogs/store/quotes.json', '[]')
-    clean_file('./cogs/store/autoreact.json', '[]')
-    clean_file('./cogs/store/autorole.json', '[]')
-    clean_file('./cogs/store/disabled.json', '[]')
-    clean_file('./cogs/store/blacklist.json', '[]')
-    clean_file('./cogs/store/blocked.json', '[]')
-    clean_file('./cogs/store/whitelist.json', '[]')
-    clean_file('./cogs/store/welcome.json', '[]')
-    clean_file('./cogs/store/leave.json', '[]')
+def quick_embed(ctx, title: str, description: str = None, colour: int = 0x023cfc):
+    try: colour = ctx.me.colour
+    except AttributeError: pass
+    return discord.Embed(title = title, description = description, colour = colour)
 
-def is_emoji(emoji: str):
-    is_anim = True if emoji.startswith('<a:') else False
+async def tinyurl(url: str):
+    async with aiohttp.ClientSession() as session:
+        async with session.get('http://tinyurl.com/api-create.php?url=' + url, timeout=10) as resp:
+            return await resp.text()
 
+async def hastebin(content: str):
+    async with aiohttp.ClientSession() as session:
+        async with session.post('https://hastebin.com/documents', data = content.encode('utf-8')) as post:
+            post = await post.json()
+            return 'https://hastebin.com/' + post['key']
+
+async def hastebin_error(ctx, content: str):
+    embed = quick_embed(ctx, title = 'Too much text for me to send at once', description = 'But do not fear')
+    embed.add_field(name = 'I have put it on hastebin for you', value = await hastebin(content))
+    return embed
+
+async def exists(url: str):
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url) as resp:
+            return int(await resp.status()) < 400
+
+def embedable(url: str):
+    url = pathname2url(url)
+    mime_type = MIME.guess_type(url)
+    return mime_type[0] in ['image/jpeg', 'image/png', 'image/gif', 'image/jpg']
+
+def emoji(emoji: str):
+    #if the string is surrounded with <> there is a chance its a discord emoji
     if emoji.startswith('<') and emoji.endswith('>') and emoji.count(':') == 2:
-        emoji = emoji[3:] if is_anim else emoji[2:]
+        emoji = emoji[3:] if emoji.startswith('<a:') else emoji[2:]
         while not emoji.startswith(':'):
             emoji = emoji[1:]
         emoji = emoji[1:-1]
         if len(emoji):
             return True
         return False
-    elif emoji in e.UNICODE_EMOJI:
+    elif emoji in uemoji:
         return True
     return False
 
-def style_embed(ctx, title: str, description: str='', color: int=None):
-    if color is None:
-        try: color = ctx.guild.me.color
-        except AttributeError: color = Store.default_color
-    embed=discord.Embed(title=title, description=description,color=color)
-    embed.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
-    return embed
+def only_mentions_bot(bot, context):
+    if context.content == '<@!{}>'.format(bot.user.id):
+        return True
 
-def pyout(message: str):
-    if not Store.silent:
-        print(message)
-    return Store.silent
+    if context.content == '<@{}>'.format(bot.user.id):
+        return True
 
-def qlog(message: str):
-    f = open('cogs/store/direct.log', 'a')
-    f.write(message)
-    f.close()
+    return False
 
-def guild_template(guild):
-    ret = {
-        "server_id": guild.id,
-        "first_joined": int(time.time()),
-        "contents": [
+config = json.load(open('cogs/store/config.json'))
 
-        ]
-    }
-    return ret
+whitelist = json.load(open('cogs/store/whitelist.json'))
 
-def add_guild(guild):
-    #autoreact
-    if not any(d['server_id'] == guild.id for d in autoreact):
-        autoreact.append(guild_template(guild))
-        json.dump(autoreact, open('cogs/store/autoreact.json', 'w'), indent=4)
+blacklist = json.load(open('cogs/store/blacklist.json'))
 
-    #autorole
-    if not any(d['server_id'] == guild.id for d in autorole):
-        autorole.append(guild_template(guild))
-        json.dump(autorole, open('cogs/store/autorole.json', 'w'), indent=4)
+logs = json.load(open('cogs/store/logs.json'))
 
-    #tags
-    if not any(d['server_id'] == guild.id for d in tags):
-        tags.append(guild_template(guild))
-        json.dump(tags, open('cogs/store/tags.json', 'w'), indent=4)
+# stolen from appuselfbot
+# https://github.com/appu1232/Discord-Selfbot
+emoji_dict = {
+    'a': ['🇦 ', '🅰', '🍙', '🔼', '4⃣'],
+    'b': ['🇧 ', '🅱', '8⃣'],
+    'c': ['🇨 ', '©', '🗜'],
+    'd': ['🇩 ', '↩'],
+    'e': ['🇪 ', '3⃣', '📧', '💶'],
+    'f': ['🇫 ', '🎏'],
+    'g': ['🇬 ', '🗜', '6⃣', '9⃣', '⛽'],
+    'h': ['🇭 ', '♓'],
+    'i': ['🇮 ', 'ℹ', '🚹', '1⃣'],
+    'j': ['🇯 ', '🗾'],
+    'k': ['🇰 ', '🎋'],
+    'l': ['🇱 ', '1⃣', '🇮', '👢', '💷'],
+    'm': ['🇲 ', 'Ⓜ', '📉'],
+    'n': ['🇳 ', '♑', '🎵'],
+    'o': ['🇴 ', '🅾', '0⃣', '⭕', '🔘', '⏺', '⚪', '⚫', '🔵', '🔴', '💫'],
+    'p': ['🇵 ', '🅿'],
+    'q': ['🇶 ', '♌'],
+    'r': ['🇷 ', '®'],
+    's': ['🇸 ', '💲', '5⃣', '⚡', '💰', '💵'],
+    't': ['🇹 ', '✝', '➕', '🎚', '🌴', '7⃣'],
+    'u': ['🇺 ', '⛎', '🐉'],
+    'v': ['🇻 ', '♈', '☑'],
+    'w': ['🇼 ', '〰', '📈'],
+    'x': ['🇽 ', '❎', '✖', '❌', '⚒'],
+    'y': ['🇾 ', '✌', '💴'],
+    'z': ['🇿 ', '2⃣'],
+    '0': ['0⃣ ', '🅾', '0⃣', '⭕', '🔘', '⏺', '⚪', '⚫', '🔵', '🔴', '💫'],
+    '1': ['1⃣ ', '🇮'],
+    '2': ['2⃣ ', '🇿'],
+    '3': ['3⃣ '],
+    '4': ['4⃣ '],
+    '5': ['5⃣ ', '🇸', '💲', '⚡'],
+    '6': ['6⃣ '],
+    '7': ['7⃣ '],
+    '8': ['8⃣ ', '🎱', '🇧', '🅱'],
+    '9': ['9⃣ '],
+    '?': ['❓ '],
+    '!': ['❗ ', '❕', '⚠', '❣'],
+    ' ': ['   '],
+    '\n': ['\n']
+}
 
-    #quotes
-    if not any(d['server_id'] == guild.id for d in quotes):
-        quotes.append(guild_template(guild))
-        json.dump(quotes, open('cogs/store/quotes.json', 'w'), indent=4)
+inverted_dict = {
+    'a': 'ɐ',
+    'b': 'q',
+    'c': 'ɔ',
+    'd': 'p',
+    'e': 'ǝ',
+    'f': 'ɟ',
+    'g': 'ƃ',
+    'h': 'ɥ',
+    'i': 'ᴉ',
+    'j': 'ɾ',
+    'k': 'ʞ',
+    'l': 'l',
+    'm': 'ɯ',
+    'n': 'u',
+    'o': 'o',
+    'p': 'd',
+    'q': 'b',
+    'r': 'ɹ',
+    's': 's',
+    't': 'ʇ',
+    'u': 'n',
+    'v': 'ʌ',
+    'w': 'ʍ',
+    'x': 'x',
+    'y': 'ʎ',
+    'z': 'z',
+    ' ': ' ',
+    '\n': '\n'
+}
 
+ball_awnsers = [
+    'Definetly',
+    'No',
+    'Almost certain',
+    'More than likley',
+    'Perhaps',
+    'Yes',
+    'Certainly',
+    'Not a chance',
+    'Outlook good',
+    'Of course',
+    'Not a doubt about it'
+]
 
-class Store:
+random_rigging = {
+    'good': ['apache', 'jeff', 'clay', 'ion'],
+    'bad': ['autotitan', 'kotlin', 'ginger']
+}
 
-    total_messages = 0
-
-    current_system = ''
-
-    silent = False
-
-    default_color = 0xe00b3c
-
-    frames = []
-
-tags = json.load(open(dir_path + '/store/tags.json'))
-
-quotes = json.load(open(dir_path + '/store/quotes.json'))
-
-welcome = json.load(open(dir_path + '/store/welcome.json'))
-
-leave = json.load(open(dir_path + '/store/leave.json'))
-
-autoreact = json.load(open(dir_path + '/store/autoreact.json'))
-
-autorole = json.load(open(dir_path + '/store/autorole.json'))
-
-config = json.load(open(dir_path + '/store/config.json'))
-
-whitelist = json.load(open(dir_path + '/store/whitelist.json'))
-
-blacklist = json.load(open(dir_path + '/store/blacklist.json'))
-
-if Store.current_system == 'mac':
-    sys.path.append('/usr/local/lib/python3.6/site-packages')
-
-#for url shortening
-import aiohttp
-
-async def shorten_url(long_url: str):
-    url = "http://tinyurl.com/api-create.php?url=" + long_url
-    async with aiohttp.ClientSession() as session:
-        async with session.get(url, timeout=10) as response:
-            return await response.text()
-
-mime = MimeTypes()
-def is_embedable(url: str):
-    url = pathname2url(url)
-    mime_type = mime.guess_type(url)
-    return mime_type[0] in ['image/jpeg', 'image/png', 'image/gif', 'image/jpg']
+titanfall_pilot_variables = {
+    'pilots': [
+        'Grapple',
+        'Pulse Blade',
+        'Stim',
+        'A-Wall',
+        'Phase Shift',
+        'Holo Pilot',
+        'Cloak'
+    ],
+    'grenades': [
+        'Frag Grenade',
+        'Arc Grenade',
+        'Fire Star',
+        'Gravity Star',
+        'Electric Smoke',
+        'Satchel Charge'
+    ],
+    'primary': [
+        'R201',
+        'R101',
+        'Hemlock',
+        'G2A5',
+        'Flatline',
+        'Alternator',
+        'CAR',
+        'R-97',
+        'Volt',
+        'L-STAR',
+        'Spitfire',
+        'Devotion',
+        'Double Take',
+        'Kraber',
+        'DMR',
+        'EVA-8',
+        'Mastiff',
+        'Cold War',
+        'EPG',
+        'Softball',
+        'SMR'
+    ],
+    'secondary': [
+        'RE .45',
+        'Hammond P2016',
+        'Wingman Elite',
+        'Mozambique',
+        'Wingman B3',
+    ],
+    'anti_titan': [
+        'Charge Rifle',
+        'MGL',
+        'Thunderbolt',
+        'Archer'
+    ],
+    'perk_slot_a': [
+        'Power Cell',
+        'Fast Regen',
+        'Ordinance Expert',
+        'Phase Embark'
+    ],
+    'perk_slot_b': [
+        'Wall Hang',
+        'Kill Report',
+        'Hover',
+        'Low Profile'
+    ]
+}

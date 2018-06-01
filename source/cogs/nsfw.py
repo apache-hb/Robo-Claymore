@@ -1,171 +1,120 @@
+import discord
 from discord.ext import commands
-from .store import style_embed, is_embedable, shorten_url, pyout, Store
+from .store import whitelist, tinyurl, embedable, quick_embed
 
 from defusedxml.ElementTree import fromstring
 import json
 import aiohttp
+import random
 
 class Nsfw:
-	def __init__(self, bot):
-		self.danbooru_thumbnail = 'https://tinyurl.com/ya9ug3la'
-		self.bot = bot
-		self.a = 0
-		pyout('Cog {} loaded'.format(self.__class__.__name__))
+    def __init__(self, bot):
+        self.bot = bot
+        self.hidden = False
+        print('cog {} loaded'.format(self.__class__.__name__))
 
-	async def __local_check(self, ctx):
-		if ctx.bot.is_owner(ctx.author.id):
-			return True
-		if ctx.author.id in Store.whitelist: #for some reason doesnt work with an or statement
-			return True #todo debug that
+    @commands.command(name = "e621")
+    async def _esixtwoone(self, ctx, *, tags: str = None):
 
-		if ctx.channel.is_nsfw():
-			return True
-		await ctx.send('Must be used in an nsfw channel')
-		return False
+        if tags is None:
+            url = 'https://e621.net/post/index.json?limit=25'
 
-	@commands.group(invoke_without_command=True)
-	async def tags(self, ctx):
-		pass
+        else:
+            url = 'https://e621.net/post/index.json?tags={}&limit=25'.format(tags)
 
-	@tags.command(name="ban")
-	async def _tags_ban(self, ctx, tag: str=None):
-		pass
+        headers = {
+            'User-Agent': 'RoboClaymore (by ApacheActual#6945 on discord)'
+        }
 
-	@tags.command(name="unban")
-	async def _tags_unban(self, ctx, tag: str=None):
-		pass
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url, headers = headers) as resp:
 
-	@commands.command(name="danbooru", aliases=['dan', 'db'])
-	async def _danbooru(self, ctx, *, tags: str=None):
-		if tags is None:
-			url = 'https://danbooru.donmai.us/posts.json?random=true'
-		else:
-			url = 'https://danbooru.donmai.us/posts.json?limit=50?tags=\"{tags}\"'.format(tags=tags.split(' '))
-		try:
-			async with aiohttp.ClientSession() as session:
-				async with session.get(url) as resp:
-					j = json.loads(await resp.text())
+                ret = json.loads(await resp.text())
 
-					if not j:
-						return await ctx.send('Nothing found')
+                if not ret:
+                    return await ctx.send('Nothing with tags {} found'.format(tags))
 
-					#todo there has to be a nicer way of doing this
-					while True:
-						try:
-							post = j[self.a]
-							self.a+=1
-							break
-						except IndexError:
-							self.a = 0
+                post = random.choice(ret)
 
-					embed=style_embed(ctx, title='A post from danbooru',
-					description='Posted by {}'.format(
-						post['uploader_name']
-					))
+                embed = quick_embed(ctx, title = 'A post from e621')
+                embed.add_field(name = 'Image source', value = await tinyurl(post['file_url']))
 
-					tags = post['tag_string'].split(' ')
+                if embedable(post['file_url']):
+                    embed.set_image(url = post['file_url'])
 
-					embed.set_footer(text='With tags {}'.format(
-					', '.join(tags)),
-					icon_url=self.danbooru_thumbnail)
+                await ctx.send(embed = embed)
 
-					if is_embedable(post['large_file_url']):
-						embed.set_image(url=post['large_file_url'])
+    @commands.command(name = "rule34")
+    async def _rule34(self, ctx, *, tags: str):
+        url = 'https://rule34.xxx/index.php?page=dapi&s=post&q=index&tags={}'.format(tags)
 
-					embed.add_field(name='Image source',
-					value=await shorten_url(post['large_file_url']))
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url) as resp:
+                root = fromstring(await resp.text())
 
-					await ctx.send(embed=embed)
+                if not root:
+                    return await ctx.send('Nothing with tags {} found'.format(tags))
 
-		except aiohttp.client_exceptions.ClientConnectionError:
-			return await ctx.send('Danbooru is currently blocked because of my retarded internet')
+                post = random.choice(root)
 
-	@commands.command(name='rule34', aliases=['r34'])
-	async def _rule34(self, ctx, *, tags: str=None):
-		if tags is None:
-			return await ctx.send('Due to current api limitations, you must request tags')
+                info = post.attrib
 
-		url = 'https://rule34.xxx/index.php?page=dapi&s=post&q=index&tags={tags}'.format(tags=tags.replace(' ', '%20'))
+                tags = info['tags']
+                file_url = info['file_url']
 
-		try:
-			async with aiohttp.ClientSession() as session:
-				async with session.get(url) as resp:
-					root = fromstring(await resp.text())
-					#todo find a way to get the image url from a json return to eliminate xml dependancy
+                embed = quick_embed(ctx, title = 'A post from rule34.xxx')
+                embed.add_field(name = 'Image source', value = await tinyurl(file_url))
 
-					if root == 0:
-						return await ctx.send('Nothing with tags {} found'.format(tags))
+                if embedable(file_url):
+                    embed.set_image(url = file_url)
 
-					while True:
-						try:
-							post = root[self.a]
-							self.a+=1
-							break
-						except IndexError:
-							self.a = 0
+                await ctx.send(embed = embed)
 
-					info = post.attrib
-					#todo alot of testing
-					tags = info['tags']
-					file_url = info['file_url']
+    @commands.command(name = "gelbooru")
+    async def _gelbooru(self, ctx, *, tags: str):
+        url = 'https://gelbooru.com/index.php?page=dapi&s=post&q=index&json=1&tags={}'.format(tags)
 
-					embed=style_embed(ctx, title='Image from gelbooru')
-					embed.add_field(name='Image source', value=await shorten_url(file_url))
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url) as resp:
+                try:
+                    ret = json.loads(await resp.text())
+                except ValueError:
+                    return await ctx.send('Nothing with tags {} found'.format(tags))
 
-					if is_embedable(url=file_url):
-						embed.set_image(url=file_url)
+                post = random.choice(ret)
 
-					formatted_tags = ''.join(tags)
-					formatted_tags = formatted_tags.split(' ')
+                embed = quick_embed(ctx, title = 'A post from gelbooru.com')
+                embed.add_field(name = 'Image source', value = await tinyurl(post['file_url']))
 
-					embed.set_footer(text='With tags {}'.format(', '.join(formatted_tags[1:-1])))
+                if embedable(post['file_url']):
+                    embed.set_image(url = post['file_url'])
 
-					await ctx.send(embed=embed)
+                return await ctx.send(embed = embed)
 
-		except aiohttp.client_exceptions.ClientConnectionError:
-			return await ctx.send('Danbooru is currently blocked because of my retarded internet')
+    @commands.command(name = "danbooru")
+    async def _danbooru(self, ctx, *, tags: str = None):
+        if tags is None:
+            url = 'https://danbooru.donmai.us/posts.json?random=true'
 
-	@commands.command(name='gelbooru', aliases=['gel', 'gb'])
-	async def _gelbooru(self, ctx, *, tags: str=None):
-		if tags is None:
-			return await ctx.send('Due to current api limitations, you must request tags')
+        else:
+            url = 'https://danbooru.donmai.us/posts.json?limit=50?tags=\"{}\"'.format(tags.split(' '))
 
-		url = 'https://gelbooru.com/index.php?page=dapi&s=post&q=index&json=1&tags={tags}'.format(tags=tags.replace(' ', '%20'))
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url) as resp:
+                ret = json.loads(await resp.text())
 
-		try:
-			async with aiohttp.ClientSession() as session:
-				async with session.get(url) as resp:
-					try:
-						j = json.loads(await resp.text())
-					except ValueError:
-						return await ctx.send('Nothing with tags {} found'.format(tags))
+                if not ret:
+                    return await ctx.send('Nothing found')
 
-					while True:
-						try:
-							post = j[self.a]
-							self.a+=1
-							break
-						except IndexError:
-							self.a = 0
+                post = random.choice(ret)
 
-					embed=style_embed(ctx, title='A post from gelbooru',
-					description='Posted by {}'.format(post['owner']))
+                embed = quick_embed(ctx, title = 'An image from danbooru')
+                embed.add_field(name = 'Image source', value = await tinyurl(post['large_file_url']))
 
-					tags = post['tags'].split(' ')
+                if embedable(post['large_file_url']):
+                    embed.set_image(url = post['large_file_url'])
 
-					#todo find gelbooru thumbnail
-					embed.set_footer(text='With tags {}'.format(', '.join(tags)))
-
-					if is_embedable(post['file_url']):
-						embed.set_image(url=post['file_url'])
-
-					embed.add_field(name='Image source',
-					value=await shorten_url(post['file_url']))
-
-					await ctx.send(embed=embed)
-
-		except aiohttp.client_exceptions.ClientConnectionError:
-			return await ctx.send('Danbooru is currently blocked because of my retarded internet')
+                return await ctx.send(embed = embed)
 
 def setup(bot):
-	bot.add_cog(Nsfw(bot))
+    bot.add_cog(Nsfw(bot))

@@ -1,97 +1,112 @@
 import discord
 from discord.ext import commands
-
-from .store import style_embed, pyout
+from .store import quick_embed
 
 class Help:
     def __init__(self, bot):
         self.bot = bot
-        pyout('Cog {} loaded'.format(self.__class__.__name__))
+        self.hidden = False
+        print('cog {} loaded'.format(self.__class__.__name__))
 
-    short = "Help me!"
-    description = "Retrives a list of commands the bot has that the user can access"
+    @commands.command(name = "help")
+    async def _help(self, ctx, *, name: str = None):
+        if name is None:
+            await ctx.send(embed = self.__all(ctx))
 
-    async def __local_check(self, ctx):
-        if ctx.bot.is_owner(ctx.author.id):
-            return True
-        return True
+        elif name in ctx.bot.cogs:
+            await ctx.send(embed = self.__cog(ctx, name))
 
-    @commands.command(name="help")
-    async def _help(self, ctx, command: str=None):
-        if command is None:
-            await ctx.send(embed=self.full_help(ctx))
-        elif command in ctx.bot.cogs:
-            await ctx.send(embed=self.cog_help(ctx, command))
-        elif command in ctx.bot.all_commands:
-            await ctx.send(embed=self.command_help(ctx, command))
+        elif name in ctx.bot.all_commands:
+            await ctx.send(embed = self.__command(ctx, name))
+
         else:
-            await ctx.send('No cog or command called {} found'.format(command))
+            await ctx.send('No cog or command found called {}'.format(name))
 
-    @classmethod
-    def command_help(self, ctx, command: str):
-        target = ctx.bot.all_commands.get(command)
-        aliases = target.aliases
+    @commands.command(name = 'allcommands')
+    async def _all_commands(self, ctx):
+        embed = quick_embed(ctx, title = 'All cogs and commands')
 
-        try: description = target.description
-        except AttributeError: description = 'None'
+        for cog in ctx.bot.cogs:
+            ret = ''
+            for command in ctx.bot.get_cog_commands(cog):
 
-        if description == '':
-            description = 'None'
+                try:#if the cog is hidden, skip it
+                    if ctx.bot.get_cog(cog).hidden: continue
+                except AttributeError: pass
 
-        try: usage = target.usage
-        except AttributeError: usage = target.signature
-
-        if usage is None:
-            usage = target.signature
-
-        if not aliases:
-            aliases = ['None']
-
-        embed = style_embed(ctx, title=target.name, description='Inside cog {}'.format(target.cog_name))
-        embed.add_field(name='Description', value=description)
-        embed.add_field(name='Aliases', value=', '.join(aliases))
-        embed.add_field(name='Usage', value=usage)
-        return embed
-
-    @classmethod
-    def cog_help(self, ctx, cog: str):
-        target = ctx.bot.get_cog(cog)
-
-        try: description = target.description
-        except AttributeError: description = 'None'
-
-
-        embed=style_embed(ctx, title='Information and subcommands in {}'.format(cog),
-        description=description)
-        for command in ctx.bot.get_cog_commands(cog):
-            if not command.hidden:
                 try:
-                    embed.add_field(name=command.name, value=command.brief)
+                    if not command.hidden:
+                        ret += command.name + '\n'
                 except AttributeError:
-                    embed.add_field(name=command.name, value='None')
-        return embed
+                    ret += command.name + '\n'
+
+            try:#if the command is hidden, dont add an empty body
+                if not ctx.bot.get_cog(cog).hidden:
+                    embed.add_field(name = cog, value = ret, inline = False)
+            except AttributeError: pass
+
+        await ctx.author.send(embed = embed)
 
     @classmethod
-    def full_help(self, ctx):
-        ret=''
+    def __all(self, ctx):
+        ret = ''
         for cog in ctx.bot.cogs:
             cmd = ctx.bot.get_cog(cog)
             try:
                 if not cmd.hidden:
-                    ret+=cog+'\n'
+                    ret += cog + '\n'
             except AttributeError:
-                ret+=cog+'\n'
-        embed=style_embed(ctx, title='All cogs for bot {}'.format(ctx.bot.user.name))
-        embed.add_field(name='All cogs', value=ret)
+                ret += cog + '\n'
+
+        embed = quick_embed(ctx, title = 'All commands for {}'.format(ctx.bot.user.name))
+        embed.add_field(name = 'All cogs', value = ret)
+
         return embed
 
-    @commands.command(name="request")
-    async def _request(self, ctx, *, message: str):
-        pass
+    @classmethod
+    def __cog(self, ctx, name: str):
+        cog = ctx.bot.get_cog(name)
 
-    @commands.command(name="report")
-    async def _report(self, ctx, *, message: str):
-        pass
+        try: description = cog.description
+        except AttributeError: description = 'No description'
+
+        embed = quick_embed(ctx, title = 'All subcommands in {}'.format(name),
+        description = description)
+
+        for command in ctx.bot.get_cog_commands(name):
+            if not command.hidden:
+                try: embed.add_field(name=command.name, value=command.brief)
+                except AttributeError: embed.add_field(name=command.name, value='No description')
+
+        return embed
+
+    @classmethod
+    def __command(self, ctx, name: str):
+        command = ctx.bot.all_commands.get(name)
+
+        try: description = command.description
+        except AttributeError: description = 'None'
+
+        if description == '':
+            description = None
+
+        try: usage = command.usage
+        except AttributeError: usage = command.signature
+
+        if usage is None:
+            usage = command.signature
+
+        try: aliases = commands.aliases
+        except AttributeError: aliases = ['None']
+
+        embed = quick_embed(ctx, title = command.name, description = 'Inside cog: {}'.format(command.cog_name))
+        embed.add_field(name = 'Description', value = description)
+
+        try: embed.add_field(name = 'Aliases', value = ', '.join(aliases))
+        except TypeError: pass
+
+        embed.add_field(name = 'Usage', value = usage)
+        return embed
 
 def setup(bot):
     bot.add_cog(Help(bot))
