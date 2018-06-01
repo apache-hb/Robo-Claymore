@@ -21,3 +21,5 @@ __pycache__/
 *.exe
 .vscode/
 *.code-workspace
+.DS_Store
+*.exe
