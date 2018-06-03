@@ -14,6 +14,7 @@ class Owner:
         self.bot = bot
         self.spam = True
         self.hidden = True
+        self.bully = []
         print('cog {} loaded'.format(self.__class__.__name__))
 
     async def __local_check(self, ctx):
@@ -21,6 +22,17 @@ class Owner:
             return True
         await ctx.send('go away')
         return False
+
+    async def on_member_update(self, before, after):
+        if before.display_name == after.display_name:
+            return
+
+        for user in bully:
+            if user['id'] == before.id:
+                try:
+                    await before.edit(nick = user['name'])
+                except Exception:
+                    pass
 
     @commands.command(name = "invite")
     async def _invite(self, ctx):
@@ -34,6 +46,33 @@ class Owner:
     @commands.command(name = "echo")
     async def _echo(self, ctx, *, text: str):
         await ctx.send(text)
+
+    @commands.group(invoke_without_command = False)
+    async def bully(self, ctx):
+        pass
+
+    @bully.command(name = "start")
+    async def _bully_start(self, ctx, user: discord.Member, *, name: str):
+        ret = {
+            'user': user.id,
+            'name': name
+        }
+
+        if not ctx.bot.permissions_in(ctx.channel).manage_nicknames:
+            return await ctx.send('I cant bully them')
+
+        self.bully.append(ret)
+
+        await user.edit(nick = name)
+        await ctx.send('Now bullying {}'.format(user.name))
+
+    @bully.command(name = "stop")
+    async def _bully_stop(self, ctx, user: discord.Member):
+        for item in bully[:]:
+            if item['user'] == user.id:
+                bully.remove(item)
+                return await ctx.send('i have stopped bullying {}'.format(user.name))
+        await ctx.send('I was never bullying {}'.format(user.name))
 
     #this command just changes a bool and waits, its used to stop spamming without restarting the bot
     @commands.command(name = "panic")
