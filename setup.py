@@ -21,9 +21,6 @@ default = {
     'wolfram': {
         'key': input('(optional) input a wolfram alpha key to enable the wolfram command\n')
     },
-    'fortnite': {
-        'key': input('(optional) input a fortnite key to enable fortnite support\n')
-    },
     'disabled': {
         'cogs': [
 
