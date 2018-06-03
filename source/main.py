@@ -34,6 +34,7 @@ bot ready'''.format(name = bot.user.name, dis = bot.user.discriminator, id = bot
 @bot.event
 async def on_message(context):
     await bot.process_commands(context)
+
     if bot.is_owner(context.author.id) and only_mentions_bot(bot, context):
         await context.channel.send('what do you want from me')
         primed = True

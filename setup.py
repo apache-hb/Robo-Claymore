@@ -2,7 +2,7 @@ import os
 import json
 
 if not os.path.isdir('source/cogs/store'):
-    os.mkdir('soruce/cogs/store')
+    os.mkdir('source/cogs/store')
 
 print('{:=^50}'.format('Robo Claymore setup script'))
 print('{:^50}'.format('To skip a token, just press enter'))
