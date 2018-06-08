@@ -27,10 +27,10 @@ class Owner:
         if before.display_name == after.display_name:
             return
 
-        if not bully:
+        if not self.bully:
             return
 
-        for user in bully:
+        for user in self.bully:
             if user['id'] == before.id:
                 try:
                     await before.edit(nick = user['name'])
