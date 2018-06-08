@@ -129,7 +129,7 @@ class Admin:
     @commands.command(name = "massnick")
     @commands.guild_only()
     @manage_nicknames()
-    async def _massnick(self, ctx, *, nickname: str):
+    async def _massnick(self, ctx, *, nickname: str = None):
         if not 2 <= len(nickname) <= 32:
             return await ctx.send('Nickname length must be between 2 and 32 characters')
 
