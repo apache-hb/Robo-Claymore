@@ -55,8 +55,5 @@ class Fun:
 
         await ctx.send(first + awnser + second)
 
-
-
-
 def setup(bot):
     bot.add_cog(Fun(bot))

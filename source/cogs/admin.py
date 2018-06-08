@@ -32,6 +32,14 @@ class Admin:
             return True
         return commands.check(predicate)
 
+    def manage_nicknames():
+        async def predicate(ctx):
+            if not ctx.author.permissions_in(ctx.channel).manage_nicknames or not can_override(ctx):
+                await ctx.send('You dont have the permission to manage nicknames')
+                return False
+            return True
+        return commands.check(predicate)
+
     @commands.command(name = "kick")
     @commands.guild_only()
     @can_kick()
@@ -117,6 +125,24 @@ class Admin:
             await ctx.send('I dont have the permissions to delete messages')
         else:
             await ctx.send('{} messages have been purged'.format(amount))
+
+    @commands.command(name = "massnick")
+    @commands.guild_only()
+    @manage_nicknames()
+    async def _massnick(self, ctx, *, nickname: str):
+        if not 2 <= len(nickname) <= 32:
+            return await ctx.send('Nickname length must be between 2 and 32 characters')
+
+        a = 0
+
+        for member in ctx.guild.members:
+            try:
+                await member.edit(nick = nickname)
+                a+=1
+            except Exception:
+                pass
+
+        await ctx.send('massnicked {} users'.format(a))
 
 def setup(bot):
     bot.add_cog(Admin(bot))

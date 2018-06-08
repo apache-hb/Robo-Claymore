@@ -44,7 +44,7 @@ class Nsfw:
 
                 await ctx.send(embed = embed)
 
-    @commands.command(name = "rule34")
+    @commands.command(name = "rule34", aliases = ['r34'])
     async def _rule34(self, ctx, *, tags: str):
         url = 'https://rule34.xxx/index.php?page=dapi&s=post&q=index&tags={}'.format(tags)
 
@@ -70,7 +70,7 @@ class Nsfw:
 
                 await ctx.send(embed = embed)
 
-    @commands.command(name = "gelbooru")
+    @commands.command(name = "gelbooru", aliases = ['gel', 'gb'])
     async def _gelbooru(self, ctx, *, tags: str):
         url = 'https://gelbooru.com/index.php?page=dapi&s=post&q=index&json=1&tags={}'.format(tags)
 

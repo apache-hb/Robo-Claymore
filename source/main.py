@@ -42,7 +42,7 @@ async def on_message(context):
         primed = False
         return
 
-    if bot.is_owner(context.author.id) and context.content == 'kill' and primed:
+    if bot.is_owner(context.author.id) and context.content == 'yeet' and primed:
         await context.channel.send('ok')
         primed = False
 

@@ -10,6 +10,8 @@ from bs4 import BeautifulSoup as bs
 from defusedxml.ElementTree import fromstring
 from discord.ext import commands
 from pyfiglet import figlet_format
+from itertools import chain
+from urllib.parse import urlencode
 import time
 from inspect import getsource
 
@@ -85,6 +87,7 @@ class Utility:
     def __init__(self, bot):
         self.bot = bot
         self.hidden = False
+        self.wolfram = Wolfram(config['wolfram']['key'])
         print('cog {} loaded'.format(self.__class__.__name__))
 
     @commands.command(name = "zalgo")

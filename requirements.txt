@@ -7,3 +7,4 @@ mathutils==2.79.1
 defusedxml==0.5.0
 emoji==0.5.0
 pyfiglet
+youtube_dl
