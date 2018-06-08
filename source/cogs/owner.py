@@ -27,6 +27,9 @@ class Owner:
         if before.display_name == after.display_name:
             return
 
+        if not bully:
+            return
+
         for user in bully:
             if user['id'] == before.id:
                 try:
