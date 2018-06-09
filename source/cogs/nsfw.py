@@ -14,7 +14,7 @@ class Nsfw:
         print('cog {} loaded'.format(self.__class__.__name__))
 
     @commands.command(name = "e621")
-    async def _esixtwoone(self, ctx, *, tags: str = None):
+    async def _e_six_two_one(self, ctx, *, tags: str = None):
 
         if tags is None:
             url = 'https://e621.net/post/index.json?limit=25'
@@ -91,7 +91,7 @@ class Nsfw:
 
                 return await ctx.send(embed = embed)
 
-    @commands.command(name = "danbooru")
+    @commands.command(name = "danbooru", aliases = ['dan', 'db'])
     async def _danbooru(self, ctx, *, tags: str = None):
         if tags is None:
             url = 'https://danbooru.donmai.us/posts.json?random=true'
