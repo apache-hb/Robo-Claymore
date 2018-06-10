@@ -127,7 +127,18 @@ class Owner:
 
     @commands.group(invoke_without_command = True)
     async def whitelist(self, ctx):
-        pass
+        if not whitelist:
+            return await ctx.send('No users have been whitelisted yet')
+
+        embed = quick_embed(ctx, title = "all whitelisted users")
+
+
+        for identifier in whitelist:
+            user = await ctx.bot.get_user_info(identifier)
+            embed.add_field(name = user.name, value = user.id)
+
+        await ctx.send(embed = embed)
+
 
     @whitelist.command(name = "add")
     async def _whitelist_add(self, ctx, user: discord.Member):
