@@ -16,7 +16,8 @@ import time
 from inspect import getsource
 
 from .store import (embedable, emoji_dict, hastebin, hastebin_error,
-                    quick_embed, tinyurl, whitelist, config, inverted_dict)
+                    quick_embed, tinyurl, whitelist, config, inverted_dict,
+                    ServerNotFound, quotes, tags)
 
 # wikia fandom wikis
 WIKIA_API_URL = 'http://{lang}{sub_wikia}.wikia.com/api/v1/{action}'
@@ -391,10 +392,6 @@ class Utility:
                 return await ctx.send(embed = embed)
 
     @commands.group(invoke_without_command = True)
-    async def google(self, ctx):
-        pass
-
-    @commands.group(invoke_without_command = True)
     async def prettyprint(self, ctx):
         embed = quick_embed(ctx, title = 'All the things I can prettyprint', description = 'Not that xml will ever be pretty anyway')
         b = []
@@ -430,6 +427,149 @@ class Utility:
             return await ctx.send('Cannot prettyprint malformed html')
 
         await ctx.send('```html\n' + ret.replace('`', '\`') + '```')
+
+
+    @commands.group(invoke_without_command = True)
+    @commands.guild_only()
+    async def tag(self, ctx, name: str = None):
+        for server in tags:
+            if server['id'] == ctx.guild.id:
+
+                if not server['contents']:
+                    return await ctx.send('this server has no saved tags')
+
+                if name is None:
+                    ret = random.choice(server['contents'])
+                    return await ctx.send(ret['content'])
+
+                for item in server['contents']:
+                    if item['tag'] == name:
+                        return await ctx.send(item['content'])
+
+        tags.append({
+            'id': ctx.guild.id,
+            'contents': [
+
+            ]
+        })
+        json.dump(tags, open('cogs/store/tags.json', 'w'), indent = 4)
+        await ctx.invoke(self.bot.get_command("tag"))
+
+    @tag.command(name = "add")
+    async def _tag_add(self, ctx, name: str, *, content: str):
+        ret = {
+            'tag': name.lower(),
+            'content': content
+        }
+        for server in tags:
+            if server['id'] == ctx.guild.id:
+
+                if any(item['tag'] == name.lower() for item in server['contents']):
+                    return await ctx.send('That tag already exists')
+
+                server['contents'].append(ret)
+                json.dump(tags, open('cogs/store/tags.json', 'w'), indent = 4)
+                return await ctx.send('added tag {}'.format(name))
+
+
+    @tag.command(name = "remove")
+    async def _tag_remove(self, ctx, name: str):
+        for server in tags:
+            if server['id'] == ctx.guild.id:
+                for item in server['contents'][:]:
+                    if item['tag'] == name.lower():
+                        server['contents'].remove(item)
+                        json.dump(tags, open('cogs/store/tags.json', 'w'), indent = 4)
+                        return await ctx.send('deleted tag {}'.format(name))
+                return await ctx.send('not tag called {} found'.format(name))
+
+
+    @tag.command(name = "list")
+    async def _tag_list(self, ctx):
+        for server in tags:
+            if server['id'] == ctx.guild.id:
+
+                if not server['contents']:
+                    return await ctx.send('this server has no tags')
+
+                ret = ''
+                for pair in server['contents']:
+                    ret += pair['tag'] + '\n'
+
+                if len(ret) > 2000:
+                    [ret[i:i+1500] for i in range(0, len(ret), 1500)]
+
+                    for part in ret:
+                        await ctx.author.send('```\n' + part + '```')
+
+                else:
+                    return await ctx.author.send('```\n' + ret + '```')
+
+    @commands.group(invoke_without_command = True)
+    @commands.guild_only()
+    async def quote(self, ctx, index: int = None):
+        for server in quotes:
+            if server['id'] == ctx.guild.id:
+
+                if not server['contents']:
+                    return await ctx.send('this server has no saved quotes')
+
+                if index is None:
+                    return await ctx.send(random.choice(server['contents']))
+
+                try:
+                    return await ctx.send(server['contents'][index+1])
+                except IndexError:
+                    return await ctx.send('this server does not have a quote of that index')
+
+        quotes.append({
+            'id': ctx.guild.id,
+            'contents': [
+
+            ]
+        })
+        json.dump(quotes, open('cogs/store/quotes.json', 'w'), indent = 4)
+        await ctx.invoke(self.bot.get_command("quote"))
+
+    @quote.command(name = "add")
+    async def _quote_add(self, ctx, *, content: str):
+        for server in quotes:
+            if server['id'] == ctx.guild.id:
+                server['contents'].append(content)
+                json.dump(quotes, open('cogs/store/quotes.json', 'w'), indent = 4)
+                return await ctx.send('added quote with an index of {}'.format(len(server['contents'])))
+
+    @quote.command(name = "remove")
+    async def _quote_remove(self, ctx, index: int):
+        for server in quotes:
+            if server['id'] == ctx.guild.id:
+                try:
+                    server['contents'].remove(index)
+                    return await ctx.send('removed quote {}'.format(index))
+                except:
+                    return await ctx.send('no quote at index {}'.format(index))
+
+    @quote.command(name = "list")
+    async def _quote_list(self, ctx):
+        for server in quotes:
+            if server['id'] == ctx.guild.id:
+
+                if not server['contents']:
+                    return await ctx.send('this server has no quotes')
+
+                ret = ''
+                for index, item in enumerate(server['contents']):
+                    ret += '{}: {}'.format(index, item)
+
+                if len(ret) > 1900:
+                    [ret[i:i+1500] for i in range(0, len(ret), 1500)]
+
+                    for part in ret:
+                        await ctx.author.send('```\n' + part + '```')
+
+                else:
+                    return await ctx.author.send('```\n' + ret + '```')
+
 
 def setup(bot):
     bot.add_cog(Utility(bot))

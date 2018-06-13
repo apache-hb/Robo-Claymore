@@ -231,6 +231,18 @@ class Owner:
     async def remote(self, ctx):
         pass
 
+    @remote.command(name = "userlist")
+    async def _remote_userlist(self, ctx, guild: int):
+        ret = ''
+        server = ctx.bot.get_guild(guild)
+
+        if server is None:
+            return await ctx.send('I am not in a server with an id of {}'.format(guild))
+
+        for user in server.members:
+            ret += ' '+user.mention
+        await ctx.send(await hastebin(content = ret))
+
     @remote.command(name = "userinfo")
     async def _remote_userinfo(self, ctx, user: int):
         try:

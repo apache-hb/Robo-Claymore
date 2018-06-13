@@ -7,6 +7,13 @@ from emoji import UNICODE_EMOJI as uemoji
 
 MIME = MimeTypes()
 
+#this is for the quote and tag system
+class ServerNotFound(Exception):
+    def __init__(self, server_id: int):
+        self.server_id = server_id
+#you better not add anymore custom exceptions
+
+
 def can_override(ctx, user = None):
     if user is None:
         user = ctx.author
@@ -58,10 +65,10 @@ def emoji(emoji: str):
     return False
 
 def only_mentions_bot(bot, context):
-    if context.content == '<@!{}>'.format(bot.user.id):
+    if context.content.strip() == '<@!{}>'.format(bot.user.id):
         return True
 
-    if context.content == '<@{}>'.format(bot.user.id):
+    if context.content.strip() == '<@{}>'.format(bot.user.id):
         return True
 
     return False
@@ -73,6 +80,10 @@ whitelist = json.load(open('cogs/store/whitelist.json'))
 blacklist = json.load(open('cogs/store/blacklist.json'))
 
 logs = json.load(open('cogs/store/logs.json'))
+
+tags = json.load(open('cogs/store/tags.json'))
+
+quotes = json.load(open('cogs/store/quotes.json'))
 
 # stolen from appuselfbot
 # https://github.com/appu1232/Discord-Selfbot
