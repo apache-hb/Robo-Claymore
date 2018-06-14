@@ -201,7 +201,7 @@ class Games:
 
     @warframe.command(name = "baro")
     async def _warframe_baro(self, ctx):
-        async with aiohttp.ClientSession as session:
+        async with aiohttp.ClientSession() as session:
             async with session.get('https://api.warframestat.us/pc/voidTrader') as resp:
 
                 ret = json.loads(await resp.text())
