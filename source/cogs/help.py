@@ -29,11 +29,9 @@ class Help:
         for cog in ctx.bot.cogs:
             ret = ''
             for command in ctx.bot.get_cog_commands(cog):
-
                 try:#if the cog is hidden, skip it
                     if ctx.bot.get_cog(cog).hidden: continue
                 except AttributeError: pass
-
                 try:
                     if not command.hidden:
                         ret += command.name + '\n'

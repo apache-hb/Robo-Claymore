@@ -6,6 +6,7 @@ from .store import can_override
 class Admin:
     def __init__(self, bot):
         self.bot = bot
+        self.hidden = False
         print('Cog {} loaded'.format(self.__class__.__name__))
 
     def can_kick():

@@ -75,7 +75,6 @@ class YTDLSource(discord.PCMVolumeTransformer):
 class Voice:
     def __init__(self, bot):
         self.bot = bot
-        self.hidden = True
         print('cog {} loaded'.format(self.__class__.__name__))
 
     @commands.command(name = "join")

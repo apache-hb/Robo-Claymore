@@ -7,6 +7,7 @@ from .store import ball_awnsers, random_rigging
 class Fun:
     def __init__(self, bot):
         self.bot = bot
+        self.hidden = False
         print('cog {} loaded'.format(self.__class__.__name__))
 
     @commands.command(name = "rate")

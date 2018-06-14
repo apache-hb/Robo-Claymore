@@ -9,6 +9,7 @@ import random
 class Games:
     def __init__(self, bot):
         self.bot = bot
+        self.hidden = False
         self.frames = None#used for warframe cache
         print('cog {} loaded'.format(self.__class__.__name__))
 
