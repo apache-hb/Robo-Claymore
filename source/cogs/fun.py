@@ -1,8 +1,9 @@
 from discord.ext import commands
 import discord
 import random
+import json
 
-from .store import ball_awnsers, random_rigging
+from .store import ball_awnsers, random_rigging, autoreact, emoji
 
 class Fun:
     def __init__(self, bot):
@@ -55,6 +56,45 @@ class Fun:
             awnser = random.choice(['is better than', 'is worse than'])
 
         await ctx.send(first + awnser + second)
+
+    def get_react_pair(self, phrase, react):
+        return {
+            'phrase': phrase,
+            'react': react
+        }
+
+    @commands.group(invoke_without_command = True)
+    async def autoreact(self, ctx):
+        pass
+
+    @autoreact.command(name = "add")
+    async def _autoreact_add(self, ctx, *, text: str):
+        text = text.split(' ')
+        react = text[-1]
+        phrase = ' '.join(text[:-1])
+
+        if not emoji(react):
+            return await ctx.send('you need to use an emoji as a reaction')
+
+        for pair in autoreact:
+            if pair['server_id'] == ctx.guild.id:
+                for each in pair['reacts']:
+                    if each['phrase'] == phrase.lower() and each['react'] == react:
+                        return await ctx.send('you cannot add duplicates')
+
+                pair['reacts'].append(self.get_react_pair(phrase.lower(), react))
+                json.dump(autoreact, open('cogs/store/autoreact.json', 'w'), indent = 4)
+                return await ctx.send('{} is now reacted with {}'.format(phrase, react))
+
+    @autoreact.command(name = "remove")
+    async def _autoreact_remove(self, ctx, *, phrase: str):
+        for pair in autoreact:
+            if pair['server_id'] == ctx.guild.id:
+                for each in pair['reacts'][:]:
+                    if each['phrase'] == phrase.lower():
+                        pair['reacts'].remove(each)
+                        json.dump(autoreact, open('cogs/store/autoreact.json', 'w'), indent = 4)
+                        await ctx.send('{} is no longer reacted too'.format(phrase))
 
 def setup(bot):
     bot.add_cog(Fun(bot))

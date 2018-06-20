@@ -1,6 +1,7 @@
 import discord
 from discord.ext import commands
-from .store import can_override
+import json
+from .store import can_override, autorole
 
 
 class Admin:
@@ -8,6 +9,14 @@ class Admin:
         self.bot = bot
         self.hidden = False
         print('Cog {} loaded'.format(self.__class__.__name__))
+
+    def is_admin():
+        async def predicate(ctx):
+            if not ctx.author.permissions_in(ctx.channel).administrator or not can_override(ctx):
+                await ctx.send('You dont have the required admin permissions')
+                return False
+            return True
+        return commands.check(predicate)
 
     def can_kick():
         async def predicate(ctx):
@@ -148,6 +157,44 @@ class Admin:
                 pass
 
         await ctx.send('massnicked {} users'.format(a))
+
+    @commands.group(invoke_without_command = True)
+    @commands.guild_only()
+    @is_admin()
+    async def autorole(self, ctx):
+        pass
+
+    @autorole.command(name = "add")
+    async def _autorole_add(self, ctx, role: discord.Role):
+        for server in autorole:
+            if server['server_id'] == ctx.guild.id:
+                if role.id in server['roles']:
+                    return await ctx.send('That role is already an autorole')
+
+                server['roles'].append(role.id)
+                json.dump(autorole, open('cogs/store/autorole.json', 'w'), indent = 4)
+                return await ctx.send('{} has been added as an autorole'.format(role.name))
+        autorole.append({
+            'server_id': ctx.guild.id,
+            'roles': []
+        })
+        json.dump(autorole, open('cogs/store/autorole.json', 'w'), indent = 4)
+        await ctx.send('this was the first time you use this command, the setup is complete, call this command again')
+
+    @autorole.command(name = "remove")
+    async def _autorole_remove(self, ctx, role: discord.Role):
+        for server in autorole:
+            if server['server_id'] == ctx.guild.id:
+                if role.id in server['roles']:
+                    server['roles'].remove(role.id)
+                    json.dump(whitelist, open('cogs/store/whitelist.json', 'w'), indent = 4)
+                    return await ctx.send('{} has been removed from the autorole list'.format(role.name))
+        autorole.append({
+            'server_id': ctx.guild.id,
+            'roles': []
+        })
+        json.dump(autorole, open('cogs/store/autorole.json', 'w'), indent = 4)
+        await ctx.send('this was the first time you use this command, the setup is complete, call this command again')
 
 def setup(bot):
     bot.add_cog(Admin(bot))

@@ -38,7 +38,9 @@ files = [
     'blacklist',
     'logs',
     'tags',
-    'quotes'
+    'quotes',
+    'autorole',
+    'autoreact'
 ]
 
 for a in files:

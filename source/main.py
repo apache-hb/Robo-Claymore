@@ -5,7 +5,7 @@ from glob import glob
 import aiohttp
 import traceback
 import sys
-from cogs.store import whitelist, blacklist, config, quick_embed, logs, only_mentions_bot
+from cogs.store import whitelist, blacklist, config, quick_embed, logs, only_mentions_bot, autorole, autoreact
 import asyncio
 
 primed = False
@@ -35,6 +35,26 @@ bot ready'''.format(name = bot.user.name, dis = bot.user.discriminator, id = bot
 async def on_message(context):
     await bot.process_commands(context)
 
+    found_server = False
+
+    for pair in autoreact:
+        if pair['server_id'] == context.guild.id:
+            found_server = True
+            for each in pair['reacts']:
+                if each['phrase'] in context.content.lower():
+                    try:
+                        await context.add_reaction(each['react'][:-1])
+                    except Exception as e:
+                        print(e)
+
+    if not found_server:
+        autoreact.append({
+            'server_id': context.guild.id,
+            'reacts': []
+        })
+        json.dump(autoreact, open('cogs/store/autoreact.json', 'w'), indent = 4)
+
+
     if bot.is_owner(context.author.id) and only_mentions_bot(bot, context):
         await context.channel.send('what do you want from me')
         primed = True
@@ -52,6 +72,33 @@ async def on_message(context):
         #for member in context.guild.members:
             #await context.channel.send(member.mention)
 
+async def add_autorole(user, guild):
+    for server in autorole:
+        if server['server_id'] == guild.id:
+            user_roles = user.roles
+            for role in server['roles']:
+                new_role = discord.utils.get(guild.roles, id = role)
+
+                if new_role is None:
+                    continue #if the role isnt found, just skip it
+
+                user_roles.append(new_role)
+            return await user.edit(roles = user_roles)
+    autorole.append({
+        'server_id': guild.id,
+        'roles': []
+    })
+    json.dump(autorole, open('cogs/store/autorole.json', 'w'), indent = 4)
+    await add_autorole(user, guild)
+
+@bot.event
+async def on_member_join(member):
+    await add_autorole(member, member.guild)
+
+@bot.event
+async def on_server_join(server):
+    pass
+
 @bot.event
 async def on_command_error(ctx, exception):
     if isinstance(exception, discord.ext.commands.errors.MissingRequiredArgument):
@@ -66,7 +113,7 @@ async def on_command_error(ctx, exception):
         return
 
     elif isinstance(exception, discord.ext.commands.CommandInvokeError):
-        if 'Cannot connect to host' in str(exception.original):
+        if 'Cannot connect to host' in str(exception.original):#there must be a better way of checking error types
             return await ctx.send('My internet connection to that site has been blocked')
 
     traceback.print_exception(type(exception), exception, exception.__traceback__, file=sys.stderr)

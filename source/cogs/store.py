@@ -85,6 +85,10 @@ tags = json.load(open('cogs/store/tags.json'))
 
 quotes = json.load(open('cogs/store/quotes.json'))
 
+autorole = json.load(open('cogs/store/autorole.json'))
+
+autoreact = json.load(open('cogs/store/autoreact.json'))
+
 # stolen from appuselfbot
 # https://github.com/appu1232/Discord-Selfbot
 emoji_dict = {
