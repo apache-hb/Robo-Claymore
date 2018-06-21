@@ -119,7 +119,7 @@ class Utility:
             try: ret += inverted_dict[char.lower()]
             except KeyError: pass
 
-        return ret
+        return await ctx.send(ret)
 
     @commands.command(name = "staggercase")
     async def _staggercase(self, ctx, *, text: str):
@@ -537,7 +537,7 @@ class Utility:
             if server['id'] == ctx.guild.id:
                 server['contents'].append(content)
                 json.dump(quotes, open('cogs/store/quotes.json', 'w'), indent = 4)
-                return await ctx.send('added quote with an index of {}'.format(len(server['contents'])))
+                return await ctx.send('added quote with an index of {}'.format(len(server['contents'])-2))
 
     @quote.command(name = "remove")
     async def _quote_remove(self, ctx, index: int):

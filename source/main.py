@@ -35,6 +35,9 @@ bot ready'''.format(name = bot.user.name, dis = bot.user.discriminator, id = bot
 async def on_message(context):
     await bot.process_commands(context)
 
+    if context.author.id == bot.user.id:
+        return
+
     found_server = False
 
     for pair in autoreact:
