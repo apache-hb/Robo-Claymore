@@ -391,6 +391,12 @@ class Utility:
 
                 return await ctx.send(embed = embed)
 
+    @commands.command(name = "avatar")
+    async def _avatar(self, ctx, user: discord.Member = None):
+        if user is None:
+            user = ctx.author
+        await ctx.send(user.avatar_url)
+
     @commands.group(invoke_without_command = True)
     async def prettyprint(self, ctx):
         embed = quick_embed(ctx, title = 'All the things I can prettyprint', description = 'Not that xml will ever be pretty anyway')

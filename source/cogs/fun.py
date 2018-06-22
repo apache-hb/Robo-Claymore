@@ -3,13 +3,18 @@ import discord
 import random
 import json
 
-from .store import ball_awnsers, random_rigging, autoreact, emoji
+from .store import ball_awnsers, random_rigging, autoreact, emoji, despacito
 
 class Fun:
     def __init__(self, bot):
         self.bot = bot
         self.hidden = False
         print('cog {} loaded'.format(self.__class__.__name__))
+
+    @commands.command(name = "despacito")
+    async def _despacito(self, ctx):
+        for line in despacito:
+            await ctx.send(line)
 
     @commands.command(name = "rate")
     async def _rate(self, ctx, *, thing: str):
