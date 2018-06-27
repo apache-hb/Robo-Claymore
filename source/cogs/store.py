@@ -14,10 +14,10 @@ class ServerNotFound(Exception):
 #you better not add anymore custom exceptions
 
 
-def can_override(ctx, user = None):
+async def can_override(ctx, user = None):
     if user is None:
         user = ctx.author
-    return ctx.bot.is_owner(user) or user.id in whitelist
+    return await ctx.bot.is_owner(user) or user.id in whitelist
 
 def quick_embed(ctx, title: str, description: str = None, colour: int = 0x023cfc):
     try: colour = ctx.me.colour

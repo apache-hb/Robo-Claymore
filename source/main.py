@@ -125,11 +125,11 @@ async def check_commands(ctx):
 
 @bot.after_invoke
 async def after_any_command(ctx):
-    logs.append('{0.name}#{0.id} invoked command {0.invoked_with}'.format(ctx))
+    logs.append('{0.author.name}#{0.author.id} invoked command {0.invoked_with}'.format(ctx))
     json.dump(logs, open('cogs/store/logs.json', 'w'), indent = 4)
 
     if ctx.cog.__class__.__name__ == 'Owner':#specifically log if an owner only command is used
-        print('{0.name} tried to use {0.invoked_with}'.format(ctx))
+        print('{0.author.name} tried to use {0.invoked_with}'.format(ctx))
 
 if __name__ == '__main__':
     for cog in glob('cogs/*.py'):

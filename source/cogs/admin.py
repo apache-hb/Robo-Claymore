@@ -12,7 +12,7 @@ class Admin:
 
     def is_admin():
         async def predicate(ctx):
-            if not ctx.author.permissions_in(ctx.channel).administrator or not can_override(ctx):
+            if not ctx.author.permissions_in(ctx.channel).administrator or not await can_override(ctx):
                 await ctx.send('You dont have the required admin permissions')
                 return False
             return True
@@ -20,7 +20,7 @@ class Admin:
 
     def can_kick():
         async def predicate(ctx):
-            if not ctx.author.permissions_in(ctx.channel).kick_members or not can_override(ctx):
+            if not ctx.author.permissions_in(ctx.channel).kick_members or not await can_override(ctx):
                 await ctx.send('You dont have the permission to kick')
                 return False
             return True
@@ -28,7 +28,7 @@ class Admin:
 
     def can_ban():
         async def predicate(ctx):
-            if not ctx.author.permissions_in(ctx.channel).ban_members or not can_override(ctx):
+            if not ctx.author.permissions_in(ctx.channel).ban_members or not await can_override(ctx):
                 await ctx.send('You dont have the permission to ban')
                 return False
             return True
@@ -36,7 +36,7 @@ class Admin:
 
     def manage_messages():
         async def predicate(ctx):
-            if not ctx.author.permissions_in(ctx.channel).manage_messages or not can_override(ctx):
+            if not ctx.author.permissions_in(ctx.channel).manage_messages or not await can_override(ctx):
                 await ctx.send('You dont have the permission to delete messages')
                 return False
             return True
@@ -44,7 +44,7 @@ class Admin:
 
     def manage_nicknames():
         async def predicate(ctx):
-            if not ctx.author.permissions_in(ctx.channel).manage_nicknames or not can_override(ctx):
+            if not ctx.author.permissions_in(ctx.channel).manage_nicknames or not await can_override(ctx):
                 await ctx.send('You dont have the permission to manage nicknames')
                 return False
             return True
@@ -54,7 +54,7 @@ class Admin:
     @commands.guild_only()
     @can_kick()
     async def _kick(self, ctx, user: discord.Member):
-        if not can_override(ctx, user):
+        if not await can_override(ctx, user):
             return await ctx.send('I Dont want to kick that user')
 
         if user.id == self.bot.user.id:
@@ -77,7 +77,7 @@ class Admin:
     @commands.guild_only()
     @can_ban()
     async def _ban(self, ctx, user: discord.Member):
-        if not can_override(ctx, user):
+        if not await can_override(ctx, user):
             return await ctx.send('I Dont want to ban that user')
 
         if user.id == self.bot.user.id:
@@ -100,7 +100,7 @@ class Admin:
     @commands.guild_only()
     @can_kick()
     async def _softban(self, ctx, user: discord.Member):
-        if not can_override(ctx, user):
+        if not await can_override(ctx, user):
             return await ctx.send('I Dont want to softban that user')
 
         if user.id == self.bot.user.id:
