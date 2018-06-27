@@ -288,7 +288,6 @@ class Owner:
             if perm.startswith('__') or callable(getattr(perms, perm)):
                 continue
             embed.add_field(name = perm, value = getattr(perms, perm))
-            print('asdasdas')
 
         await ctx.send(embed = embed)
 
