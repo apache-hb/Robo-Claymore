@@ -260,7 +260,7 @@ class Utility:
         if user is None:
             user = ctx.author
         embed = quick_embed(ctx,
-        title = 'Information about {}#{}'.format(user.name, user.discriminator),
+        title = 'Information about {0.name}#{0.discriminator}'.format(user),
         description = 'User ID: {}'.format(user.id))
 
         embed.set_thumbnail(url = user.avatar_url)
@@ -287,7 +287,7 @@ class Utility:
             for role in user.roles:
                 roles.append(role.name)
             embed.add_field(name = 'Roles', value = ', '.join(roles))
-        embed.add_field(name = 'Is the user a bot', value = user.bot)
+
         await ctx.send(embed = embed)
 
     @commands.command(name = "selfinfo")

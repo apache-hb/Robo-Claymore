@@ -39,7 +39,7 @@ class Owner:
 
     @commands.command(name = "invite")
     async def _invite(self, ctx):
-        await ctx.send('https://discordapp.com/oauth2/authorize?client_id={}&scope=bot&permissions=66321471'.format(self.bot.user.id))
+        await ctx.send('<https://discordapp.com/oauth2/authorize?client_id={}&scope=bot&permissions=66321471>'.format(self.bot.user.id))
 
     @commands.command(name = "eval")
     async def _eval(self, ctx, *, text: str):
@@ -270,6 +270,27 @@ class Owner:
         ret += '```'
 
         await ctx.send(ret)
+
+    @remote.command(name = "botperms")
+    async def _remote_botperms(self, ctx, channel: int):
+        guild_channel = ctx.bot.get_channel(channel)
+
+        if guild_channel is None:
+            return await ctx.send('No channel with an id of {} found'.format(channel))
+
+        embed = quick_embed(ctx, "bot permissions")
+
+        bot_relation = discord.utils.get(guild_channel.guild.members, id = ctx.bot.user.id)
+
+        perms = guild_channel.permissions_for(bot_relation)
+
+        for perm in dir(perms):
+            if perm.startswith('__') or callable(getattr(perms, perm)):
+                continue
+            embed.add_field(name = perm, value = getattr(perms, perm))
+            print('asdasdas')
+
+        await ctx.send(embed = embed)
 
     @remote.command(name = "channelinfo")
     async def _remote_channelinfo(self, ctx, channel: int):

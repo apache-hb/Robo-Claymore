@@ -57,24 +57,6 @@ async def on_message(context):
         })
         json.dump(autoreact, open('cogs/store/autoreact.json', 'w'), indent = 4)
 
-
-    if bot.is_owner(context.author.id) and only_mentions_bot(bot, context):
-        await context.channel.send('what do you want from me')
-        primed = True
-        await asyncio.sleep(15)
-        primed = False
-        return
-
-    if bot.is_owner(context.author.id) and context.content == 'yeet' and primed:
-        await context.channel.send('ok')
-        primed = False
-
-        for x in range(10):
-            await context.channel.send('YEET\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nYEET')
-
-        #for member in context.guild.members:
-            #await context.channel.send(member.mention)
-
 async def add_autorole(user, guild):
     for server in autorole:
         if server['server_id'] == guild.id:
@@ -124,7 +106,7 @@ async def on_command_error(ctx, exception):
 @bot.check
 async def check_commands(ctx):
     #let the bot owner and whitelisted users always override
-    if ctx.bot.is_owner(ctx.author) or ctx.author.id in whitelist:
+    if await ctx.bot.is_owner(ctx.author) or ctx.author.id in whitelist:
         return True
 
     if ctx.author.id in blacklist:#make sure to tell blocked people to eat pant
@@ -143,18 +125,11 @@ async def check_commands(ctx):
 
 @bot.after_invoke
 async def after_any_command(ctx):
-    logs.append('{}#{} invoked command {}'.format(
-        ctx.author.name,
-        ctx.author.id,
-        ctx.invoked_with
-    ))
+    logs.append('{0.name}#{0.id} invoked command {0.invoked_with}'.format(ctx))
     json.dump(logs, open('cogs/store/logs.json', 'w'), indent = 4)
 
-    if ctx.cog.__class__.__name__ == 'Owner':#specifically log if an owner oly command is used
-        print('{} tried to use {}'.format(
-            ctx.author.name,
-            ctx.invoked_with
-        ))
+    if ctx.cog.__class__.__name__ == 'Owner':#specifically log if an owner only command is used
+        print('{0.name} tried to use {0.invoked_with}'.format(ctx))
 
 if __name__ == '__main__':
     for cog in glob('cogs/*.py'):

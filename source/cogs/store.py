@@ -65,6 +65,7 @@ def emoji(emoji: str):
     return False
 
 def only_mentions_bot(bot, context):
+
     if context.content.strip() == '<@!{}>'.format(bot.user.id):
         return True
 
