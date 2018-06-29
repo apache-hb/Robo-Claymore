@@ -37,9 +37,9 @@ class Owner:
                 except Exception:
                     pass
 
-    @commands.command(name = "invite")
-    async def _invite(self, ctx):
-        await ctx.send('<https://discordapp.com/oauth2/authorize?client_id={}&scope=bot&permissions=66321471>'.format(self.bot.user.id))
+    @commands.command(name = "test")
+    async def _test(self, ctx):
+        return await ctx.message.add_reaction('🇧')
 
     @commands.command(name = "eval")
     async def _eval(self, ctx, *, text: str):

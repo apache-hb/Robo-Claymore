@@ -155,6 +155,19 @@ class Utility:
     async def _randomcase(self, ctx, *, text: str):
         await ctx.send(''.join(random.choice((str.upper, str.lower))(x) for x in text))
 
+    @commands.command(name = "invite")
+    async def _invite(self, ctx):
+        ret = ''
+        ret += 'Invite me with this link\n'
+        ret += '<https://discordapp.com/oauth2/authorize?client_id={}&scope=bot&permissions=66321471>\n'.format(self.bot.user.id)
+        ret += 'and join my owners discord server here\n'
+        ret += 'https://discord.gg/y3uSzCK'
+        await ctx.send(ret)
+
+    @commands.command(name = "remindme", aliases = ['reminder', 'remind'])
+    async def _remindme(self, ctx, hours: int, *, message: str):
+        pass
+
     @commands.command(name = "expand")
     async def _expand(self, ctx, *, text: str = 'dong'):
         ret = figlet_format(text, font = random.choice(['big', 'starwars', 'block', 'bubble', 'cards', 'catwalk']))
