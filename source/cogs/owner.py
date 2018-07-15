@@ -5,20 +5,21 @@ from dis import disassemble
 import discord
 from discord.ext import commands
 
-from .store import (blacklist, config, hastebin, hastebin_error, quick_embed,
-                    whitelist)
+from .store import (blacklist, hastebin, hastebin_error, quick_embed,
+                    whitelist, try_file)
 
 
 class Owner:
     def __init__(self, bot):
         self.bot = bot
+        self.config = json.load(try_file('cogs/store/config.json'))
         self.spam = True
         self.hidden = True
         self.bully = []
         print('cog {} loaded'.format(self.__class__.__name__))
 
     async def __local_check(self, ctx):
-        if ctx.author.id == int(config['discord']['owner']) or ctx.author.id in whitelist:
+        if ctx.author.id == int(self.config['discord']['owner']) or ctx.author.id in whitelist:
             return True
         await ctx.send('go away')
         return False

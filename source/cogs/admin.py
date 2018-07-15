@@ -1,12 +1,13 @@
 import discord
 from discord.ext import commands
 import json
-from .store import can_override, autorole
+from .store import can_override, quick_embed
 
 
 class Admin:
     def __init__(self, bot):
         self.bot = bot
+        self.autorole_list = json.load(open('cogs/store/autorole.json'))
         self.hidden = False
         print('Cog {} loaded'.format(self.__class__.__name__))
 
@@ -50,21 +51,28 @@ class Admin:
             return True
         return commands.check(predicate)
 
+    async def will_manage(self, ctx, user: discord.Member, kind: str):
+        if not await can_override(ctx, user):
+            await ctx.send('I dont want to {} them'.format(kind))
+            return False
+        elif user.id == self.bot.user.id:
+            await ctx.send('I dont want to {} myself'.format(kind))
+            return False
+        elif user.id == ctx.author.id:
+            await ctx.send('I wont let you {} yourself'.format(kind))
+            return False
+        if user.permissions_in(ctx.channel).administrator:
+            await ctx.send('I wont {} admins'.format(kind))
+            return False
+        else:
+            return True
+
     @commands.command(name = "kick")
     @commands.guild_only()
     @can_kick()
     async def _kick(self, ctx, user: discord.Member):
-        if not await can_override(ctx, user):
-            return await ctx.send('I Dont want to kick that user')
-
-        if user.id == self.bot.user.id:
-            return await ctx.send('I wont kick myself')
-
-        if user.id == ctx.author.id:
-            return await ctx.send('I wont let you kick yourself')
-
-        if user.permissions_in(ctx.channel).administrator:
-            await ctx.send('I wont ban admins')
+        if not await self.will_manage(ctx, user, 'kick'):
+            return
 
         try:
             await user.kick()
@@ -77,20 +85,11 @@ class Admin:
     @commands.guild_only()
     @can_ban()
     async def _ban(self, ctx, user: discord.Member):
-        if not await can_override(ctx, user):
-            return await ctx.send('I Dont want to ban that user')
-
-        if user.id == self.bot.user.id:
-            return await ctx.send('I wont kick myself')
-
-        if user.id == ctx.author.id:
-            return await ctx.send('I wont let you kick yourself')
-
-        if user.permissions_in(ctx.channel).administrator:
-            await ctx.send('I wont ban admins')
+        if not await self.will_manage(ctx, user, 'ban'):
+            return
 
         try:
-            await user.ban()
+            await user.ban(delete_message_days = 7, reason = 'Softban by {}'.format(ctx.author))
         except discord.errors.Forbidden:
             await ctx.send('I dont have the correct permissions to ban that user')
         else:
@@ -100,27 +99,18 @@ class Admin:
     @commands.guild_only()
     @can_kick()
     async def _softban(self, ctx, user: discord.Member):
-        if not await can_override(ctx, user):
-            return await ctx.send('I Dont want to softban that user')
-
-        if user.id == self.bot.user.id:
-            return await ctx.send('I wont kick myself')
-
-        if user.id == ctx.author.id:
-            return await ctx.send('I wont let you kick yourself')
-
-        if user.permissions_in(ctx.channel).administrator:
-            await ctx.send('I wont ban admins')
+        if not await self.will_manage(ctx, user, 'softban'):
+            return
 
         try:
-            await user.ban()
+            await user.ban(delete_message_days = 7, reason = 'Softban by {}'.format(ctx.author))
             await asyncio.sleep(15)
-            await user.unban()
+            await user.unban(reason = 'Softban by {}'.format(ctx.author))
             await user.send(await ctx.channel.create_invite(max_uses = 1))
         except discord.errors.Forbidden:
             await ctx.send('I dont have the permissions to do that')
         else:
-            await ctx.send('their gone now')
+            await ctx.send('their gone now, But i have reinvited them')
 
     @commands.command(name = "clean")
     @commands.guild_only()
@@ -162,39 +152,86 @@ class Admin:
     @commands.guild_only()
     @is_admin()
     async def autorole(self, ctx):
-        pass
-
-    @autorole.command(name = "add")
-    async def _autorole_add(self, ctx, role: discord.Role):
-        for server in autorole:
+        for server in self.autorole_list:
             if server['server_id'] == ctx.guild.id:
-                if role.id in server['roles']:
-                    return await ctx.send('That role is already an autorole')
+                ret = ''
+                if not server['roles']:
+                    ret = 'This server has no autoroles'
+                else:
+                    for role in server['roles']:
+                        ret += str(await discord.utils.get(ctx.guild.roles, id = role)) + '\n'
 
-                server['roles'].append(role.id)
-                json.dump(autorole, open('cogs/store/autorole.json', 'w'), indent = 4)
-                return await ctx.send('{} has been added as an autorole'.format(role.name))
-        autorole.append({
-            'server_id': ctx.guild.id,
+                embed = quick_embed(ctx, title = 'Autoroles')
+                embed.add_field(name = 'All roles', value = ret)
+                return await ctx.send(embed = embed)
+        self.autorole_list.append({
+            'server_id': user.guild.id,
             'roles': []
         })
-        json.dump(autorole, open('cogs/store/autorole.json', 'w'), indent = 4)
-        await ctx.send('this was the first time you use this command, the setup is complete, call this command again')
+        json.dump(self.autorole_list, open('cogs/store/autorole.json', 'w'), indent = 4)
+        return await self.autorole(ctx)
 
-    @autorole.command(name = "remove")
-    async def _autorole_remove(self, ctx, role: discord.Role):
-        for server in autorole:
-            if server['server_id'] == ctx.guild.id:
+
+    async def on_guild_role_delete(self, role):
+        for server in self.autorole_list:
+            if server['server_id'] == role.guild.id:
                 if role.id in server['roles']:
                     server['roles'].remove(role.id)
-                    json.dump(whitelist, open('cogs/store/whitelist.json', 'w'), indent = 4)
-                    return await ctx.send('{} has been removed from the autorole list'.format(role.name))
-        autorole.append({
-            'server_id': ctx.guild.id,
+                    json.dump(self.autorole_list, open('cogs/store/autorole.json', 'w'), indent = 4)
+
+    async def on_member_join(self, user):
+        for server in self.autorole_list:
+            if server['server_id'] == user.guild.id:
+                user_roles = user.roles
+                bad_roles = []
+                for role in server['roles']:
+                    new_role = discord.utils.get(guild.roles, id = role)
+                    user_roles.append(new_role)
+                return await user.edit(roles = user_roles)
+        self.autorole_list.append({
+            'server_id': user.guild.id,
             'roles': []
         })
-        json.dump(autorole, open('cogs/store/autorole.json', 'w'), indent = 4)
-        await ctx.send('this was the first time you use this command, the setup is complete, call this command again')
+        json.dump(self.autorole_list, open('cogs/store/autorole.json', 'w'), indent = 4)
+        return await self.on_member_join(user)
+
+    #if kind is true it will add the autorole, otherwise it will try and delete it
+    async def edit_autorole_list(self, ctx, role: discord.Role, kind: bool):
+        for server in self.autorole_list:
+            if server['server_id'] == ctx.guild.id:
+                if kind:#adding an autorole
+                    if role.id in server['roles']:
+                        return await ctx.send('That role is already in the autorole list')
+
+                    server['roles'].append(role.id)
+                    json.dump(self.autorole_list, open('cogs/store/autorole.json', 'w'), indent = 4)
+                    return await ctx.send('Added {} to the autorole list'.format(role))
+                else:#removing an autorole
+                    if not role.id in server['roles']:
+                        return await ctx.send('That role is not an autorole')
+
+                    server['roles'].remove(role.id)
+                    json.dump(self.autorole_list, open('cogs/store/autorole.json', 'w'), indent = 4)
+                    return await ctx.send('Removed {} from the autorole list'.format(role))
+        self.autorole_list.append({
+            'server_id': guild.id,
+            'roles': []
+        })
+        json.dump(self.autorole_list, open('cogs/store/autorole.json', 'w'), indent = 4)
+        return self.edit_autorole_list(guild, role, kind)
+
+
+    @autorole.command(name = "add")
+    @commands.guild_only()
+    @is_admin()
+    async def _autorole_add(self, ctx, role: discord.Role):
+        return await self.edit_autorole_list(ctx, role, True)
+
+    @autorole.command(name = "remove")
+    @commands.guild_only()
+    @is_admin()
+    async def _autorole_remove(self, ctx, role: discord.Role):
+       return await self.edit_autorole_list(ctx, role, False)
 
 def setup(bot):
     bot.add_cog(Admin(bot))

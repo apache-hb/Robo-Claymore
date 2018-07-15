@@ -6,18 +6,18 @@ from xml.dom.minidom import parseString
 
 import aiohttp
 import discord
+from aiowolfram import Wolfram
 from bs4 import BeautifulSoup as bs
 from defusedxml.ElementTree import fromstring
 from discord.ext import commands
 from pyfiglet import figlet_format
-from itertools import chain
-from urllib.parse import urlencode
+#from itertools import chain
+#from urllib.parse import urlencode
 import time
 from inspect import getsource
 
 from .store import (embedable, emoji_dict, hastebin, hastebin_error,
-                    quick_embed, tinyurl, whitelist, config, inverted_dict,
-                    ServerNotFound, quotes, tags)
+                    quick_embed, tinyurl, whitelist, inverted_dict)
 
 # wikia fandom wikis
 WIKIA_API_URL = 'http://{lang}{sub_wikia}.wikia.com/api/v1/{action}'
@@ -25,21 +25,6 @@ WIKIA_STANDARD_URL = 'http://{lang}{sub_wikia}.wikia.com/wiki/{page}'
 WIKIPEDIA_API_URL = 'http://en.wikipedia.org/w/api.php'
 
 USER_AGENT = '{type} (https://github.com/Apache-HB/Robo-Claymore)'
-
-class Wolfram:
-    def __init__(self, key):
-        self.key = key
-        print('Wolfram loaded')
-
-    async def query(self, question, params=(), **kwargs):
-        data = dict(input=question, appid=self.key)
-        data = chain(params, data.items(), kwargs.items())
-        query = urlencode(tuple(data))
-        url = 'https://api.wolframalpha.com/v2/query?' + query
-        async with aiohttp.ClientSession() as session:
-            async with session.get(url) as resp:
-                return fromstring(await resp.text())
-
 
 class Zalgo:
     def __init__(self, txt: str, intensity: int):
@@ -88,7 +73,10 @@ class Utility:
     def __init__(self, bot):
         self.bot = bot
         self.hidden = False
-        self.wolfram = Wolfram(config['wolfram']['key'])
+        self.config = json.load(open('cogs/store/config.json'))
+        self.tags = json.load(open('cogs/store/tags.json'))
+        self.quotes = json.load(open('cogs/store/quotes.json'))
+        self.wolfram = Wolfram(self.config['wolfram']['key'])
         print('cog {} loaded'.format(self.__class__.__name__))
 
     @commands.command(name = "zalgo")
@@ -340,19 +328,23 @@ class Utility:
 
     @commands.command(name = "wolfram")
     async def _wolfram(self, ctx, *, question: str):
-        if config['wolfram']['key'] == '':
+        if self.config['wolfram']['key'] == '':
             return await ctx.send('Wolfram has not been setup on this bot')
 
+        try:
+            resp = await self.wolfram.query(question)
+        except LookupError:
+            return await ctx.send('Nothing was found')
+
         embed = quick_embed(ctx, title = 'All possible awnsers from wolfram')
-        root = await self.wolfram.query(question)
 
-        for child in root:
-            for subobject in child:
-                for subsubobject in subobject:
-                    if subsubobject.tag == 'plaintext':
-                        embed.add_field(name='Possible awnser', value=subsubobject.text)
-                        return await ctx.send(embed=embed)
-
+        ret = ''
+        for pod in resp.pods:
+            ret += pod.title + '\n'
+            for subpod in pod.subpods:
+                ret += '    ' + subpod.title + ': ' + subpod.raw_json['plaintext'] + '\n'
+        embed.add_field(name = 'All possible awnsers', value = ret)
+        await ctx.send(embed = embed)
 
     @commands.command(name = "reddit")
     async def _reddit(self, ctx, target: str = 'all', search: str = 'new', index: int = 1):
@@ -451,7 +443,7 @@ class Utility:
     @commands.group(invoke_without_command = True)
     @commands.guild_only()
     async def tag(self, ctx, name: str = None):
-        for server in tags:
+        for server in self.tags:
             if server['id'] == ctx.guild.id:
 
                 if not server['contents']:
@@ -467,11 +459,9 @@ class Utility:
 
         tags.append({
             'id': ctx.guild.id,
-            'contents': [
-
-            ]
+            'contents': []
         })
-        json.dump(tags, open('cogs/store/tags.json', 'w'), indent = 4)
+        json.dump(self.tags, open('cogs/store/tags.json', 'w'), indent = 4)
         await ctx.invoke(self.bot.get_command("tag"))
 
     @tag.command(name = "add")
@@ -480,32 +470,32 @@ class Utility:
             'tag': name.lower(),
             'content': content
         }
-        for server in tags:
+        for server in self.tags:
             if server['id'] == ctx.guild.id:
 
                 if any(item['tag'] == name.lower() for item in server['contents']):
                     return await ctx.send('That tag already exists')
 
                 server['contents'].append(ret)
-                json.dump(tags, open('cogs/store/tags.json', 'w'), indent = 4)
+                json.dump(self.tags, open('cogs/store/tags.json', 'w'), indent = 4)
                 return await ctx.send('added tag {}'.format(name))
 
 
     @tag.command(name = "remove")
     async def _tag_remove(self, ctx, name: str):
-        for server in tags:
+        for server in self.tags:
             if server['id'] == ctx.guild.id:
                 for item in server['contents'][:]:
                     if item['tag'] == name.lower():
                         server['contents'].remove(item)
-                        json.dump(tags, open('cogs/store/tags.json', 'w'), indent = 4)
+                        json.dump(self.tags, open('cogs/store/tags.json', 'w'), indent = 4)
                         return await ctx.send('deleted tag {}'.format(name))
                 return await ctx.send('not tag called {} found'.format(name))
 
 
     @tag.command(name = "list")
     async def _tag_list(self, ctx):
-        for server in tags:
+        for server in self.tags:
             if server['id'] == ctx.guild.id:
 
                 if not server['contents']:
@@ -527,7 +517,7 @@ class Utility:
     @commands.group(invoke_without_command = True)
     @commands.guild_only()
     async def quote(self, ctx, index: int = None):
-        for server in quotes:
+        for server in self.quotes:
             if server['id'] == ctx.guild.id:
 
                 if not server['contents']:
@@ -543,24 +533,22 @@ class Utility:
 
         quotes.append({
             'id': ctx.guild.id,
-            'contents': [
-
-            ]
+            'contents': []
         })
-        json.dump(quotes, open('cogs/store/quotes.json', 'w'), indent = 4)
+        json.dump(self.quotes, open('cogs/store/quotes.json', 'w'), indent = 4)
         await ctx.invoke(self.bot.get_command("quote"))
 
     @quote.command(name = "add")
     async def _quote_add(self, ctx, *, content: str):
-        for server in quotes:
+        for server in self.quotes:
             if server['id'] == ctx.guild.id:
                 server['contents'].append(content)
-                json.dump(quotes, open('cogs/store/quotes.json', 'w'), indent = 4)
+                json.dump(self.quotes, open('cogs/store/quotes.json', 'w'), indent = 4)
                 return await ctx.send('added quote with an index of {}'.format(len(server['contents'])-2))
 
     @quote.command(name = "remove")
     async def _quote_remove(self, ctx, index: int):
-        for server in quotes:
+        for server in self.quotes:
             if server['id'] == ctx.guild.id:
                 try:
                     server['contents'].remove(index)
@@ -570,7 +558,7 @@ class Utility:
 
     @quote.command(name = "list")
     async def _quote_list(self, ctx):
-        for server in quotes:
+        for server in self.quotes:
             if server['id'] == ctx.guild.id:
 
                 if not server['contents']:

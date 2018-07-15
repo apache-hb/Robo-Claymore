@@ -7,12 +7,13 @@ from emoji import UNICODE_EMOJI as uemoji
 
 MIME = MimeTypes()
 
-#this is for the quote and tag system
-class ServerNotFound(Exception):
-    def __init__(self, server_id: int):
-        self.server_id = server_id
-#you better not add anymore custom exceptions
-
+def try_file(name, content = '[]'):
+    try:
+        return open(name)
+    except FileNotFoundError:
+        open(name, 'w').write(content)
+        print('Generated {} file'.format(name))
+        return open(name)
 
 async def can_override(ctx, user = None):
     if user is None:
@@ -45,6 +46,11 @@ async def exists(url: str):
         async with session.get(url) as resp:
             return int(await resp.status()) < 400
 
+async def url_request(**kwargs):
+    async with aiohttp.ClientSession() as session:
+        async with session.get(**kwargs) as resp:
+            return json.loads(await resp.text())
+
 def embedable(url: str):
     url = pathname2url(url)
     mime_type = MIME.guess_type(url)
@@ -69,12 +75,12 @@ def only_mentions_bot(bot, context):
     if context.content.strip() == '<@!{}>'.format(bot.user.id):
         return True
 
-    if context.content.strip() == '<@{}>'.format(bot.user.id):
+    elif context.content.strip() == '<@{}>'.format(bot.user.id):
         return True
 
     return False
 
-config = json.load(open('cogs/store/config.json'))
+#config = json.load(open('cogs/store/config.json'))
 
 whitelist = json.load(open('cogs/store/whitelist.json'))
 
@@ -82,13 +88,13 @@ blacklist = json.load(open('cogs/store/blacklist.json'))
 
 logs = json.load(open('cogs/store/logs.json'))
 
-tags = json.load(open('cogs/store/tags.json'))
+#tags = json.load(open('cogs/store/tags.json'))
 
-quotes = json.load(open('cogs/store/quotes.json'))
+#quotes = json.load(open('cogs/store/quotes.json'))
 
-autorole = json.load(open('cogs/store/autorole.json'))
+#autorole = json.load(open('cogs/store/autorole.json'))
 
-autoreact = json.load(open('cogs/store/autoreact.json'))
+#autoreact = json.load(open('cogs/store/autoreact.json'))
 
 # stolen from appuselfbot
 # https://github.com/appu1232/Discord-Selfbot
@@ -252,89 +258,3 @@ titanfall_pilot_variables = {
         'Low Profile'
     ]
 }
-
-despacito = [
-    '''Ay
-Fonsi
-DY
-Oh
-Oh no, oh no
-Oh yeah
-Diridiri, dirididi Daddy
-Go
-Sí, sabes que ya llevo un rato mirándote
-Tengo que bailar contigo hoy (DY)
-Vi que tu mirada ya estaba llamándome
-Muéstrame el camino que yo voy (Oh)
-Tú, tú eres el imán y yo soy el metal
-Me voy acercando y voy armando el plan
-Solo con pensarlo se acelera el pulso (Oh yeah)
-Ya, ya me está gustando más de lo normal
-Todos mis sentidos van pidiendo más
-Esto hay que tomarlo sin ningún apuro
-Despacito
-Quiero respirar tu cuello despacito
-Deja que te diga cosas al oído
-Para que te acuerdes si no estás conmigo
-Despacito''',
-'''
-Quiero desnudarte a besos despacito
-Firmo en las paredes de tu laberinto
-Y hacer de tu cuerpo todo un manuscrito (sube, sube, sube)
-(Sube, sube)
-Quiero ver bailar tu pelo
-Quiero ser tu ritmo
-Que le enseñes a mi boca
-Tus lugares favoritos (favoritos, favoritos baby)
-Déjame sobrepasar tus zonas de peligro
-Hasta provocar tus gritos
-Y que olvides tu apellido (Diridiri, dirididi Daddy)
-Si te pido un beso ven dámelo
-Yo sé que estás pensándolo
-Llevo tiempo intentándolo
-Mami, esto es dando y dándolo
-Sabes que tu corazón conmigo te hace bom, bom
-Sabes que esa beba está buscando de mi bom, bom
-Ven prueba de mi boca para ver cómo te sabe
-Quiero, quiero, quiero ver cuánto amor a ti te cabe
-Yo no tengo prisa, yo me quiero dar el viaje
-Empecemos lento, después salvaje
-Pasito a pasito, suave suavecito
-Nos vamos pegando poquito a poquito
-Cuando tú me besas con esa destreza
-Veo que eres malicia con delicadeza
-Pasito a pasito, suave suavecito
-Nos vamos pegando, poquito a poquito
-Y es que esa belleza es un rompecabezas
-Pero pa montarlo aquí tengo la pieza
-Despacito''',
-'''
-Quiero respirar tu cuello despacito
-Deja que te diga cosas al oído
-Para que te acuerdes si no estás conmigo
-Despacito
-Quiero desnudarte a besos despacito
-Firmo en las paredes de tu laberinto
-Y hacer de tu cuerpo todo un manuscrito (sube, sube, sube)
-(Sube, sube)
-Quiero ver bailar tu pelo
-Quiero ser tu ritmo
-Que le enseñes a mi boca
-Tus lugares favoritos (favoritos, favoritos baby)
-Déjame sobrepasar tus zonas de peligro
-Hasta provocar tus gritos
-Y que olvides tu apellido
-Despacito
-Vamos a hacerlo en una playa en Puerto Rico
-Hasta que las olas griten "¡ay, bendito!"
-Para que mi sello se quede contigo
-Pasito a pasito, suave suavecito
-Nos vamos pegando, poquito a poquito
-Que le enseñes a mi boca
-Tus lugares favoritos (favoritos, favoritos baby)
-Pasito a pasito, suave suavecito
-Nos vamos pegando, poquito a poquito
-Hasta provocar tus gritos
-Y que olvides tu apellido (DY)
-Despacito'''
-]

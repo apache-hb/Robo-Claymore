@@ -5,10 +5,29 @@ from glob import glob
 import aiohttp
 import traceback
 import sys
-from cogs.store import whitelist, blacklist, config, quick_embed, logs, only_mentions_bot, autorole, autoreact
+from cogs.store import (whitelist,
+blacklist, quick_embed,
+logs, only_mentions_bot)
 import asyncio
 
 primed = False
+
+try:
+    config = json.load(open('cogs/store/config.json'))
+except FileNotFoundError:
+    print('The config file was not found, let me run the setup')
+    config = {
+        'discord': {
+            'token': input('Enter bot token'),
+            'prefix': input('Enter bot prefix'),
+            'activity': input('Enter default bot activity'),
+            'owner': input('Enter the owners id')
+        },
+        'wolfram': {
+            'key': input('Enter wolfram alpha key (optional)')
+        }
+    }
+    json.dump(config, open('cogs/store/config.json', 'w'), indent = 4)
 
 bot = commands.Bot(
     command_prefix = commands.when_mentioned_or(config['discord']['prefix']),
@@ -19,66 +38,21 @@ bot = commands.Bot(
 #get rid of the help command to allow for a custom one
 bot.remove_command('help')
 
-__version__ = '0.0.1.0a'
+__version__ = '0.2.0'
 
 @bot.event
 async def on_ready():
     print('''
-name: {name}#{dis}
-id: {id}
-invite: https://discordapp.com/oauth2/authorize?client_id={id}&scope=bot&permissions=66321471
-discord.py version: {discord}
-bot version: {bot}
-bot ready'''.format(name = bot.user.name, dis = bot.user.discriminator, id = bot.user.id, discord = discord.__version__, bot = __version__))
+name: {0.user.name}#{0.user.discriminator}
+id: {0.user.id}
+invite: https://discordapp.com/oauth2/authorize?client_id={0.user.id}&scope=bot&permissions=66321471
+discord.py version: {1.__version__}
+bot version: {2}
+bot ready'''.format(bot, discord, __version__))
 
 @bot.event
 async def on_message(context):
     await bot.process_commands(context)
-
-    if context.author.id == bot.user.id:
-        return
-
-    found_server = False
-
-    for pair in autoreact:
-        if pair['server_id'] == context.guild.id:
-            found_server = True
-            for each in pair['reacts']:
-                if each['phrase'] in context.content.lower():
-                    try:
-                        await context.add_reaction(each['react'][:-1])
-                    except Exception as e:
-                        print(e)
-
-    if not found_server:
-        autoreact.append({
-            'server_id': context.guild.id,
-            'reacts': []
-        })
-        json.dump(autoreact, open('cogs/store/autoreact.json', 'w'), indent = 4)
-
-async def add_autorole(user, guild):
-    for server in autorole:
-        if server['server_id'] == guild.id:
-            user_roles = user.roles
-            for role in server['roles']:
-                new_role = discord.utils.get(guild.roles, id = role)
-
-                if new_role is None:
-                    continue #if the role isnt found, just skip it
-
-                user_roles.append(new_role)
-            return await user.edit(roles = user_roles)
-    autorole.append({
-        'server_id': guild.id,
-        'roles': []
-    })
-    json.dump(autorole, open('cogs/store/autorole.json', 'w'), indent = 4)
-    await add_autorole(user, guild)
-
-@bot.event
-async def on_member_join(member):
-    await add_autorole(member, member.guild)
 
 @bot.event
 async def on_server_join(server):
