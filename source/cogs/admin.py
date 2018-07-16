@@ -143,7 +143,7 @@ class Admin:
             try:
                 await member.edit(nick = nickname)
                 a+=1
-            except Exception:
+            except discord.errors.Forbidden:
                 pass
 
         await ctx.send('massnicked {} users'.format(a))
@@ -183,7 +183,6 @@ class Admin:
         for server in self.autorole_list:
             if server['server_id'] == user.guild.id:
                 user_roles = user.roles
-                bad_roles = []
                 for role in server['roles']:
                     new_role = discord.utils.get(guild.roles, id = role)
                     user_roles.append(new_role)
@@ -231,7 +230,7 @@ class Admin:
     @commands.guild_only()
     @is_admin()
     async def _autorole_remove(self, ctx, role: discord.Role):
-       return await self.edit_autorole_list(ctx, role, False)
+        return await self.edit_autorole_list(ctx, role, False)
 
 def setup(bot):
     bot.add_cog(Admin(bot))

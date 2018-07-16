@@ -34,7 +34,7 @@ class Owner:
             if user['id'] == before.id:
                 try:
                     await before.edit(nick = user['name'])
-                except Exception:
+                except discord.errors.Forbidden:
                     pass
 
     @commands.command(name = "test")
@@ -50,11 +50,11 @@ class Owner:
     async def _echo(self, ctx, *, text: str):
         await ctx.send(text)
 
-    @commands.group(invoke_without_command = False)
-    async def bully(self, ctx):
+    @commands.group(invoke_without_command = False, name = "bully")
+    async def _bully(self, ctx):
         pass
 
-    @bully.command(name = "start")
+    @_bully.command(name = "start")
     async def _bully_start(self, ctx, user: discord.Member, *, name: str):
         ret = {
             'user': user.id,
@@ -69,7 +69,7 @@ class Owner:
         await user.edit(nick = name)
         await ctx.send('Now bullying {}'.format(user.name))
 
-    @bully.command(name = "stop")
+    @_bully.command(name = "stop")
     async def _bully_stop(self, ctx, user: discord.Member):
         for item in bully[:]:
             if item['user'] == user.id:
@@ -95,7 +95,7 @@ class Owner:
     async def _massdm(self, ctx, count: int = 0, *, message: str = 'My name jeff'):
         await ctx.send('the crime against humanity has begun for {} cycles'.format(count + 1))
 
-        for x in range(count):
+        for _ in range(count):
             if self.spam:
                 for user in ctx.guilds.members:
                     try:

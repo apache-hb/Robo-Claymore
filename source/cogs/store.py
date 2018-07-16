@@ -1,4 +1,3 @@
-import json
 import discord
 import aiohttp
 from urllib.request import pathname2url

@@ -1,5 +1,4 @@
 from discord.ext import commands
-import discord
 import random
 import json
 
@@ -163,12 +162,13 @@ class Fun:
         elif first.strip() in random_rigging['bad']:
             awnser = 'is worse than'
         elif second.strip() in random_rigging['bad']:
-            awsner = 'is better than'
+            awnser = 'is better than'
         else:
             awnser = random.choice(['is better than', 'is worse than'])
 
         await ctx.send(first + awnser + second)
 
+    @classmethod
     def get_react_pair(self, phrase, react):
         return {
             'phrase': phrase,

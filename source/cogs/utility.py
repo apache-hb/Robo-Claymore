@@ -8,10 +8,8 @@ import aiohttp
 import discord
 from aiowolfram import Wolfram
 from bs4 import BeautifulSoup as bs
-from defusedxml.ElementTree import fromstring
 from discord.ext import commands
 from pyfiglet import figlet_format
-import time
 from inspect import getsource
 
 from .store import (embedable, hastebin, hastebin_error,

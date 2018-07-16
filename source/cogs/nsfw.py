@@ -1,4 +1,3 @@
-import discord
 from discord.ext import commands
 from .store import can_override, tinyurl, embedable, quick_embed, url_request
 

@@ -2,13 +2,9 @@ import discord
 from discord.ext import commands
 import json
 from glob import glob
-import aiohttp
 import traceback
 import sys
-from cogs.store import (can_override, quick_embed, only_mentions_bot, try_file)
-import asyncio
-
-primed = False
+from cogs.store import (can_override, quick_embed, try_file)
 
 logs = json.load(try_file('cogs/store/logs.json'))
 

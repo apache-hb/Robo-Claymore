@@ -1,7 +1,6 @@
 from discord.ext import commands
 import discord
 from .store import quick_embed, url_request
-import aiohttp
 import time
 import json
 import random
@@ -389,6 +388,7 @@ It is currently {current}'s turn```
             i = self.tttxomap[board[2][2]] if self.tttxomap[board[2][2]] else 9
         )
 
+    @classmethod
     def check_winner(self, game):
         for player in range(1, 3):
 
@@ -569,7 +569,7 @@ It is currently {current}'s turn```
                 ctx.author.mention
             ))
         else:
-            messgae = await ctx.send('{} would like to play challenge {} in a game of connect 4\nreact to accept'.format(
+            message = await ctx.send('{} would like to play challenge {} in a game of connect 4\nreact to accept'.format(
                 ctx.author.mention,
                 opponent.mention
             ))
