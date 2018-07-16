@@ -6,7 +6,7 @@ beep boop
 
 # bot setup
 ```
-download the repository and run setup.py
-then pip install -r requirements.txt
-after that run source/main.py
+python3 -m pip install -r requirements.txt
+cd source/
+python3 main.py
 ```

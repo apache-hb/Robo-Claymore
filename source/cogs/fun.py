@@ -3,7 +3,27 @@ import discord
 import random
 import json
 
-from .store import ball_awnsers, random_rigging, emoji, try_file
+from .store import emoji, try_file
+
+ball_awnsers = [
+    'Definetly',
+    'No',
+    'Almost certain',
+    'More than likley',
+    'Perhaps',
+    'Yes',
+    'Certainly',
+    'Not a chance',
+    'Outlook good',
+    'Of course',
+    'Not a doubt about it'
+]
+
+random_rigging = {
+    'good': ['apache', 'jeff', 'clay', 'ion'],
+    'bad': ['autotitan', 'kotlin', 'ginger']
+}
+
 
 despacito = [
     '''Ay

@@ -5,8 +5,7 @@ from dis import disassemble
 import discord
 from discord.ext import commands
 
-from .store import (blacklist, hastebin, hastebin_error, quick_embed,
-                    whitelist, try_file)
+from .store import (hastebin, hastebin_error, quick_embed, try_file)
 
 
 class Owner:

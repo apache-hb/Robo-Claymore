@@ -11,13 +11,87 @@ from bs4 import BeautifulSoup as bs
 from defusedxml.ElementTree import fromstring
 from discord.ext import commands
 from pyfiglet import figlet_format
-#from itertools import chain
-#from urllib.parse import urlencode
 import time
 from inspect import getsource
 
-from .store import (embedable, emoji_dict, hastebin, hastebin_error,
-                    quick_embed, tinyurl, whitelist, inverted_dict)
+from .store import (embedable, hastebin, hastebin_error,
+                    quick_embed, tinyurl, can_override, url_request)
+
+# stolen from appuselfbot
+# https://github.com/appu1232/Discord-Selfbot
+emoji_dict = {
+    'a': ['🇦 ', '🅰', '🍙', '🔼', '4⃣'],
+    'b': ['🇧 ', '🅱', '8⃣'],
+    'c': ['🇨 ', '©', '🗜'],
+    'd': ['🇩 ', '↩'],
+    'e': ['🇪 ', '3⃣', '📧', '💶'],
+    'f': ['🇫 ', '🎏'],
+    'g': ['🇬 ', '🗜', '6⃣', '9⃣', '⛽'],
+    'h': ['🇭 ', '♓'],
+    'i': ['🇮 ', 'ℹ', '🚹', '1⃣'],
+    'j': ['🇯 ', '🗾'],
+    'k': ['🇰 ', '🎋'],
+    'l': ['🇱 ', '1⃣', '🇮', '👢', '💷'],
+    'm': ['🇲 ', 'Ⓜ', '📉'],
+    'n': ['🇳 ', '♑', '🎵'],
+    'o': ['🇴 ', '🅾', '0⃣', '⭕', '🔘', '⏺', '⚪', '⚫', '🔵', '🔴', '💫'],
+    'p': ['🇵 ', '🅿'],
+    'q': ['🇶 ', '♌'],
+    'r': ['🇷 ', '®'],
+    's': ['🇸 ', '💲', '5⃣', '⚡', '💰', '💵'],
+    't': ['🇹 ', '✝', '➕', '🎚', '🌴', '7⃣'],
+    'u': ['🇺 ', '⛎', '🐉'],
+    'v': ['🇻 ', '♈', '☑'],
+    'w': ['🇼 ', '〰', '📈'],
+    'x': ['🇽 ', '❎', '✖', '❌', '⚒'],
+    'y': ['🇾 ', '✌', '💴'],
+    'z': ['🇿 ', '2⃣'],
+    '0': ['0⃣ ', '🅾', '0⃣', '⭕', '🔘', '⏺', '⚪', '⚫', '🔵', '🔴', '💫'],
+    '1': ['1⃣ ', '🇮'],
+    '2': ['2⃣ ', '🇿'],
+    '3': ['3⃣ '],
+    '4': ['4⃣ '],
+    '5': ['5⃣ ', '🇸', '💲', '⚡'],
+    '6': ['6⃣ '],
+    '7': ['7⃣ '],
+    '8': ['8⃣ ', '🎱', '🇧', '🅱'],
+    '9': ['9⃣ '],
+    '?': ['❓ '],
+    '!': ['❗ ', '❕', '⚠', '❣'],
+    ' ': ['   '],
+    '\n': ['\n']
+}
+
+inverted_dict = {
+    'a': 'ɐ',
+    'b': 'q',
+    'c': 'ɔ',
+    'd': 'p',
+    'e': 'ǝ',
+    'f': 'ɟ',
+    'g': 'ƃ',
+    'h': 'ɥ',
+    'i': 'ᴉ',
+    'j': 'ɾ',
+    'k': 'ʞ',
+    'l': 'l',
+    'm': 'ɯ',
+    'n': 'u',
+    'o': 'o',
+    'p': 'd',
+    'q': 'b',
+    'r': 'ɹ',
+    's': 's',
+    't': 'ʇ',
+    'u': 'n',
+    'v': 'ʌ',
+    'w': 'ʍ',
+    'x': 'x',
+    'y': 'ʎ',
+    'z': 'z',
+    ' ': ' ',
+    '\n': '\n'
+}
 
 # wikia fandom wikis
 WIKIA_API_URL = 'http://{lang}{sub_wikia}.wikia.com/api/v1/{action}'
@@ -238,23 +312,21 @@ class Utility:
         if not search is None:
             url = 'http://api.urbandictionary.com/v0/define?term=' + search
 
-        async with aiohttp.ClientSession() as session:
-            async with session.get(url) as resp:
-                ret = json.loads(await resp.text())
+        ret = json.loads(await url_request(url = url))
 
-                if not ret['list']:
-                    return await ctx.send('Nothing about {} found'.format(search))
+        if not ret['list']:
+            return await ctx.send('Nothing about {} found'.format(search))
 
-                post = random.choice(ret['list'])
+        post = random.choice(ret['list'])
 
-                embed = quick_embed(ctx, title = 'Definition of {}'.format(post['word']),
-                description = 'Written by {}'.format(post['author']))
-                embed.add_field(name = 'Description', value = post['definition'])
-                embed.add_field(name = 'Example', value = post['example'])
-                embed.add_field(name = 'Permalink', value = post['permalink'])
-                embed.set_footer(text = 'Votes: {}/{}'.format(post['thumbs_up'], post['thumbs_down']))
+        embed = quick_embed(ctx, title = 'Definition of {}'.format(post['word']),
+        description = 'Written by {}'.format(post['author']))
+        embed.add_field(name = 'Description', value = post['definition'])
+        embed.add_field(name = 'Example', value = post['example'])
+        embed.add_field(name = 'Permalink', value = post['permalink'])
+        embed.set_footer(text = 'Votes: {}/{}'.format(post['thumbs_up'], post['thumbs_down']))
 
-                await ctx.send(embed = embed)
+        await ctx.send(embed = embed)
 
     @commands.command(name = "userinfo")
     async def _userinfo(self, ctx, user: discord.Member = None):
@@ -364,37 +436,35 @@ class Utility:
 
         to_get = 'https://www.reddit.com/r/{}/{}.json?t=all'.format(target.lower(), search)
 
-        async with aiohttp.ClientSession() as session:
-            async with session.get(to_get) as resp:
-                j = json.loads(await resp.text())
+        j = json.loads(await url_request(url = to_get))
 
-                if not j['data']['children']:
-                    return await ctx.send('No subreddit found')
+        if not j['data']['children']:
+            return await ctx.send('No subreddit found')
 
-                try: post = j['data']['children'][index]
-                except IndexError: return await ctx.send('There is no post with that index')
+        try: post = j['data']['children'][index]
+        except IndexError: return await ctx.send('There is no post with that index')
 
-                if not ctx.bot.is_owner(ctx.author) or ctx.author.id in whitelist:
-                    if post['data']['over_18'] and not ctx.channel.is_nsfw():
-                        return await ctx.send('That post is nsfw, and must be requested in an nsfw channel')
+        if await can_override(ctx):
+            if post['data']['over_18'] and not ctx.channel.is_nsfw():
+                return await ctx.send('That post is nsfw, and must be requested in an nsfw channel')
 
-                embed = quick_embed(ctx, title = 'Post from {}'.format(target),
-                    description = 'Posted by {}'.format(post['data']['author']))
+        embed = quick_embed(ctx, title = 'Post from {}'.format(target),
+            description = 'Posted by {}'.format(post['data']['author']))
 
-                embed.add_field(name = 'Link', value = await tinyurl(post['data']['url']))
+        embed.add_field(name = 'Link', value = await tinyurl(post['data']['url']))
 
-                embed.add_field(name = 'Title', value = post['data']['title'])
-                embed.add_field(name = 'Votes', value = '{} Upvotes & {} Downvotes'.format(
-                        post['data']['ups'], post['data']['downs']))
+        embed.add_field(name = 'Title', value = post['data']['title'])
+        embed.add_field(name = 'Votes', value = '{} Upvotes & {} Downvotes'.format(
+                post['data']['ups'], post['data']['downs']))
 
-                if not post['data']['selftext'] == '':
-                    embed.add_field(name = 'Selftext',
-                    value = post['data']['selftext'][:250] + (post['data']['selftext'][250:] and '...'))
+        if not post['data']['selftext'] == '':
+            embed.add_field(name = 'Selftext',
+            value = post['data']['selftext'][:250] + (post['data']['selftext'][250:] and '...'))
 
-                if embedable(post['data']['url']):
-                    embed.set_image(url = post['data']['url'])
+        if embedable(post['data']['url']):
+            embed.set_image(url = post['data']['url'])
 
-                return await ctx.send(embed = embed)
+        return await ctx.send(embed = embed)
 
     @commands.command(name = "avatar")
     async def _avatar(self, ctx, user: discord.Member = None):

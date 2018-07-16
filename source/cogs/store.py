@@ -11,7 +11,7 @@ def try_file(name, content = '[]'):
     try:
         return open(name)
     except FileNotFoundError:
-        open(name, 'w').write(content)
+        open(name, 'w').write(content).close()
         print('Generated {} file'.format(name))
         return open(name)
 
@@ -21,8 +21,10 @@ async def can_override(ctx, user = None):
     return await ctx.bot.is_owner(user) or user.id in whitelist
 
 def quick_embed(ctx, title: str, description: str = None, colour: int = 0x023cfc):
-    try: colour = ctx.me.colour
-    except AttributeError: pass
+    try:
+        colour = ctx.me.colour
+    except AttributeError:
+        pass
     return discord.Embed(title = title, description = description, colour = colour)
 
 async def tinyurl(url: str):
@@ -49,7 +51,7 @@ async def exists(url: str):
 async def url_request(**kwargs):
     async with aiohttp.ClientSession() as session:
         async with session.get(**kwargs) as resp:
-            return json.loads(await resp.text())
+            return await resp.text()
 
 def embedable(url: str):
     url = pathname2url(url)
@@ -79,182 +81,3 @@ def only_mentions_bot(bot, context):
         return True
 
     return False
-
-#config = json.load(open('cogs/store/config.json'))
-
-whitelist = json.load(open('cogs/store/whitelist.json'))
-
-blacklist = json.load(open('cogs/store/blacklist.json'))
-
-logs = json.load(open('cogs/store/logs.json'))
-
-#tags = json.load(open('cogs/store/tags.json'))
-
-#quotes = json.load(open('cogs/store/quotes.json'))
-
-#autorole = json.load(open('cogs/store/autorole.json'))
-
-#autoreact = json.load(open('cogs/store/autoreact.json'))
-
-# stolen from appuselfbot
-# https://github.com/appu1232/Discord-Selfbot
-emoji_dict = {
-    'a': ['🇦 ', '🅰', '🍙', '🔼', '4⃣'],
-    'b': ['🇧 ', '🅱', '8⃣'],
-    'c': ['🇨 ', '©', '🗜'],
-    'd': ['🇩 ', '↩'],
-    'e': ['🇪 ', '3⃣', '📧', '💶'],
-    'f': ['🇫 ', '🎏'],
-    'g': ['🇬 ', '🗜', '6⃣', '9⃣', '⛽'],
-    'h': ['🇭 ', '♓'],
-    'i': ['🇮 ', 'ℹ', '🚹', '1⃣'],
-    'j': ['🇯 ', '🗾'],
-    'k': ['🇰 ', '🎋'],
-    'l': ['🇱 ', '1⃣', '🇮', '👢', '💷'],
-    'm': ['🇲 ', 'Ⓜ', '📉'],
-    'n': ['🇳 ', '♑', '🎵'],
-    'o': ['🇴 ', '🅾', '0⃣', '⭕', '🔘', '⏺', '⚪', '⚫', '🔵', '🔴', '💫'],
-    'p': ['🇵 ', '🅿'],
-    'q': ['🇶 ', '♌'],
-    'r': ['🇷 ', '®'],
-    's': ['🇸 ', '💲', '5⃣', '⚡', '💰', '💵'],
-    't': ['🇹 ', '✝', '➕', '🎚', '🌴', '7⃣'],
-    'u': ['🇺 ', '⛎', '🐉'],
-    'v': ['🇻 ', '♈', '☑'],
-    'w': ['🇼 ', '〰', '📈'],
-    'x': ['🇽 ', '❎', '✖', '❌', '⚒'],
-    'y': ['🇾 ', '✌', '💴'],
-    'z': ['🇿 ', '2⃣'],
-    '0': ['0⃣ ', '🅾', '0⃣', '⭕', '🔘', '⏺', '⚪', '⚫', '🔵', '🔴', '💫'],
-    '1': ['1⃣ ', '🇮'],
-    '2': ['2⃣ ', '🇿'],
-    '3': ['3⃣ '],
-    '4': ['4⃣ '],
-    '5': ['5⃣ ', '🇸', '💲', '⚡'],
-    '6': ['6⃣ '],
-    '7': ['7⃣ '],
-    '8': ['8⃣ ', '🎱', '🇧', '🅱'],
-    '9': ['9⃣ '],
-    '?': ['❓ '],
-    '!': ['❗ ', '❕', '⚠', '❣'],
-    ' ': ['   '],
-    '\n': ['\n']
-}
-
-inverted_dict = {
-    'a': 'ɐ',
-    'b': 'q',
-    'c': 'ɔ',
-    'd': 'p',
-    'e': 'ǝ',
-    'f': 'ɟ',
-    'g': 'ƃ',
-    'h': 'ɥ',
-    'i': 'ᴉ',
-    'j': 'ɾ',
-    'k': 'ʞ',
-    'l': 'l',
-    'm': 'ɯ',
-    'n': 'u',
-    'o': 'o',
-    'p': 'd',
-    'q': 'b',
-    'r': 'ɹ',
-    's': 's',
-    't': 'ʇ',
-    'u': 'n',
-    'v': 'ʌ',
-    'w': 'ʍ',
-    'x': 'x',
-    'y': 'ʎ',
-    'z': 'z',
-    ' ': ' ',
-    '\n': '\n'
-}
-
-ball_awnsers = [
-    'Definetly',
-    'No',
-    'Almost certain',
-    'More than likley',
-    'Perhaps',
-    'Yes',
-    'Certainly',
-    'Not a chance',
-    'Outlook good',
-    'Of course',
-    'Not a doubt about it'
-]
-
-random_rigging = {
-    'good': ['apache', 'jeff', 'clay', 'ion'],
-    'bad': ['autotitan', 'kotlin', 'ginger']
-}
-
-titanfall_pilot_variables = {
-    'pilots': [
-        'Grapple',
-        'Pulse Blade',
-        'Stim',
-        'A-Wall',
-        'Phase Shift',
-        'Holo Pilot',
-        'Cloak'
-    ],
-    'grenades': [
-        'Frag Grenade',
-        'Arc Grenade',
-        'Fire Star',
-        'Gravity Star',
-        'Electric Smoke',
-        'Satchel Charge'
-    ],
-    'primary': [
-        'R201',
-        'R101',
-        'Hemlock',
-        'G2A5',
-        'Flatline',
-        'Alternator',
-        'CAR',
-        'R-97',
-        'Volt',
-        'L-STAR',
-        'Spitfire',
-        'Devotion',
-        'Double Take',
-        'Kraber',
-        'DMR',
-        'EVA-8',
-        'Mastiff',
-        'Cold War',
-        'EPG',
-        'Softball',
-        'SMR'
-    ],
-    'secondary': [
-        'RE .45',
-        'Hammond P2016',
-        'Wingman Elite',
-        'Mozambique',
-        'Wingman B3',
-    ],
-    'anti_titan': [
-        'Charge Rifle',
-        'MGL',
-        'Thunderbolt',
-        'Archer'
-    ],
-    'perk_slot_a': [
-        'Power Cell',
-        'Fast Regen',
-        'Ordinance Expert',
-        'Phase Embark'
-    ],
-    'perk_slot_b': [
-        'Wall Hang',
-        'Kill Report',
-        'Hover',
-        'Low Profile'
-    ]
-}

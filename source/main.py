@@ -5,12 +5,14 @@ from glob import glob
 import aiohttp
 import traceback
 import sys
-from cogs.store import (whitelist,
-blacklist, quick_embed,
-logs, only_mentions_bot)
+from cogs.store import (can_override, quick_embed, only_mentions_bot, try_file)
 import asyncio
 
 primed = False
+
+logs = json.load(try_file('cogs/store/logs.json'))
+
+blacklist = json.load(try_file('cogs/store/blacklist.json'))
 
 try:
     config = json.load(open('cogs/store/config.json'))
@@ -80,7 +82,7 @@ async def on_command_error(ctx, exception):
 @bot.check
 async def check_commands(ctx):
     #let the bot owner and whitelisted users always override
-    if await ctx.bot.is_owner(ctx.author) or ctx.author.id in whitelist:
+    if await can_override(ctx):
         return True
 
     if ctx.author.id in blacklist:#make sure to tell blocked people to eat pant
