@@ -1,5 +1,5 @@
 from discord.ext import commands
-from .store import can_override, tinyurl, embedable, quick_embed, url_request
+from .store import tinyurl, embedable, quick_embed, url_request
 
 from defusedxml.ElementTree import fromstring
 import json
@@ -11,20 +11,6 @@ class Nsfw:
         self.bot = bot
         self.hidden = False
         print('cog {} loaded'.format(self.__class__.__name__))
-
-    #TODO: figure out why the api is so fucking retarded
-    @commands.command(name = "sankakucomplex", aliases = ["sc", "scomplex", "sankaku"], hidden = True)
-    async def _sankakucomplex(self, ctx, *, tags: str):
-
-        url = 'https://chan.sankakucomplex.com/post/index.json?limit=25&tags={}'.format(tags)
-
-        headers = {
-            'User-Agent': 'RoboClaymore  (by ApacheActual#6945 on discord)'
-        }
-
-        async with aiohttp.ClientSession() as session:
-            async with session.get(url, headers = headers) as resp:
-                print(await resp.text())
 
     @commands.command(name = "e621")
     async def _e_six_two_one(self, ctx, *, tags: str = None):

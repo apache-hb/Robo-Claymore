@@ -10,7 +10,7 @@ def try_file(name, content = '[]'):
     try:
         return open(name)
     except FileNotFoundError:
-        open(name, 'w').write(content).close()
+        open(name, 'w').write(content)
         print('Generated {} file'.format(name))
         return open(name)
 
@@ -80,3 +80,5 @@ def only_mentions_bot(bot, context):
         return True
 
     return False
+
+blacklist = json.load(try_file('cogs/store/blacklist.json'))

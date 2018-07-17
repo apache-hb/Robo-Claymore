@@ -9,10 +9,12 @@ __pycache__/
 *.conf
 *.ini
 *.json
+*.log
 
 #ignore cython
 *.c
 *.so
+*.o
 
 #ignore mac specific stuff
 .DS_Store

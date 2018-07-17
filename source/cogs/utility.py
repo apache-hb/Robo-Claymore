@@ -4,7 +4,6 @@ import random
 from datetime import datetime
 from xml.dom.minidom import parseString
 
-import aiohttp
 import discord
 from aiowolfram import Wolfram
 from bs4 import BeautifulSoup as bs
@@ -92,11 +91,10 @@ inverted_dict = {
 }
 
 # wikia fandom wikis
-WIKIA_API_URL = 'http://{lang}{sub_wikia}.wikia.com/api/v1/{action}'
-WIKIA_STANDARD_URL = 'http://{lang}{sub_wikia}.wikia.com/wiki/{page}'
+WIKIA_STANDARD_URL = 'http://{sub_wikia}.wikia.com/wiki/{page}'
 WIKIPEDIA_API_URL = 'http://en.wikipedia.org/w/api.php'
 
-USER_AGENT = '{type} (https://github.com/Apache-HB/Robo-Claymore)'
+USER_AGENT = '{} (https://github.com/Apache-HB/Robo-Claymore)'
 
 class Zalgo:
     def __init__(self, txt: str, intensity: int):
@@ -140,7 +138,6 @@ class Zalgo:
             return True
         return False
 
-
 class Utility:
     def __init__(self, bot):
         self.bot = bot
@@ -150,6 +147,24 @@ class Utility:
         self.quotes = json.load(open('cogs/store/quotes.json'))
         self.wolfram = Wolfram(self.config['wolfram']['key'])
         print('cog {} loaded'.format(self.__class__.__name__))
+
+    #TODO get this to actually work and return an article
+    @commands.command(name = "wikia", hidden = True)
+    async def _wikia(self, ctx, sub_wiki: str, query: str):
+        ret = json.loads(
+            await url_request(
+                url = 'http://{}.wikia.com/api/v1/Articles/Details?'.format(sub_wiki),
+                params = {
+                    'format': 'json',
+                    'titles': search.lower()
+                },
+                headers = {
+                    'User-Agent': USER_AGENT.format('Wikia')
+                }
+            )
+        )
+        print(json.dumps(ret, indent=4))
+        # print(search(sub_wiki, query))
 
     @commands.command(name = "zalgo")
     async def _zalgo(self, ctx, *, text: str = 'zalgo 50'):
@@ -574,7 +589,7 @@ class Utility:
                     ret += pair['tag'] + '\n'
 
                 if len(ret) > 2000:
-                    [ret[i:i+1500] for i in range(0, len(ret), 1500)]
+                    ret = [ret[i:i+1500] for i in range(0, len(ret), 1500)]
 
                     for part in ret:
                         await ctx.author.send('```\n' + part + '```')
@@ -621,7 +636,7 @@ class Utility:
                 try:
                     server['contents'].remove(index)
                     return await ctx.send('removed quote {}'.format(index))
-                except:
+                except ValueError:
                     return await ctx.send('no quote at index {}'.format(index))
 
     @quote.command(name = "list")

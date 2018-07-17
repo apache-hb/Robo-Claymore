@@ -1,11 +1,10 @@
 import asyncio
 import json
-from dis import disassemble
 
 import discord
 from discord.ext import commands
 
-from .store import (hastebin, hastebin_error, quick_embed, try_file)
+from .store import (hastebin, quick_embed, try_file, can_override, blacklist)
 
 
 class Owner:
@@ -18,7 +17,7 @@ class Owner:
         print('cog {} loaded'.format(self.__class__.__name__))
 
     async def __local_check(self, ctx):
-        if ctx.author.id == int(self.config['discord']['owner']) or ctx.author.id in whitelist:
+        if await can_override(ctx):
             return True
         await ctx.send('go away')
         return False
@@ -109,7 +108,7 @@ class Owner:
     async def _prod(self, ctx, user: discord.Member, count: int = 10, *, message: str = 'Skidaddle skidoodle'):
         await ctx.send('The spam against {} has begun for {} cycles'.format(user.name, count))
 
-        for x in range(count):
+        for _ in range(count):
             if self.spam:
                 try:
                     await user.send(message)

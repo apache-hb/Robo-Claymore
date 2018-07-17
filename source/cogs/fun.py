@@ -2,7 +2,7 @@ from discord.ext import commands
 import random
 import json
 
-from .store import emoji, try_file
+from .store import try_file, emoji
 
 ball_awnsers = [
     'Definetly',
@@ -22,7 +22,6 @@ random_rigging = {
     'good': ['apache', 'jeff', 'clay', 'ion'],
     'bad': ['autotitan', 'kotlin', 'ginger']
 }
-
 
 despacito = [
     '''Ay
@@ -113,7 +112,7 @@ Despacito'''
 class Fun:
     def __init__(self, bot):
         self.bot = bot
-        self.autoreact_list = json.load(try_file('cogs/store/autoreact.json'))
+        self.autoreact_list = json.load(try_file('cogs/store/autoreact.json', '{}'))
         self.hidden = False
         print('cog {} loaded'.format(self.__class__.__name__))
 
@@ -137,11 +136,11 @@ class Fun:
         await ctx.send('I rate ``{}`` a {} out of 10'.format(thing, ret))
 
     @commands.command(name = "coinflip")
-    async def _coinflip(self, ctx, *, text: str = 'coinflip'):
+    async def _coinflip(self, ctx):
         await ctx.send(random.choice(['Heads', 'Tails']))
 
     @commands.command(name = "8ball")
-    async def _8ball(self, ctx, *, question: str):
+    async def _8ball(self, ctx):
         await ctx.send(random.choice(ball_awnsers))
 
     @commands.command(name = "compare",
@@ -168,69 +167,69 @@ class Fun:
 
         await ctx.send(first + awnser + second)
 
-    @classmethod
-    def get_react_pair(self, phrase, react):
-        return {
-            'phrase': phrase,
-            'react': react
-        }
-
     async def on_message(self, ctx):
         if ctx.author.id == self.bot.user.id:
             return
 
-        for pair in self.autoreact_list:
-            if pair['server_id'] == ctx.guild.id:
-                for each in pair['reacts']:
-                    if each['phrase'] in ctx.content.lower():
-                        await ctx.add_reaction(each['react'][:-1])
+        for (server, reacts) in self.autoreact_list.items():
+            if server == str(ctx.guild.id):
+                for (react, phrases) in reacts.items():
+                    for each in phrases:
+                        if each in ctx.content.lower():
+                            await ctx.add_reaction(react)
+                            break
                 return
-        self.autoreact_list.append({
-            'server_id': ctx.guild.id,
-            'reacts': []
-        })
-        json.dump(self.autoreact_list, open('cogs/store/autoreact.json', 'w'), indent = 4)
 
+    #TODO: store metadata
     @commands.group(invoke_without_command = True)
     async def autoreact(self, ctx):
         pass
 
+    @autoreact.before_invoke
+    async def autoreact_ensure(self, ctx):
+        for (guild, reacts) in self.autoreact_list.items():
+            if guild == str(ctx.guild.id):
+                return
+        self.autoreact_list[ctx.guild.id] = {}
+
     @autoreact.command(name = "add")
-    async def _autoreact_add(self, ctx, *, text: str):
-        pass
+    async def autoreact_add(self, ctx, *, text: str):
+        text = text.split(' ')
+        react = text[-1]
+        phrase = ' '.join(text[:-1])
+        if not emoji(react):
+            return await ctx.send('Only emojis may be used as reactions')
+        for (server, reacts) in self.autoreact_list.items():
+            if server == str(ctx.guild.id):
+                try:
+                    if phrase in reacts[react]:
+                        return await ctx.send('That is already an autoreact')
+                    reacts[react].append(phrase)
+                except KeyError:
+                    reacts[react] = [phrase]
+                return await ctx.send('``{}`` was added as an autoreact to ``{}``'.format(react, phrase))
 
     @autoreact.command(name = "remove")
-    async def _autoreact_remove(self, ctx, *, phrase: str):
-        pass
+    async def autoreact_remove(self, ctx, *, phrase: str):
+        for (server, reacts) in self.autoreact_list.items():
+            if server == str(ctx.guild.id):
+                worked = False
+                for (react, phrases) in reacts.items():
+                    try:
+                        phrases.remove(phrase)
+                        worked = True
+                    except KeyError:
+                        continue
+                if worked:
+                    ret = '{} was removed as an autoreact phrase'
+                else:
+                    ret = '{} was not an autoreact phrase'
+                return await ctx.send(ret.format(phrase))
 
-    # @autoreact.command(name = "add")
-    # async def _autoreact_add(self, ctx, *, text: str):
-    #     text = text.split(' ')
-    #     react = text[-1]
-    #     phrase = ' '.join(text[:-1])
-
-    #     if not emoji(react):
-    #         return await ctx.send('you need to use an emoji as a reaction')
-
-    #     for pair in autoreact:
-    #         if pair['server_id'] == ctx.guild.id:
-    #             for each in pair['reacts']:
-    #                 if each['phrase'] == phrase.lower() and each['react'] == react:
-    #                     return await ctx.send('you cannot add duplicates')
-
-    #             pair['reacts'].append(self.get_react_pair(phrase.lower(), react))
-    #             json.dump(autoreact, open('cogs/store/autoreact.json', 'w'), indent = 4)
-    #             return await ctx.send('{} is now reacted with {}'.format(phrase, react))
-
-    # @autoreact.command(name = "remove")
-    # async def _autoreact_remove(self, ctx, *, phrase: str):
-    #     for pair in autoreact:
-    #         if pair['server_id'] == ctx.guild.id:
-    #             for each in pair['reacts'][:]:
-    #                 if each['phrase'] == phrase.lower():
-    #                     pair['reacts'].remove(each)
-    #                     json.dump(autoreact, open('cogs/store/autoreact.json', 'w'), indent = 4)
-    #                     await ctx.send('{} is no longer reacted too'.format(phrase))
+    @autoreact_add.after_invoke
+    @autoreact_remove.after_invoke
+    async def autoreact_after(self, ctx):
+        json.dump(self.autoreact_list, open('cogs/store/autoreact.json', 'w'), indent = 4)
 
 def setup(bot):
     bot.add_cog(Fun(bot))

@@ -4,11 +4,10 @@ import json
 from glob import glob
 import traceback
 import sys
-from cogs.store import (can_override, quick_embed, try_file)
+from cogs.store import (can_override, quick_embed, try_file, blacklist)
 
-logs = json.load(try_file('cogs/store/logs.json'))
 
-blacklist = json.load(try_file('cogs/store/blacklist.json'))
+logs = open('cogs/store/claymore.log', 'a')
 
 try:
     config = json.load(open('cogs/store/config.json'))
@@ -53,10 +52,6 @@ async def on_message(context):
     await bot.process_commands(context)
 
 @bot.event
-async def on_server_join(server):
-    pass
-
-@bot.event
 async def on_command_error(ctx, exception):
     if isinstance(exception, discord.ext.commands.errors.MissingRequiredArgument):
         embed = quick_embed(ctx, title = 'Incorrect command usage', description = 'When using command {}'.format(ctx.command.name))
@@ -97,8 +92,8 @@ async def check_commands(ctx):
 
 @bot.after_invoke
 async def after_any_command(ctx):
-    logs.append('{0.author.name}#{0.author.id} invoked command {0.invoked_with}'.format(ctx))
-    json.dump(logs, open('cogs/store/logs.json', 'w'), indent = 4)
+    logs.write('{0.author.name}#{0.author.id} invoked command {0.invoked_with}\n'.format(ctx))
+    logs.flush()
 
     if ctx.cog.__class__.__name__ == 'Owner':#specifically log if an owner only command is used
         print('{0.author.name} tried to use {0.invoked_with}'.format(ctx))
