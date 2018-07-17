@@ -13,7 +13,7 @@ from discord.ext import commands
 from pyfiglet import figlet_format
 
 from .store import (can_override, embedable, hastebin, hastebin_error,
-                    quick_embed, tinyurl, url_request)
+                    quick_embed, tinyurl, url_request, try_file)
 
 # stolen from appuselfbot
 # https://github.com/appu1232/Discord-Selfbot
@@ -143,9 +143,9 @@ class Utility:
     def __init__(self, bot):
         self.bot = bot
         self.hidden = False
-        self.config = json.load(open('cogs/store/config.json'))
-        self.tags = json.load(open('cogs/store/tags.json'))
-        self.quotes = json.load(open('cogs/store/quotes.json'))
+        self.config = json.load(try_file('cogs/store/config.json'))
+        self.tags = json.load(try_file('cogs/store/tags.json'))
+        self.quotes = json.load(try_file('cogs/store/quotes.json'))
         self.wolfram = Wolfram(self.config['wolfram']['key'])
         print('cog {} loaded'.format(self.__class__.__name__))
 
