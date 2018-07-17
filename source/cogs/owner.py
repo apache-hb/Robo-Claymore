@@ -138,12 +138,10 @@ class Owner:
 
         await ctx.send(embed = embed)
 
-
     @whitelist.command(name = "add")
     async def _whitelist_add(self, ctx, user: discord.Member):
         if not user.id in whitelist:
             whitelist.append(user.id)
-            json.dump(whitelist, open('cogs/store/whitelist.json', 'w'), indent = 4)
             return await ctx.send('{} was added to the whitelist'.format(user.name))
 
         await ctx.send('{} is already on the whitelist'.format(user.name))
@@ -155,15 +153,40 @@ class Owner:
         except ValueError:
             return await ctx.send('{} is not in the whitelist'.format(user.name))
 
-        json.dump(whitelist, open('cogs/store/whitelist.json', 'w'), indent = 4)
         await ctx.send('{} was removed from the whitelist'.format(user.name))
-
 
     @whitelist.command(name = "purge")
     async def _whitelist_purge(self, ctx):
         whitelist = []
-        json.dump(whitelist, open('cogs/store/whitelist.json', 'w'), indent = 4)
         await ctx.send('Whitelist was purged')
+
+    @_whitelist_add.after_invoke
+    @_whitelist_purge.after_invoke
+    @_whitelist_remove.after_invoke
+    async def _whitelist_after(self, _):
+        json.dump(whitelist, open('cogs/store/whitelist.json', 'w'), indent = 4)
+
+    @commands.group(invoke_without_command = True)
+    async def blacklist(self, ctx):
+        pass
+
+    @blacklist.command(name = "add")
+    async def _blacklist_add(self, ctx, user: discord.Member):
+        pass
+
+    @blacklist.command(name = "remove")
+    async def _blacklist_remove(self, ctx, user: discord.Member):
+        pass
+
+    @blacklist.command(name = "purge")
+    async def _blacklist_purge(self, ctx):
+        pass
+
+    @_blacklist_add.after_invoke
+    @_blacklist_remove.after_invoke
+    @_blacklist_purge.after_invoke
+    async def _blacklist_after(self, _):
+        json.dump(blacklist, open('cogs/store/blacklist.json', 'w'), indent = 4)
 
     @commands.group(name = "cogs", invoke_without_command = True)
     async def cogs(self, ctx):

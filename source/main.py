@@ -4,7 +4,7 @@ import json
 from glob import glob
 import traceback
 import sys
-from cogs.store import (can_override, quick_embed, try_file, blacklist)
+from cogs.store import (can_override, quick_embed, blacklist)
 
 
 logs = open('cogs/store/claymore.log', 'a')

@@ -171,6 +171,9 @@ class Fun:
         if ctx.author.id == self.bot.user.id:
             return
 
+        if ctx.guild is None:
+            return
+
         for (server, reacts) in self.autoreact_list.items():
             if server == str(ctx.guild.id):
                 for (react, phrases) in reacts.items():
@@ -187,12 +190,13 @@ class Fun:
 
     @autoreact.before_invoke
     async def autoreact_ensure(self, ctx):
-        for (guild, reacts) in self.autoreact_list.items():
+        for (guild, _) in self.autoreact_list.items():
             if guild == str(ctx.guild.id):
                 return
         self.autoreact_list[ctx.guild.id] = {}
 
     @autoreact.command(name = "add")
+    @commands.guild_only()
     async def autoreact_add(self, ctx, *, text: str):
         text = text.split(' ')
         react = text[-1]
@@ -210,11 +214,12 @@ class Fun:
                 return await ctx.send('``{}`` was added as an autoreact to ``{}``'.format(react, phrase))
 
     @autoreact.command(name = "remove")
+    @commands.guild_only()
     async def autoreact_remove(self, ctx, *, phrase: str):
         for (server, reacts) in self.autoreact_list.items():
             if server == str(ctx.guild.id):
                 worked = False
-                for (react, phrases) in reacts.items():
+                for (_, phrases) in reacts.items():
                     try:
                         phrases.remove(phrase)
                         worked = True
@@ -228,7 +233,7 @@ class Fun:
 
     @autoreact_add.after_invoke
     @autoreact_remove.after_invoke
-    async def autoreact_after(self, ctx):
+    async def autoreact_after(self, _):
         json.dump(self.autoreact_list, open('cogs/store/autoreact.json', 'w'), indent = 4)
 
 def setup(bot):

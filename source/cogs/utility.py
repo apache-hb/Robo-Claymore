@@ -1,7 +1,9 @@
+import dis
 import json
 import platform
 import random
 from datetime import datetime
+from inspect import getsource
 from xml.dom.minidom import parseString
 
 import discord
@@ -9,10 +11,9 @@ from aiowolfram import Wolfram
 from bs4 import BeautifulSoup as bs
 from discord.ext import commands
 from pyfiglet import figlet_format
-from inspect import getsource
 
-from .store import (embedable, hastebin, hastebin_error,
-                    quick_embed, tinyurl, can_override, url_request)
+from .store import (can_override, embedable, hastebin, hastebin_error,
+                    quick_embed, tinyurl, url_request)
 
 # stolen from appuselfbot
 # https://github.com/appu1232/Discord-Selfbot
@@ -164,7 +165,22 @@ class Utility:
             )
         )
         print(json.dumps(ret, indent=4))
+        await ctx.send('soon™')
         # print(search(sub_wiki, query))
+
+    @commands.command(name = "bytecode", aliases = ['byte'])
+    async def _byte(self, ctx, name: str):
+        command = self.bot.get_command(name)
+        if command is None:
+            return await ctx.send('That command does not exist')
+        code = dis.Bytecode(command.callback)
+        ret = ''
+        for instr in code:
+            ret += str(instr) + '\n'
+        try:
+            await ctx.send(ret)
+        except discord.errors.HTTPException:
+            await ctx.send(embed = await hastebin_error(ctx, ret))
 
     @commands.command(name = "zalgo")
     async def _zalgo(self, ctx, *, text: str = 'zalgo 50'):
@@ -248,7 +264,7 @@ class Utility:
         ret = figlet_format(text, font = random.choice(['big', 'starwars', 'block', 'bubble', 'cards', 'catwalk']))
 
         if not len(ret) <= 1800:
-            return await ctx.send(embed = hastebin_error(ctx, ret))
+            return await ctx.send(embed = await hastebin_error(ctx, ret))
 
         await ctx.send('```' + ret + '```')
 
