@@ -1,7 +1,9 @@
 import discord
 import asyncio
+import json
 from discord.ext import commands
 import youtube_dl
+from .store import try_file
 
 youtube_dl.utils.bug_reports_message = lambda: ''
 
@@ -22,7 +24,7 @@ ffmpeg_format = {
     'before_options': '-nostdin',
     'options': '-vn'
 }
-#TODO: Everything
+
 ytdl = youtube_dl.YoutubeDL(yt_format)
 
 
@@ -72,10 +74,46 @@ class YTDLSource(discord.PCMVolumeTransformer):
         filename = data['url'] if stream else ytdl.prepare_filename(data)
         return self(discord.FFmpegPCMAudio(filename, **ffmpeg_format), data = data)
 
+class Song:
+    pass
+
+class Playlist:
+    pass
+
 class Voice:
     def __init__(self, bot):
         self.bot = bot
+        self.queues = []
+        self.user_playlists = json.load(try_file('cogs/store/playlist.json'))
         print('cog {} loaded'.format(self.__class__.__name__))
+
+    @commands.group(invoke_without_command = True)
+    async def playlist(self, ctx):
+        pass
+
+    @playlist.command(name = "add")
+    async def _playlist_add(self, ctx, *links: str):
+        pass
+
+    @playlist.command(name = "remove")
+    async def _playlist_remove(self, ctx, index: int = None):
+        pass
+
+    @playlist.command(name = "set")
+    async def _playlist_set(self, ctx, index: int, url: str):
+        pass
+
+    @playlist.command(name = "clear")
+    async def _playlist_clear(self, ctx):
+        pass
+
+    @playlist.command(name = "start")
+    async def _playlist_start(self, ctx, index: int = 0):
+        pass
+
+    @playlist.command(name = "shuffle")
+    async def _playlist_shuffle(self, ctx):
+        pass
 
     @commands.command(name = "join")
     async def _join(self, ctx):

@@ -538,7 +538,6 @@ class Utility:
 
         await ctx.send('```html\n' + ret.replace('`', '\`') + '```')
 
-
     @commands.group(invoke_without_command = True)
     @commands.guild_only()
     async def tag(self, ctx, name: str = None):
@@ -556,13 +555,6 @@ class Utility:
                     if item['tag'] == name:
                         return await ctx.send(item['content'])
 
-        tags.append({
-            'id': ctx.guild.id,
-            'contents': []
-        })
-        json.dump(self.tags, open('cogs/store/tags.json', 'w'), indent = 4)
-        await ctx.invoke(self.bot.get_command("tag"))
-
     @tag.command(name = "add")
     async def _tag_add(self, ctx, name: str, *, content: str):
         ret = {
@@ -576,7 +568,6 @@ class Utility:
                     return await ctx.send('That tag already exists')
 
                 server['contents'].append(ret)
-                json.dump(self.tags, open('cogs/store/tags.json', 'w'), indent = 4)
                 return await ctx.send('added tag {}'.format(name))
 
 
@@ -587,7 +578,6 @@ class Utility:
                 for item in server['contents'][:]:
                     if item['tag'] == name.lower():
                         server['contents'].remove(item)
-                        json.dump(self.tags, open('cogs/store/tags.json', 'w'), indent = 4)
                         return await ctx.send('deleted tag {}'.format(name))
                 return await ctx.send('not tag called {} found'.format(name))
 
@@ -613,6 +603,21 @@ class Utility:
                 else:
                     return await ctx.author.send('```\n' + ret + '```')
 
+    @tag.before_invoke
+    async def _tag_before(self, ctx):
+        for server in self.tags:
+            if server['id'] == ctx.guild.id:
+                return
+        self.tags.append({
+            'id': ctx.guild.id,
+            'contents': []
+        })
+
+    @_tag_remove.after_invoke
+    @_tag_add.after_invoke
+    async def _tag_after(self, _):
+        json.dump(self.tags, open('cogs/store/tags.json', 'w'), indent = 4)
+
     @commands.group(invoke_without_command = True)
     @commands.guild_only()
     async def quote(self, ctx, index: int = None):
@@ -630,19 +635,11 @@ class Utility:
                 except IndexError:
                     return await ctx.send('this server does not have a quote of that index')
 
-        quotes.append({
-            'id': ctx.guild.id,
-            'contents': []
-        })
-        json.dump(self.quotes, open('cogs/store/quotes.json', 'w'), indent = 4)
-        await ctx.invoke(self.bot.get_command("quote"))
-
     @quote.command(name = "add")
     async def _quote_add(self, ctx, *, content: str):
         for server in self.quotes:
             if server['id'] == ctx.guild.id:
                 server['contents'].append(content)
-                json.dump(self.quotes, open('cogs/store/quotes.json', 'w'), indent = 4)
                 return await ctx.send('added quote with an index of {}'.format(len(server['contents'])-2))
 
     @quote.command(name = "remove")
@@ -676,6 +673,20 @@ class Utility:
                 else:
                     return await ctx.author.send('```\n' + ret + '```')
 
+    @quote.before_invoke
+    async def _quote_before(self, ctx):
+        for server in self.quotes:
+            if server['id'] == ctx.guild.id:
+                return
+        self.quotes.append({
+            'id': ctx.guild.id,
+            'contents': []
+        })
+
+    @_quote_add.after_invoke
+    @_quote_remove.after_invoke
+    async def _quote_after(self, _):
+        json.dump(self.quotes, open('cogs/store/quotes.json', 'w'), indent = 4)
 
 def setup(bot):
     bot.add_cog(Utility(bot))

@@ -4,8 +4,9 @@ import json
 from glob import glob
 import traceback
 import sys
+import os
 from cogs.store import (can_override, quick_embed, blacklist)
-
+from shutil import copyfile
 
 logs = open('cogs/store/claymore.log', 'a')
 
@@ -105,6 +106,12 @@ if __name__ == '__main__':
                 bot.load_extension(cog.replace('cogs/', 'cogs.').replace('.py', ''))
             except Exception as e:
                 print(cog, 'failed to load becuase: ', e)
+
+os.makedirs('cogs/store/backup/', exist_ok = True)
+
+for storefile in glob('cogs/store/*.json'):
+    copyfile(storefile, 'cogs/store/backup/' + os.path.basename(storefile))
+    print('Backed up {}'.format(storefile))
 
 #no point catching exceptions here
 bot.run(config['discord']['token'])
