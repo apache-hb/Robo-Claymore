@@ -44,7 +44,7 @@ class Nsfw:
     async def _rule34(self, ctx, *, tags: str):
         url = 'https://rule34.xxx/index.php?page=dapi&s=post&q=index&tags={}'.format(tags)
 
-        root = fromstring(await url_request(url = url, headers = headers))
+        root = fromstring(await url_request(url = url))
 
         if not root:
             return await ctx.send('Nothing with tags {} found'.format(tags))
@@ -69,7 +69,7 @@ class Nsfw:
         url = 'https://gelbooru.com/index.php?page=dapi&s=post&q=index&json=1&tags={}'.format(tags)
 
         try:
-            ret = json.loads(await url_request(url = url, headers = headers))
+            ret = json.loads(await url_request(url = url))
         except ValueError:
             return await ctx.send('Nothing with tags {} found'.format(tags))
 
@@ -91,7 +91,7 @@ class Nsfw:
         else:
             url = 'https://danbooru.donmai.us/posts.json?limit=50?tags=\"{}\"'.format(tags.split(' '))
 
-        ret = json.loads(await url_request(url = url, headers = headers))
+        ret = json.loads(await url_request(url = url))
 
         if not ret:
             return await ctx.send('Nothing found')
