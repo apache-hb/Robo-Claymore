@@ -186,7 +186,10 @@ class Admin:
                 for role in server['roles']:
                     new_role = discord.utils.get(guild.roles, id = role)
                     user_roles.append(new_role)
-                return await user.edit(roles = user_roles)
+                try:
+                    return await user.edit(roles = user_roles)
+                except discord.errors.Forbidden:
+                    return
         self.autorole_list.append({
             'server_id': user.guild.id,
             'roles': []
