@@ -126,9 +126,9 @@ class Fun:
         things = thing.lower().split(' ')
         ret = 0
 
-        if not set(things).isdisjoint(random_rigging['bad']):
+        if any(x in thing for x in random_rigging['bad']):
             ret = -1
-        elif not set(things).isdisjoint(random_rigging['good']):
+        elif any(x in thing for x in random_rigging['good']):
             ret = 11
         else:
             ret = random.randint(1, 10)

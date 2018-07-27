@@ -450,6 +450,9 @@ It is currently {current}'s turn```
                 break
             game = None
 
+        if not self.tttgames:
+            game = None
+
         if game is None:
             return
 
