@@ -84,3 +84,5 @@ def only_mentions_bot(bot, context):
     return False
 
 blacklist = json.load(try_file('cogs/store/blacklist.json'))
+
+whitelist = json.load(try_file('cogs/store/whitelist.json'))
