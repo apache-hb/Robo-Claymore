@@ -81,14 +81,6 @@ async def check_commands(ctx):
         await ctx.send('Go away')
         return False
 
-    if ctx.command.name.lower() in config['disabled']['commands']:
-        await ctx.send('That command has been disabled globally')
-        return False
-
-    if ctx.command.name.cog_name.lower() in config['disabled']['cogs']:
-        await ctx.send('That cog has been disabled globally')
-        return False
-
     return True
 
 @bot.after_invoke
