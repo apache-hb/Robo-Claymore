@@ -451,7 +451,7 @@ It is currently {current}'s turn```
             game = None
 
         if not self.tttgames:
-            game = None
+            return
 
         if game is None:
             return
