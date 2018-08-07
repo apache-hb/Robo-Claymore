@@ -1,5 +1,8 @@
 from discord.ext import commands
 from .store import quick_embed
+import discord
+from fuzzywuzzy import process
+from itertools import chain
 
 class Help:
     def __init__(self, bot):
@@ -7,19 +10,39 @@ class Help:
         self.hidden = False
         print('cog {} loaded'.format(self.__class__.__name__))
 
+    @classmethod
+    def __get_cog(self, ctx, name: str):
+        for key, val in ctx.bot.cogs.items():
+            if key.lower() == name.lower():
+                return val
+        return None
+
+    @classmethod
+    async def __get_fuzzy(self, ctx, name: str):
+        ret = quick_embed(ctx, 'Reccomended commands & cogs')
+        fuzzed = process.extract(name, chain(ctx.bot.all_commands, ctx.bot.cogs.keys()), limit = 3)
+
+        for pair in fuzzed:
+            if pair[1] > 85:
+                ret.add_field(name = pair[0], value = '{}% chance this is what you wanted'.format(str(pair[1])))
+
+        if not any(a[1] > 85 for a in fuzzed):
+            return await ctx.send(embed = quick_embed( ctx, 'No matching commands found',
+                    'try {}help for a full list of commands'.format(ctx.prefix)))
+        await ctx.send(embed = ret)
+
+
     @commands.command(name = "help")
     async def _help(self, ctx, *, name: str = None):
         if name is None:
             await ctx.send(embed = self.__all(ctx))
 
-        elif name in ctx.bot.cogs:
-            await ctx.send(embed = self.__cog(ctx, name))
-
-        elif name in ctx.bot.all_commands:
-            await ctx.send(embed = self.__command(ctx, name))
-
+        elif self.__get_cog(ctx, name) is not None:
+            await ctx.send(embed = self.__cog(ctx, name.lower()))
+        elif name.lower() in ctx.bot.all_commands:
+            await ctx.send(embed = self.__command(ctx, name.lower()))
         else:
-            await ctx.send('No cog or command found called {}'.format(name))
+            await self.__get_fuzzy(ctx, name)
 
     @commands.command(name = 'allcommands')
     async def _all_commands(self, ctx):
@@ -62,7 +85,10 @@ class Help:
 
     @classmethod
     def __cog(self, ctx, name: str):
-        cog = ctx.bot.get_cog(name)
+        cog = self.__get_cog(ctx, name)
+
+        if cog is None:
+            return quick_embed(ctx, 'No command called {} found'.format(name))
 
         try: description = cog.description
         except AttributeError: description = 'No description'
@@ -70,7 +96,7 @@ class Help:
         embed = quick_embed(ctx, title = 'All subcommands in {}'.format(name),
         description = description)
 
-        for command in ctx.bot.get_cog_commands(name):
+        for command in ctx.bot.get_cog_commands(cog.__class__.__name__):
             if not command.hidden:
                 try: embed.add_field(name=command.name, value=command.brief)
                 except AttributeError: embed.add_field(name=command.name, value='No description')
@@ -78,31 +104,48 @@ class Help:
         return embed
 
     @classmethod
-    def __command(self, ctx, name: str):
+    def group_embed(self, ctx, name: str) -> discord.Embed:
+        group = ctx.bot.all_commands.get(name)
+
+        embed = quick_embed(ctx, 'All subcommands for group {}'.format(name))
+
+        for command in group.walk_commands():
+            embed.add_field(name = command.name,
+                value = 'Description: {0.description}\nUsage: {0.usage}\nAliases: {0.aliases}'.format(command)
+            )
+
+        return embed
+
+    @classmethod
+    def __command(self, ctx, name: str) -> discord.Embed:
         command = ctx.bot.all_commands.get(name)
 
+        if isinstance(command, discord.ext.commands.core.Group):
+            return self.group_embed(ctx, name)
+
+        embed = quick_embed(ctx, title = command.name, description = 'Inside cog {}'.format(command.cog_name))
+
         try: description = command.description
-        except AttributeError: description = 'None'
+        except: description = 'None'
 
         if description == '':
-            description = None
+            description = 'None'
 
-        try: usage = command.usage
-        except AttributeError: usage = command.signature
-
-        if usage is None:
-            usage = command.signature
-
-        try: aliases = commands.aliases
-        except AttributeError: aliases = ['None']
-
-        embed = quick_embed(ctx, title = command.name, description = 'Inside cog: {}'.format(command.cog_name))
         embed.add_field(name = 'Description', value = description)
 
-        try: embed.add_field(name = 'Aliases', value = ', '.join(aliases))
-        except TypeError: pass
+        try: aliases = ', '.join(command.aliases)
+        except: aliases = 'None'
+
+        if aliases == '':
+            aliases = 'None'
+
+        embed.add_field(name = 'Aliases', value = aliases)
+
+        try: usage = command.usage
+        except: usage = name
 
         embed.add_field(name = 'Usage', value = usage)
+
         return embed
 
 def setup(bot):

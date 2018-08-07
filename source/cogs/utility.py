@@ -11,6 +11,7 @@ from aiowolfram import Wolfram
 from bs4 import BeautifulSoup as bs
 from discord.ext import commands
 from pyfiglet import figlet_format
+from fuzzywuzzy import process
 
 from .store import (can_override, embedable, hastebin, hastebin_error,
                     quick_embed, tinyurl, url_request, try_file)
@@ -319,7 +320,7 @@ class Utility:
     async def _source(self, ctx, *, name: str = None):
 
         if name is None:
-            return await ctx.send('https://github.com/Apache-HB/Robo-Claymore/tree/Rewrite')
+            return await ctx.send('https://github.com/Apache-HB/Robo-Claymore')
 
         func = ctx.bot.get_command(name)
 
@@ -554,6 +555,18 @@ class Utility:
                 for item in server['contents']:
                     if item['tag'] == name:
                         return await ctx.send(item['content'])
+
+                fuzzed = process.extract(name, [item['tag'] for item in server['contents']], limit = 3)
+
+                embed = quick_embed(ctx, 'possible results')
+                for pair in fuzzed:
+                    if pair[1] > 85:
+                        embed.add_field(name = pair[0], value = '{}% match'.format(pair[1]), inline = False)
+
+                if any(pair[1] < 85 for pair in fuzzed):
+                    return await ctx.send(embed = quick_embed(ctx, 'No matches'))
+
+                await ctx.send(embed = embed)
 
     @tag.command(name = "add")
     async def _tag_add(self, ctx, name: str, *, content: str):

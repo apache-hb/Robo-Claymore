@@ -184,7 +184,7 @@ class Admin:
             if server['server_id'] == user.guild.id:
                 user_roles = user.roles
                 for role in server['roles']:
-                    new_role = discord.utils.get(guild.roles, id = role)
+                    new_role = discord.utils.get(user.roles, id = role)
                     user_roles.append(new_role)
                 try:
                     return await user.edit(roles = user_roles)

@@ -3,6 +3,7 @@ import asyncio
 import json
 from discord.ext import commands
 import youtube_dl
+from typing import List
 from .store import try_file
 
 youtube_dl.utils.bug_reports_message = lambda: ''
@@ -75,10 +76,40 @@ class YTDLSource(discord.PCMVolumeTransformer):
         return self(discord.FFmpegPCMAudio(filename, **ffmpeg_format), data = data)
 
 class Song:
-    pass
+    def __init__(self, url, thumbnail, user: discord.Member):
+        self.url = url
+        self.thumbnail = thumbnail
+
+    def make_embed(self) -> discord.Embed:
+        pass
 
 class Playlist:
-    pass
+    def __init__(self, song):
+        if isinstance(song, list):
+            self.songs = song
+        else:
+            self.songs = [song]
+
+    def next(self) -> Song:
+        return self.songs.pop()
+
+    def skip(self):
+        self.songs.pop()
+
+    def remove(self, index):
+        self.songs.remove(index)
+
+    def add_song(self, song: Song):
+        self.songs.append(song)
+
+    def make_embed(self) -> discord.Embed:
+        pass
+
+    def currently_playing(self) -> discord.Embed:
+        pass
+
+    def serialize(self):
+        pass
 
 class Voice:
     def __init__(self, bot):
