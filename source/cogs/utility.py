@@ -560,7 +560,7 @@ class Utility:
 
                 embed = quick_embed(ctx, 'possible results')
                 for pair in fuzzed:
-                    if pair[1] > 85:
+                    if pair[1] > 50:
                         embed.add_field(name = pair[0], value = '{}% match'.format(pair[1]), inline = False)
 
                 if any(pair[1] < 85 for pair in fuzzed):

@@ -23,12 +23,8 @@ class Help:
         fuzzed = process.extract(name, chain(ctx.bot.all_commands, ctx.bot.cogs.keys()), limit = 3)
 
         for pair in fuzzed:
-            if pair[1] > 85:
-                ret.add_field(name = pair[0], value = '{}% chance this is what you wanted'.format(str(pair[1])))
+            ret.add_field(name = pair[0], value = '{}% chance this is what you wanted'.format(str(pair[1])))
 
-        if not any(a[1] > 85 for a in fuzzed):
-            return await ctx.send(embed = quick_embed( ctx, 'No matching commands found',
-                    'try {}help for a full list of commands'.format(ctx.prefix)))
         await ctx.send(embed = ret)
 
 
