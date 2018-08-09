@@ -1,8 +1,12 @@
 from discord.ext import commands
 import random
 import json
+import sys
+import aiohttp
+import discord
+from io import BytesIO
 
-from .store import try_file, emoji
+from .store import try_file, emoji, download_byte, json_request
 
 ball_awnsers = [
     'Definetly',
@@ -182,6 +186,22 @@ class Fun:
                             await ctx.add_reaction(react)
                             break
                 return
+
+    @commands.command(name = "normie")
+    async def _normie(self, ctx):
+        j = await json_request('https://api.imgflip.com/get_memes')
+        url = random.choice(j['data']['memes'])['url']
+        await ctx.send(url)
+
+    minecraft_api = 'https://mcgen.herokuapp.com/a.php?i=1&h=Achievement-{}&t={}'
+
+    @commands.command(name = "minecraft")
+    async def _minecraft(self, ctx, *, text: str):
+        async with aiohttp.ClientSession() as session:
+            url = self.minecraft_api.format(ctx.author.name, text)
+            async with session.get(url) as resp:
+                img = discord.File(BytesIO(await resp.read()), filename = 'minecraft.png')
+                await ctx.send(file = img)
 
     #TODO: store metadata
     @commands.group(invoke_without_command = True)

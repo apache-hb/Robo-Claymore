@@ -42,8 +42,10 @@ class Owner:
 
     @commands.command(name = "eval")
     async def _eval(self, ctx, *, text: str):
-        try: await ctx.send(eval(text))
-        except Exception as e: await ctx.send(e)
+        try:
+            await ctx.send(eval(text))
+        except Exception as e:
+            await ctx.send(e)
 
     @commands.command(name = "echo")
     async def _echo(self, ctx, *, text: str):

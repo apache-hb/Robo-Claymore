@@ -83,6 +83,11 @@ class Song:
     def make_embed(self) -> discord.Embed:
         pass
 
+#make a song by searching for a url
+#raises LookupError if no song is found
+async def search_url(url: str) -> Song:
+    raise LookupError()
+
 class Playlist:
     def __init__(self, song):
         if isinstance(song, list):

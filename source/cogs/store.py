@@ -3,7 +3,9 @@ from mimetypes import MimeTypes
 from urllib.request import pathname2url
 
 import aiohttp
+import asyncio
 import discord
+from io import BytesIO
 from emoji import UNICODE_EMOJI as uemoji
 
 MIME = MimeTypes()
@@ -53,6 +55,29 @@ async def url_request(**kwargs):
     async with aiohttp.ClientSession() as session:
         async with session.get(**kwargs) as resp:
             return await resp.text()
+
+async def json_request(url: str):
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url) as resp:
+            return await resp.json()
+
+async def request_async(**kwargs):
+    async with aiohttp.ClientSession() as session:
+        async with session.get(**kwargs) as resp:
+            return resp
+
+async def download_byte(url: str):
+    try:
+        with aiohttp.Timeout(5):
+            async with aiohttp.ClientSession().get(url) as resp:
+                b = BytesIO.read(await resp.read())
+                b.seek(0)
+                return b
+    except asyncio.TimeoutError:
+        return None
+    except Exception as e:
+        print(e)
+        return None
 
 def embedable(url: str):
     url = pathname2url(url)
