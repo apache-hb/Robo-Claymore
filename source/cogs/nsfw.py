@@ -40,11 +40,11 @@ class Nsfw:
 
         await ctx.send(embed = embed)
 
+    rule34_api = 'https://rule34.xxx/index.php?page=dapi&s=post&q=index&tags={}'
+
     @commands.command(name = "rule34", aliases = ['r34'])
     async def _rule34(self, ctx, *, tags: str):
-        url = 'https://rule34.xxx/index.php?page=dapi&s=post&q=index&tags={}'.format(tags)
-
-        root = fromstring(await url_request(url = url))
+        root = fromstring(await url_request(url = self.rule34_api.format(tags)))
 
         if not root:
             return await ctx.send('Nothing with tags {} found'.format(tags))
@@ -64,12 +64,12 @@ class Nsfw:
 
         await ctx.send(embed = embed)
 
+    gelbooru_api = 'https://gelbooru.com/index.php?page=dapi&s=post&q=index&json=1&tags={}'
+
     @commands.command(name = "gelbooru", aliases = ['gel', 'gb'])
     async def _gelbooru(self, ctx, *, tags: str):
-        url = 'https://gelbooru.com/index.php?page=dapi&s=post&q=index&json=1&tags={}'.format(tags)
-
         try:
-            ret = json.loads(await url_request(url = url))
+            ret = json.loads(await url_request(url = self.gelbooru_api.format(tags)))
         except ValueError:
             return await ctx.send('Nothing with tags {} found'.format(tags))
 

@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands
 import json
 from .store import can_override, quick_embed, try_file
-
+from .utils import checks
 
 class Admin:
     def __init__(self, bot):
@@ -10,46 +10,6 @@ class Admin:
         self.autorole_list = json.load(try_file('cogs/store/autorole.json'))
         self.hidden = False
         print('Cog {} loaded'.format(self.__class__.__name__))
-
-    def is_admin():
-        async def predicate(ctx):
-            if not ctx.author.permissions_in(ctx.channel).administrator or not await can_override(ctx):
-                await ctx.send('You dont have the required admin permissions')
-                return False
-            return True
-        return commands.check(predicate)
-
-    def can_kick():
-        async def predicate(ctx):
-            if not ctx.author.permissions_in(ctx.channel).kick_members or not await can_override(ctx):
-                await ctx.send('You dont have the permission to kick')
-                return False
-            return True
-        return commands.check(predicate)
-
-    def can_ban():
-        async def predicate(ctx):
-            if not ctx.author.permissions_in(ctx.channel).ban_members or not await can_override(ctx):
-                await ctx.send('You dont have the permission to ban')
-                return False
-            return True
-        return commands.check(predicate)
-
-    def manage_messages():
-        async def predicate(ctx):
-            if not ctx.author.permissions_in(ctx.channel).manage_messages or not await can_override(ctx):
-                await ctx.send('You dont have the permission to delete messages')
-                return False
-            return True
-        return commands.check(predicate)
-
-    def manage_nicknames():
-        async def predicate(ctx):
-            if not ctx.author.permissions_in(ctx.channel).manage_nicknames or not await can_override(ctx):
-                await ctx.send('You dont have the permission to manage nicknames')
-                return False
-            return True
-        return commands.check(predicate)
 
     async def will_manage(self, ctx, user: discord.Member, kind: str):
         if not await can_override(ctx, user):
@@ -69,7 +29,7 @@ class Admin:
 
     @commands.command(name = "kick")
     @commands.guild_only()
-    @can_kick()
+    @checks.can_kick()
     async def _kick(self, ctx, user: discord.Member):
         if not await self.will_manage(ctx, user, 'kick'):
             return
@@ -83,7 +43,7 @@ class Admin:
 
     @commands.command(name = "ban", aliases = ['yeet'])
     @commands.guild_only()
-    @can_ban()
+    @checks.can_ban()
     async def _ban(self, ctx, user: discord.Member):
         if not await self.will_manage(ctx, user, 'ban'):
             return
@@ -97,7 +57,7 @@ class Admin:
 
     @commands.command(name = "softban")
     @commands.guild_only()
-    @can_kick()
+    @checks.can_kick()
     async def _softban(self, ctx, user: discord.Member):
         if not await self.will_manage(ctx, user, 'softban'):
             return
@@ -114,7 +74,7 @@ class Admin:
 
     @commands.command(name = "clean")
     @commands.guild_only()
-    @manage_messages()
+    @checks.manage_messages()
     async def _clean(self, ctx, amount: int = 5):
         if not 5 <= amount <= 100:
             return await ctx.send('Amount must be between 5 and 100')
@@ -128,7 +88,7 @@ class Admin:
 
     @commands.command(name = "massnick")
     @commands.guild_only()
-    @manage_nicknames()
+    @checks.manage_nicknames()
     async def _massnick(self, ctx, *, nickname: str = None):
         if not nickname is None:
             if not 2 <= len(nickname) <= 32:
@@ -150,7 +110,7 @@ class Admin:
 
     @commands.group(invoke_without_command = True)
     @commands.guild_only()
-    @is_admin()
+    @checks.is_admin()
     async def autorole(self, ctx):
         for server in self.autorole_list:
             if server['server_id'] == ctx.guild.id:
@@ -159,7 +119,7 @@ class Admin:
                     ret = 'This server has no autoroles'
                 else:
                     for role in server['roles']:
-                        ret += str(await discord.utils.get(ctx.guild.roles, id = role)) + '\n'
+                        ret += str(discord.utils.get(ctx.guild.roles, id = role)) + '\n'
 
                 embed = quick_embed(ctx, title = 'Autoroles')
                 embed.add_field(name = 'All roles', value = ret)
@@ -225,13 +185,13 @@ class Admin:
 
     @autorole.command(name = "add")
     @commands.guild_only()
-    @is_admin()
+    @checks.is_admin()
     async def _autorole_add(self, ctx, role: discord.Role):
         return await self.edit_autorole_list(ctx, role, True)
 
     @autorole.command(name = "remove")
     @commands.guild_only()
-    @is_admin()
+    @checks.is_admin()
     async def _autorole_remove(self, ctx, role: discord.Role):
         return await self.edit_autorole_list(ctx, role, False)
 
