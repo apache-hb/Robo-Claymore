@@ -16,6 +16,8 @@ from fuzzywuzzy import process
 from .store import (can_override, embedable, hastebin, hastebin_error,
                     quick_embed, tinyurl, url_request, try_file)
 
+from .utils import zalgo
+
 # stolen from appuselfbot
 # https://github.com/appu1232/Discord-Selfbot
 emoji_dict = {
@@ -98,48 +100,6 @@ WIKIPEDIA_API_URL = 'http://en.wikipedia.org/w/api.php'
 
 USER_AGENT = '{} (https://github.com/Apache-HB/Robo-Claymore)'
 
-class Zalgo:
-    def __init__(self, txt: str, intensity: int):
-        self.txt = txt
-        self.intensity = intensity
-
-    def __str__(self):
-        return self.zalgo(text = self.txt, intensity = self.intensity).decode('utf-8')
-
-    def zalgo(self, text, intensity=50):
-        zalgo_threshold = intensity
-        zalgo_chars = [chr(i) for i in range(0x0300, 0x036F + 1)]
-        zalgo_chars.extend([u'\u0488', u'\u0489'])
-        source = text.upper()
-        if not self._is_narrow_build:
-            source = self._insert_randoms(source)
-        zalgoized = []
-        for letter in source:
-            zalgoized.append(letter)
-            zalgo_num = random.randint(0, zalgo_threshold) + 1
-            for _ in range(zalgo_num):
-                zalgoized.append(random.choice(zalgo_chars))
-        response = random.choice(zalgo_chars).join(zalgoized)
-        return response.encode('utf8', 'ignore')
-
-    @classmethod
-    def _insert_randoms(self, text):
-        random_extras = [chr(i) for i in range(0x1D023, 0x1D045 + 1)]
-        newtext = []
-        for char in text:
-            newtext.append(char)
-            if random.randint(1, 5) == 1:
-                newtext.append(random.choice(random_extras))
-        return u''.join(newtext)
-
-    @classmethod
-    def _is_narrow_build(self):
-        try:
-            chr(0x10000)
-        except ValueError:
-            return True
-        return False
-
 class Utility:
     def __init__(self, bot):
         self.bot = bot
@@ -197,7 +157,7 @@ class Utility:
         if not 1 <= intensity <= 1000:
             return await ctx.send('Intensity must be between 1 and 1000')
 
-        ret = Zalgo(txt = text, intensity = intensity)
+        ret = await zalgo(text, intensity)
 
         try:
             await ctx.send(ret)
@@ -239,8 +199,8 @@ class Utility:
     async def _reverse(self, ctx, *, text: str):
         await ctx.send(text[::-1])
 
-    @commands.command(name = "invert")
-    async def _invert(self, ctx, *, text: str):
+    @commands.command(name = "swapcase")
+    async def _swapcase(self, ctx, *, text: str):
         await ctx.send(text.swapcase())
 
     @commands.command(name = "randomcase")
@@ -262,7 +222,9 @@ class Utility:
 
     @commands.command(name = "expand")
     async def _expand(self, ctx, *, text: str = 'dong'):
-        ret = figlet_format(text, font = random.choice(['big', 'starwars', 'block', 'bubble', 'cards', 'catwalk']))
+        ret = figlet_format(text,
+            font = random.choice(['big', 'starwars', 'block', 'bubble', 'cards', 'catwalk'])
+        )
 
         if not len(ret) <= 1800:
             return await ctx.send(embed = await hastebin_error(ctx, ret))
@@ -277,7 +239,7 @@ class Utility:
             try:
                 ret += emoji_dict[a][0]
             except KeyError:
-                ret += emoji_dict[' '][0]
+                ret += a
 
         if not len(ret) <= 1800:
             return await ctx.send(embed = await hastebin_error(ctx, ret))
@@ -370,7 +332,7 @@ class Utility:
 
         now = datetime.now()
 
-        if not ctx.guild is None:
+        if ctx.guild is not None:
             diffrence = now - user.joined_at
             embed.add_field(name = 'Time spent in {}'.format(ctx.guild.name),
             value = 'First joined at {}, thats over {} days ago'.format(
@@ -385,7 +347,7 @@ class Utility:
             diffrence.days
         ), inline = False)
 
-        if not ctx.guild is None:
+        if ctx.guild is not None:
             roles = []
             for role in user.roles:
                 roles.append(role.name)
@@ -430,9 +392,6 @@ class Utility:
 
     @commands.command(name = "wolfram")
     async def _wolfram(self, ctx, *, question: str):
-        if self.config['wolfram']['key'] == '':
-            return await ctx.send('Wolfram has not been setup on this bot')
-
         try:
             resp = await self.wolfram.query(question)
         except LookupError:
@@ -702,4 +661,7 @@ class Utility:
         json.dump(self.quotes, open('cogs/store/quotes.json', 'w'), indent = 4)
 
 def setup(bot):
-    bot.add_cog(Utility(bot))
+    util = Utility(bot)
+    bot.add_cog(util)
+    if util.config['wolfram']['key'] == '':
+        bot.remove_command('wolfram')
