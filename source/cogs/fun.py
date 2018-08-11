@@ -4,7 +4,10 @@ import json
 import sys
 import aiohttp
 import discord
+import copy
 from io import BytesIO
+
+from PIL import Image, ImageFont, ImageDraw
 
 from .store import try_file, emoji, download_byte, json_request, request_async
 
@@ -118,6 +121,7 @@ class Fun:
         self.bot = bot
         self.autoreact_list = json.load(try_file('cogs/store/autoreact.json', '{}'))
         self.hidden = False
+        self.youtube_crime = Image.open('cogs/images/crime.png', mode = 'r').convert('RGBA')
         print('cog {} loaded'.format(self.__class__.__name__))
 
     @commands.command(
@@ -252,6 +256,28 @@ class Fun:
                 img = discord.File(BytesIO(await resp.read()), filename = 'tombstone.png')
                 await ctx.send(file = img)
 
+    @commands.command(
+        name = "crime",
+        aliases = ['arrest', 'youtubecrime'],
+        description = "arrest someone for youtube crime",
+        brief = "stop, you have violated the law"
+    )
+    @commands.cooldown(1, 5, commands.BucketType.user)
+    async def _crime(self, ctx, *, text: str):
+        #make sure not to edit the original version
+        base = copy.deepcopy(self.youtube_crime)
+
+        font = ImageFont.truetype('cogs/images/comic_sans.ttf', size = 15)
+
+        draw_context = ImageDraw.Draw(base)
+        draw_context.text((340, 125), text, (0, 0, 0), font = font)
+
+        output = BytesIO()
+        base.save(output, format = 'PNG')
+
+        ret = discord.File(output.getvalue(), filename = 'crime.png')
+        await ctx.send(file = ret)
+
     #TODO: store metadata
     @commands.group(invoke_without_command = True)
     async def autoreact(self, ctx):
@@ -274,6 +300,8 @@ class Fun:
         text = text.split(' ')
         react = text[-1]
         phrase = ' '.join(text[:-1])
+        #get the last word in `text`
+        #by spliting the scetence and getting the last element
         if not emoji(react):
             return await ctx.send('Only emojis may be used as reactions')
         for (server, reacts) in self.autoreact_list.items():
