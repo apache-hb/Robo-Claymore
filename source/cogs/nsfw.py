@@ -3,7 +3,6 @@ from .store import tinyurl, embedable, quick_embed, url_request
 
 from defusedxml.ElementTree import fromstring
 import json
-import aiohttp
 import random
 
 class Nsfw:

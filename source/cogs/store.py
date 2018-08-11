@@ -66,18 +66,10 @@ async def request_async(**kwargs):
         async with session.get(**kwargs) as resp:
             return resp
 
-async def download_byte(url: str):
-    try:
-        with aiohttp.Timeout(5):
-            async with aiohttp.ClientSession().get(url) as resp:
-                b = BytesIO.read(await resp.read())
-                b.seek(0)
-                return b
-    except asyncio.TimeoutError:
-        return None
-    except Exception as e:
-        print(e)
-        return None
+async def get_bytes(url: str):
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url) as resp:
+            return BytesIO(await resp.read())
 
 def embedable(url: str):
     url = pathname2url(url)

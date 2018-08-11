@@ -1,5 +1,4 @@
 from discord.ext import commands
-import discord
 from .store import quick_embed, url_request
 import time
 import json

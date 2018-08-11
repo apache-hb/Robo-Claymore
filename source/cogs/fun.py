@@ -1,15 +1,15 @@
 from discord.ext import commands
 import random
 import json
-import sys
 import aiohttp
 import discord
 import copy
 from io import BytesIO
 
 from PIL import Image, ImageFont, ImageDraw
+from .utils import make_retro
 
-from .store import try_file, emoji, download_byte, json_request, request_async
+from .store import try_file, emoji, json_request, request_async, get_bytes
 
 ball_awnsers = [
     'Definetly',
@@ -139,7 +139,7 @@ class Fun:
         brief = "rate a thing"
     )
     async def _rate(self, ctx, *, thing: str):
-        things = thing.lower().split(' ')
+        thing = thing.lower()
         ret = 0
 
         if any(x in thing for x in random_rigging['bad']):
@@ -277,6 +277,23 @@ class Fun:
 
         ret = discord.File(output.getvalue(), filename = 'crime.png')
         await ctx.send(file = ret)
+
+    @commands.command(
+        name = "retro",
+        description = "* V A P O R W A V E *",
+        brief = "A S T H E T I C"
+    )
+    async def retro(self, ctx, *, text: str):
+        try:
+            ret = await make_retro(text, random.choice(['2', '5', '4']))
+        except TimeoutError:
+            return await ctx.send('Server timed out')
+
+        if ret is None:
+            return await ctx.send('Server failed to proccess image')
+        img = discord.File(await get_bytes(ret), filename = 'retro.jpg')
+
+        await ctx.send(file = img)
 
     #TODO: store metadata
     @commands.group(invoke_without_command = True)

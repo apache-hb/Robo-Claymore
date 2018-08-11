@@ -780,7 +780,7 @@ ZALGO!""",
                     ret += '{}: {}'.format(index, item)
 
                 if len(ret) > 1900:
-                    [ret[i:i+1500] for i in range(0, len(ret), 1500)]
+                    ret = [ret[i:i+1500] for i in range(0, len(ret), 1500)]
 
                     for part in ret:
                         await ctx.author.send('```\n' + part + '```')

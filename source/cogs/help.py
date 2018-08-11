@@ -133,7 +133,7 @@ class Help:
 
         try:
             description = command.description
-        except:
+        except AttributeError:
             description = 'None'
 
         if description == '':
@@ -143,7 +143,7 @@ class Help:
 
         try:
             aliases = ', '.join(command.aliases)
-        except:
+        except AttributeError:
             aliases = 'None'
 
         if aliases == '':
@@ -153,7 +153,7 @@ class Help:
 
         try:
             brief = command.brief
-        except:
+        except AttributeError:
             brief = 'None'
         if brief == '':
             brief = 'None'

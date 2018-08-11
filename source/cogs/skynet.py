@@ -1,4 +1,3 @@
-from discord.ext import commands
 from .store import try_file
 import os
 import time

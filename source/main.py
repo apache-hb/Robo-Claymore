@@ -5,7 +5,7 @@ from glob import glob
 import traceback
 import sys
 import os
-from cogs.store import (can_override, quick_embed, blacklist, whitelist)
+from cogs.store import (can_override, quick_embed, blacklist)
 from shutil import copyfile
 
 logs = open('cogs/store/claymore.log', 'a')
