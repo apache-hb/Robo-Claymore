@@ -3,7 +3,6 @@ from mimetypes import MimeTypes
 from urllib.request import pathname2url
 
 import aiohttp
-import asyncio
 import discord
 from io import BytesIO
 from emoji import UNICODE_EMOJI as uemoji
@@ -70,6 +69,14 @@ async def get_bytes(url: str):
     async with aiohttp.ClientSession() as session:
         async with session.get(url) as resp:
             return BytesIO(await resp.read())
+
+#get the last image put in chat
+async def get_image(ctx):
+    channel = ctx.message.channel
+    history = await channel.history(limit = 25)
+    for message in history[::-1]:
+        if message.attachments is not None:
+            return message.attachments[0].url
 
 def embedable(url: str):
     url = pathname2url(url)

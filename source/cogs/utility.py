@@ -777,7 +777,7 @@ ZALGO!""",
 
                 ret = ''
                 for index, item in enumerate(server['contents']):
-                    ret += '{}: {}'.format(index, item)
+                    ret += '{}: {}\n'.format(index, item)
 
                 if len(ret) > 1900:
                     ret = [ret[i:i+1500] for i in range(0, len(ret), 1500)]

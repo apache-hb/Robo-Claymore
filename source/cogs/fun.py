@@ -9,7 +9,7 @@ from io import BytesIO
 from PIL import Image, ImageFont, ImageDraw
 from .utils import make_retro
 
-from .store import try_file, emoji, json_request, request_async, get_bytes
+from .store import try_file, emoji, json_request, request_async, get_bytes, get_image
 
 ball_awnsers = [
     'Definetly',
@@ -283,6 +283,7 @@ class Fun:
         description = "* V A P O R W A V E *",
         brief = "A S T H E T I C"
     )
+    @commands.cooldown(1, 10, commands.BucketType.user)
     async def retro(self, ctx, *, text: str):
         try:
             ret = await make_retro(text, random.choice(['2', '5', '4']))
