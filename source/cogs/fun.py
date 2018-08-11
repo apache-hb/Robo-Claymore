@@ -6,7 +6,7 @@ import aiohttp
 import discord
 from io import BytesIO
 
-from .store import try_file, emoji, download_byte, json_request
+from .store import try_file, emoji, download_byte, json_request, request_async
 
 ball_awnsers = [
     'Definetly',
@@ -120,12 +120,20 @@ class Fun:
         self.hidden = False
         print('cog {} loaded'.format(self.__class__.__name__))
 
-    @commands.command(name = "despacito")
+    @commands.command(
+        name = "despacito",
+        description = "dump the entire lyrics to despacito into chat",
+        brief = "despacito"
+    )
     async def _despacito(self, ctx):
         for line in despacito:
             await ctx.send(line)
 
-    @commands.command(name = "rate")
+    @commands.command(
+        name = "rate",
+        description = "rate something on a scale of 1 to 10",
+        brief = "rate a thing"
+    )
     async def _rate(self, ctx, *, thing: str):
         things = thing.lower().split(' ')
         ret = 0
@@ -139,16 +147,28 @@ class Fun:
 
         await ctx.send('I rate ``{}`` a {} out of 10'.format(thing, ret))
 
-    @commands.command(name = "coinflip")
+    @commands.command(
+        name = "coinflip",
+        description = "flip a coin that can be heads or tails",
+        brief = "50/50"
+    )
     async def _coinflip(self, ctx):
         await ctx.send(random.choice(['Heads', 'Tails']))
 
-    @commands.command(name = "8ball")
+    @commands.command(
+        name = "8ball",
+        description = "ask the magic 8ball a question",
+        brief = "probably"
+    )
     async def _8ball(self, ctx):
         await ctx.send(random.choice(ball_awnsers))
 
-    @commands.command(name = "compare",
-    usage = 'compare <item1> and <item2>')
+    @commands.command(
+        name = "compare",
+        usage = 'compare <item1> and <item2>',
+        description = "compare two items to see which is better",
+        brief = "comapre two items"
+    )
     async def _compare(self, ctx, *, items: str):
         ret = items.split('and')
 
@@ -158,6 +178,7 @@ class Fun:
         except IndexError:
             return await ctx.send('Please compare two diffrent things')
 
+        #this is just to rig the outcomes for certain things
         if first.strip() in random_rigging['good']:
             awnser = 'is better than'
         elif second.strip() in random_rigging['good']:
@@ -187,7 +208,11 @@ class Fun:
                             break
                 return
 
-    @commands.command(name = "normie")
+    @commands.command(
+        name = "normie",
+        description = "get a shit meme",
+        brief = "REEEEEEEE"
+    )
     async def _normie(self, ctx):
         j = await json_request('https://api.imgflip.com/get_memes')
         url = random.choice(j['data']['memes'])['url']
@@ -195,12 +220,36 @@ class Fun:
 
     minecraft_api = 'https://mcgen.herokuapp.com/a.php?i=1&h=Achievement-{}&t={}'
 
-    @commands.command(name = "minecraft")
+    @commands.command(
+        name = "minecraft",
+        aliases = ['mc'],
+        description = "create a custom minecraft achivement",
+        brief = "get wood"
+    )
     async def _minecraft(self, ctx, *, text: str):
         async with aiohttp.ClientSession() as session:
             url = self.minecraft_api.format(ctx.author.name, text)
             async with session.get(url) as resp:
                 img = discord.File(BytesIO(await resp.read()), filename = 'minecraft.png')
+                await ctx.send(file = img)
+
+    @commands.command(
+        name = "tombstone",
+        aliases = ['tomb', 'grave'],
+        description = "engrave a tombstone for a user",
+        brief = "rip"
+    )
+    async def _tombstone(self, ctx, user: discord.User, *, text: str):
+        if len(text) > 22:
+            first = text[:22]
+            second = text[22:]
+            url = 'http://www.tombstonebuilder.com/generate.php?top1=R.I.P&top3={}&top4={}&top5={}'.format(user.name, first, second)
+        else:
+            url = 'http://www.tombstonebuilder.com/generate.php?top1=R.I.P&top3={}&top4={}'.format(user.name, text)
+
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url) as resp:
+                img = discord.File(BytesIO(await resp.read()), filename = 'tombstone.png')
                 await ctx.send(file = img)
 
     #TODO: store metadata
@@ -215,7 +264,11 @@ class Fun:
                 return
         self.autoreact_list[ctx.guild.id] = {}
 
-    @autoreact.command(name = "add")
+    @autoreact.command(
+        name = "add",
+        description = 'Adds an autoreact to a servers autoreact list',
+        brief = "add an autoreact"
+    )
     @commands.guild_only()
     async def autoreact_add(self, ctx, *, text: str):
         text = text.split(' ')
@@ -233,12 +286,23 @@ class Fun:
                     reacts[react] = [phrase]
                 return await ctx.send('``{}`` was added as an autoreact to ``{}``'.format(react, phrase))
 
-    @autoreact.command(name = "remove")
+    @autoreact.command(
+        name = "remove",
+        description = "remove an autoract from the current server",
+        brief = "remove an autoreact"
+    )
     @commands.guild_only()
     async def autoreact_remove(self, ctx, *, phrase: str):
         for (server, reacts) in self.autoreact_list.items():
             if server == str(ctx.guild.id):
                 worked = False
+                #since each autoreact is stored like
+                # "emoji": [
+                #   list of phrases
+                # ]
+                # we need to iterate over every pair and
+                # ignore the emoji to correctly remove the phrase
+
                 for (_, phrases) in reacts.items():
                     try:
                         phrases.remove(phrase)

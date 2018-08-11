@@ -26,7 +26,11 @@ class Help:
         await ctx.send(embed = ret)
 
 
-    @commands.command(name = "help")
+    @commands.command(
+        name = "help",
+        description = 'get help for a cog or command as well as a description and usage',
+        brief = 'get help'
+    )
     async def _help(self, ctx, *, name: str = None):
         if name is None:
             await ctx.send(embed = self.__all(ctx))
@@ -38,7 +42,11 @@ class Help:
         else:
             await self.__get_fuzzy(ctx, name)
 
-    @commands.command(name = 'allcommands')
+    @commands.command(
+        name = 'allcommands',
+        description = 'get a list of all commands the bot has available',
+        breif = 'list all commands'
+    )
     async def _all_commands(self, ctx):
         embed = quick_embed(ctx, title = 'All cogs and commands')
 
@@ -144,11 +152,15 @@ class Help:
         embed.add_field(name = 'Aliases', value = aliases)
 
         try:
-            usage = command.usage
+            brief = command.brief
         except:
-            usage = name
+            brief = 'None'
+        if brief == '':
+            brief = 'None'
 
-        embed.add_field(name = 'Usage', value = usage)
+        embed.add_field(name = 'Brief', value = brief)
+
+        embed.add_field(name = 'Usage', value = command.signature)
 
         return embed
 

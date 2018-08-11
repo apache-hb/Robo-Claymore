@@ -12,7 +12,11 @@ class Nsfw:
         self.hidden = False
         print('cog {} loaded'.format(self.__class__.__name__))
 
-    @commands.command(name = "e621")
+    @commands.command(
+        name = "e621",
+        description = "search for an image from e621",
+        brief = "degenerate"
+    )
     async def _e_six_two_one(self, ctx, *, tags: str = None):
 
         if tags is None:
@@ -42,7 +46,12 @@ class Nsfw:
 
     rule34_api = 'https://rule34.xxx/index.php?page=dapi&s=post&q=index&tags={}'
 
-    @commands.command(name = "rule34", aliases = ['r34'])
+    @commands.command(
+        name = "rule34",
+        aliases = ['r34'],
+        description = "search for an image from rule34.xxx",
+        brief = "pip install aiorule34"
+    )
     async def _rule34(self, ctx, *, tags: str):
         root = fromstring(await url_request(url = self.rule34_api.format(tags)))
 
@@ -66,7 +75,12 @@ class Nsfw:
 
     gelbooru_api = 'https://gelbooru.com/index.php?page=dapi&s=post&q=index&json=1&tags={}'
 
-    @commands.command(name = "gelbooru", aliases = ['gel', 'gb'])
+    @commands.command(
+        name = "gelbooru",
+        aliases = ['gel', 'gb'],
+        description = "search for an image in gelbooru",
+        brief = "the only nice booru api out there"
+    )
     async def _gelbooru(self, ctx, *, tags: str):
         try:
             ret = json.loads(await url_request(url = self.gelbooru_api.format(tags)))
@@ -83,7 +97,12 @@ class Nsfw:
 
         return await ctx.send(embed = embed)
 
-    @commands.command(name = "danbooru", aliases = ['dan', 'db'])
+    @commands.command(
+        name = "danbooru",
+        aliases = ['dan', 'db'],
+        description = "search for an image in danbooru",
+        brief = "the closest to a SFW booru"
+    )
     async def _danbooru(self, ctx, *, tags: str = None):
         if tags is None:
             url = 'https://danbooru.donmai.us/posts.json?random=true'

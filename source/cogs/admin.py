@@ -27,7 +27,11 @@ class Admin:
         else:
             return True
 
-    @commands.command(name = "kick")
+    @commands.command(
+        name = "kick",
+        description = "kick a user from the current server",
+        brief = "they'll be back"
+    )
     @commands.guild_only()
     @checks.can_kick()
     async def _kick(self, ctx, user: discord.Member):
@@ -41,7 +45,12 @@ class Admin:
         else:
             await ctx.send('So long sucker')
 
-    @commands.command(name = "ban", aliases = ['yeet'])
+    @commands.command(
+        name = "ban",
+        aliases = ['yeet'],
+        description = "permentantly ban a user from the current server",
+        brief = "so long sucker"
+    )
     @commands.guild_only()
     @checks.can_ban()
     async def _ban(self, ctx, user: discord.Member):
@@ -55,7 +64,11 @@ class Admin:
         else:
             await ctx.send('And their gone')
 
-    @commands.command(name = "softban")
+    @commands.command(
+        name = "softban",
+        description = "ban and then unab a user to clean their messages",
+        brief = "spam is always fun"
+    )
     @commands.guild_only()
     @checks.can_kick()
     async def _softban(self, ctx, user: discord.Member):
@@ -72,7 +85,11 @@ class Admin:
         else:
             await ctx.send('their gone now, But i have reinvited them')
 
-    @commands.command(name = "clean")
+    @commands.command(
+        name = "clean",
+        description = "delete the last x messages from the current chat",
+        brief = "just brush it under the rug"
+    )
     @commands.guild_only()
     @checks.manage_messages()
     async def _clean(self, ctx, amount: int = 5):
@@ -86,7 +103,11 @@ class Admin:
         else:
             await ctx.send('{} messages have been purged'.format(amount))
 
-    @commands.command(name = "massnick")
+    @commands.command(
+        name = "massnick",
+        description = "set the nicknames for everyone on the server to same thing",
+        brief = "we are legion"
+    )
     @commands.guild_only()
     @checks.manage_nicknames()
     async def _massnick(self, ctx, *, nickname: str = None):
@@ -183,13 +204,21 @@ class Admin:
         return self.edit_autorole_list(guild, role, kind)
 
 
-    @autorole.command(name = "add")
+    @autorole.command(
+        name = "add",
+        description = "add a role to the autorole list",
+        brief = "default roles"
+    )
     @commands.guild_only()
     @checks.is_admin()
     async def _autorole_add(self, ctx, role: discord.Role):
         return await self.edit_autorole_list(ctx, role, True)
 
-    @autorole.command(name = "remove")
+    @autorole.command(
+        name = "remove",
+        description = "remove a role from the autorole list",
+        brief = "remove a role"
+    )
     @commands.guild_only()
     @checks.is_admin()
     async def _autorole_remove(self, ctx, role: discord.Role):

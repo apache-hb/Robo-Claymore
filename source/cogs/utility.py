@@ -129,7 +129,12 @@ class Utility:
         await ctx.send('soon™')
         # print(search(sub_wiki, query))
 
-    @commands.command(name = "bytecode", aliases = ['byte'])
+    @commands.command(
+        name = "bytecode",
+        aliases = ['byte'],
+        description = "extract the bytecode from a command and transform it into python Mnemonics",
+        brief = "convert commands to bytecode"
+    )
     async def _byte(self, ctx, name: str):
         command = self.bot.get_command(name)
         if command is None:
@@ -143,7 +148,13 @@ class Utility:
         except discord.errors.HTTPException:
             await ctx.send(embed = await hastebin_error(ctx, ret))
 
-    @commands.command(name = "zalgo")
+    @commands.command(
+        name = "zalgo",
+        description = """The Nezperdian hive-mind of chaos. Zalgo.
+He who Waits Behind The Wall.
+ZALGO!""",
+        brief = "To invoke the hive-mind representing chaos."
+    )
     async def _zalgo(self, ctx, *, text: str = 'zalgo 50'):
         text = text.split(' ')
         try:
@@ -164,16 +175,24 @@ class Utility:
         except Exception:
             await ctx.send(embed = await hastebin_error(ctx, content = ret))
 
-    @commands.command(name = "flip")
+    @commands.command(
+        name = "flip",
+        description = "flip text upside down",
+        brief = "flip text"
+    )
     async def _flip(self, ctx, *, text: str):
         ret = ''
         for char in text:
             try: ret += inverted_dict[char.lower()]
-            except KeyError: pass
+            except KeyError: ret += char
 
         return await ctx.send(ret)
 
-    @commands.command(name = "staggercase")
+    @commands.command(
+        name = "staggercase",
+        description = "stagger the case of a phrase",
+        brief = "StAgGeRcAsE"
+    )
     async def _staggercase(self, ctx, *, text: str):
         ret = ''
         upper = True
@@ -183,31 +202,59 @@ class Utility:
 
         await ctx.send(ret)
 
-    @commands.command(name = "tinyurl")
+    @commands.command(
+        name = "tinyurl",
+        description = "create a tinyurl link from a big url",
+        brief = "use tinyurl"
+    )
     async def _tinyurl(self, ctx, *, url: str):
         await ctx.send(await tinyurl(url))
 
-    @commands.command(name = "hastebin")
+    @commands.command(
+        name = "hastebin",
+        description = "upload content to hastebin to display it nicely",
+        brief = "use hastebin"
+    )
     async def _hastebin(self, ctx, *, content: str):
         await ctx.send(await hastebin(content))
 
-    @commands.command(name = "hash")
+    @commands.command(
+        name = "hash",
+        description = "generate a hascode from some text",
+        brief = "-670075742651522359"
+    )
     async def _hash(self, ctx, *, text: str):
         await ctx.send(hash(text))
 
-    @commands.command(name = "reverse")
+    @commands.command(
+        name = "reverse",
+        description = "reverse the direction of the input text",
+        brief = "esrever"
+    )
     async def _reverse(self, ctx, *, text: str):
         await ctx.send(text[::-1])
 
-    @commands.command(name = "swapcase")
+    @commands.command(
+        name = "swapcase",
+        description = "swap the case of the input text",
+        brief = "SWAPCASE"
+    )
     async def _swapcase(self, ctx, *, text: str):
         await ctx.send(text.swapcase())
 
-    @commands.command(name = "randomcase")
+    @commands.command(
+        name = "randomcase",
+        description = "make the case of every character random",
+        brief = "RaNDoMCaSe"
+    )
     async def _randomcase(self, ctx, *, text: str):
         await ctx.send(''.join(random.choice((str.upper, str.lower))(x) for x in text))
 
-    @commands.command(name = "invite")
+    @commands.command(
+        name = "invite",
+        description = "Get an invite like to my owners discord and an invite for me",
+        brief = "bring me with you"
+    )
     async def _invite(self, ctx):
         ret = ''
         ret += 'Invite me with this link\n'
@@ -216,11 +263,18 @@ class Utility:
         ret += 'https://discord.gg/y3uSzCK'
         await ctx.send(ret)
 
-    @commands.command(name = "remindme", aliases = ['reminder', 'remind'])
+    @commands.command(
+        name = "remindme",
+        aliases = ['reminder', 'remind']
+    )
     async def _remindme(self, ctx, hours: int, *, message: str):
         pass
 
-    @commands.command(name = "expand")
+    @commands.command(
+        name = "expand",
+        description = "expand text using figlet",
+        brief = "expnad dong"
+    )
     async def _expand(self, ctx, *, text: str = 'dong'):
         ret = figlet_format(text,
             font = random.choice(['big', 'starwars', 'block', 'bubble', 'cards', 'catwalk'])
@@ -231,7 +285,12 @@ class Utility:
 
         await ctx.send('```' + ret + '```')
 
-    @commands.command(name = "emoji")
+    @commands.command(
+        name = "emoji",
+        aliases = ['emojify'],
+        description = "convert text to its emoji form",
+        brief = "the emoji movie, but its text"
+    )
     async def _emoji(self, ctx, *, text: str = 'Bottom text'):
 
         ret = ''
@@ -246,7 +305,11 @@ class Utility:
 
         await ctx.send(ret)
 
-    @commands.command(name = "binary")
+    @commands.command(
+        name = "binary",
+        description = "convert text to its binary form",
+        brief = "1001"
+    )
     async def _binary(self, ctx, *, text: str):
 
         ret = ' '.join(format(ord(x), 'b') for x in text)
@@ -256,7 +319,11 @@ class Utility:
 
         await ctx.send(ret)
 
-    @commands.command(name = "ascii")
+    @commands.command(
+        name = "ascii",
+        description = "convert text to a list of ascii values",
+        brief = "[97, 115, 99, 105, 105]"
+    )
     async def _ascii(self, ctx, *, text: str):
 
         ret = ''.join(str([ord(c) for c in text]))
@@ -266,7 +333,11 @@ class Utility:
 
         await ctx.send(ret)
 
-    @commands.command(name = "square")
+    @commands.command(
+        name = "square",
+        description = "make the text square",
+        brief = "[]"
+    )
     async def _square(self, ctx, *, text: str):
 
         ret = text + '\n'
@@ -278,7 +349,11 @@ class Utility:
 
         await ctx.send(ret)
 
-    @commands.command(name = "source")
+    @commands.command(
+        name = "source",
+        description = "fetch the source code for any command, or get the link to my github page",
+        brief = "hole lotta nerd shit"
+    )
     async def _source(self, ctx, *, name: str = None):
 
         if name is None:
@@ -296,7 +371,11 @@ class Utility:
 
         await ctx.send('```py\n' + ret.replace('`', '\`') + '```')
 
-    @commands.command(name = "urban")
+    @commands.command(
+        name = "urban",
+        description = "search the urbandisctionary for a definition",
+        brief = "the most reliable definition"
+    )
     async def _urban(self, ctx, *, search: str = None):
 
         url = 'http://api.urbandictionary.com/v0/random'
@@ -320,7 +399,11 @@ class Utility:
 
         await ctx.send(embed = embed)
 
-    @commands.command(name = "userinfo")
+    @commands.command(
+        name = "userinfo",
+        description = "get information about a user",
+        brief = "who is this"
+    )
     async def _userinfo(self, ctx, user: discord.Member = None):
         if user is None:
             user = ctx.author
@@ -355,11 +438,19 @@ class Utility:
 
         await ctx.send(embed = embed)
 
-    @commands.command(name = "selfinfo")
+    @commands.command(
+        name = "selfinfo",
+        description = "get information about yourself (or just use userinfo without a user)",
+        brief = "what about me?"
+    )
     async def _selfinfo(self, ctx):
         await ctx.invoke(self.bot.get_command('userinfo'))
 
-    @commands.command(name = "serverinfo")
+    @commands.command(
+        name = "serverinfo",
+        description = "get information about a server",
+        brief = "what about us?"
+    )
     @commands.guild_only()
     async def _serverinfo(self, ctx):
         embed = quick_embed(ctx, title = 'Server information about {}'.format(ctx.guild.name), description = 'ID: {}'.format(ctx.guild.id))
@@ -376,7 +467,11 @@ class Utility:
         embed.set_thumbnail(url = ctx.guild.icon_url)
         await ctx.send(embed = embed)
 
-    @commands.command(name = "botinfo")
+    @commands.command(
+        name = "botinfo",
+        description = "get information about me, the bot",
+        brief = "what about wall-e?"
+    )
     async def _botinfo(self, ctx):
         embed = quick_embed(ctx, title='Info about me, {}'.format(self.bot.user.name))
         embed.add_field(name = 'Working directory', value = dir_path)
@@ -390,7 +485,11 @@ class Utility:
         embed.add_field(name = 'Processor', value = platform.processor())
         await ctx.send(embed = embed)
 
-    @commands.command(name = "wolfram")
+    @commands.command(
+        name = "wolfram",
+        description = "search wolfram alpha for the awnser to a question",
+        brief = "not firefox"
+    )
     async def _wolfram(self, ctx, *, question: str):
         try:
             resp = await self.wolfram.query(question)
@@ -407,7 +506,11 @@ class Utility:
         embed.add_field(name = 'All possible awnsers', value = ret)
         await ctx.send(embed = embed)
 
-    @commands.command(name = "reddit")
+    @commands.command(
+        name = "reddit",
+        description = "search reddit for a subreddit and post from it",
+        brief = "leddit"
+    )
     async def _reddit(self, ctx, target: str = 'all', search: str = 'new', index: int = 1):
         if not 0 <= index <= 25:
             return await ctx.send('Index must be between 0 and 25')
@@ -455,7 +558,11 @@ class Utility:
 
         return await ctx.send(embed = embed)
 
-    @commands.command(name = "avatar")
+    @commands.command(
+        name = "avatar",
+        description = "get someones highres avatar",
+        brief = "why do you want this?"
+    )
     async def _avatar(self, ctx, user: discord.Member = None):
         if user is None:
             user = ctx.author
@@ -471,7 +578,11 @@ class Utility:
             b.append(a.name)
         await ctx.send(embed = embed)
 
-    @prettyprint.command(name = "xml")
+    @prettyprint.command(
+        name = "xml",
+        description = "prettyprint and format xml",
+        brief = "xml can't really be pretty"
+    )
     async def _prettyprint_xml(self, ctx, *, text: str):
         try:
             ret = parseString(text)
@@ -480,7 +591,11 @@ class Utility:
 
         await ctx.send('```xml\n' + ret.toprettyxml() + '```')
 
-    @prettyprint.command(name = "json")
+    @prettyprint.command(
+        name = "json",
+        description = "prettyprint and format xml",
+        brief = "json can be pretty"
+    )
     async def _prettyprint_json(self, ctx, *, text: str):
         try:
             ret = json.loads(text)
@@ -489,7 +604,11 @@ class Utility:
 
         await ctx.send('```json\n' + json.dumps(ret, indent = 4).replace('`', '\`') + '```')
 
-    @prettyprint.command(name = "html")
+    @prettyprint.command(
+        name = "html",
+        description = "prettyprint and format html",
+        brief = "my favourite programming language"
+    )
     async def _prettyprint_html(self, ctx, *, text: str):
         try:
             ret = bs(text, 'html.parser').prettify()
@@ -527,7 +646,11 @@ class Utility:
 
                 await ctx.send(embed = embed)
 
-    @tag.command(name = "add")
+    @tag.command(
+        name = "add",
+        description = "add a tag for the current server",
+        brief = "tags are quotes without indexes"
+    )
     async def _tag_add(self, ctx, name: str, *, content: str):
         ret = {
             'tag': name.lower(),
@@ -543,7 +666,11 @@ class Utility:
                 return await ctx.send('added tag {}'.format(name))
 
 
-    @tag.command(name = "remove")
+    @tag.command(
+        name = "remove",
+        description = "remove a tag from the current server",
+        brief = "killjoy"
+    )
     async def _tag_remove(self, ctx, name: str):
         for server in self.tags:
             if server['id'] == ctx.guild.id:
@@ -554,7 +681,11 @@ class Utility:
                 return await ctx.send('not tag called {} found'.format(name))
 
 
-    @tag.command(name = "list")
+    @tag.command(
+        name = "list",
+        description = "get a list of all this servers tags",
+        brief = "all the tags"
+    )
     async def _tag_list(self, ctx):
         for server in self.tags:
             if server['id'] == ctx.guild.id:
@@ -607,14 +738,22 @@ class Utility:
                 except IndexError:
                     return await ctx.send('this server does not have a quote of that index')
 
-    @quote.command(name = "add")
+    @quote.command(
+        name = "add",
+        description = "add a quote to the current server",
+        brief = "like tags but without names"
+    )
     async def _quote_add(self, ctx, *, content: str):
         for server in self.quotes:
             if server['id'] == ctx.guild.id:
                 server['contents'].append(content)
                 return await ctx.send('added quote with an index of {}'.format(len(server['contents'])-2))
 
-    @quote.command(name = "remove")
+    @quote.command(
+        name = "remove",
+        description = "remove a quote from the current server",
+        brief = "but why"
+    )
     async def _quote_remove(self, ctx, index: int):
         for server in self.quotes:
             if server['id'] == ctx.guild.id:
@@ -624,7 +763,11 @@ class Utility:
                 except ValueError:
                     return await ctx.send('no quote at index {}'.format(index))
 
-    @quote.command(name = "list")
+    @quote.command(
+        name = "list",
+        description = "get a list of all quotes this server has",
+        brief = "all the quotes"
+    )
     async def _quote_list(self, ctx):
         for server in self.quotes:
             if server['id'] == ctx.guild.id:
