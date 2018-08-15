@@ -139,7 +139,7 @@ class Nsfw:
     @commands.command(
         name = "4k",
         description = "get a 4k prawn image",
-        breif = "high quality"
+        brief = "high quality"
     )
     async def _4k(self, ctx):
         r = await json_request('https://nekobot.xyz/api/image?type=4k')
@@ -186,7 +186,7 @@ class Nsfw:
         brief = "miss me with that anime shit"
     )
     async def _safeneko(self, ctx):
-        r = await json_request('https://cdn.nekos.life/neko/neko_285.jpg')
+        r = await json_request('https://nekos.life/api/v2/img/neko')
         embed = quick_embed(ctx, 'jesus is still dissapointed')
         embed.set_image(url = r['url'])
         await ctx.send(embed = embed)
