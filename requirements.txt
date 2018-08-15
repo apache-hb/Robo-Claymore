@@ -3,6 +3,7 @@ aiofortnite
 imageio
 beautifulsoup4
 aiohttp
+aiowolfram
 mathutils
 defusedxml
 emoji
