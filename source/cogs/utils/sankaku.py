@@ -5,7 +5,6 @@
 #for giving me some base code to reference for api calls
 
 import aiohttp
-import urllib3
 import bs4
 
 headers = {

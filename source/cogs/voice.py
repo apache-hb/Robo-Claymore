@@ -3,7 +3,6 @@ import asyncio
 import json
 from discord.ext import commands
 import youtube_dl
-from typing import List
 from .store import try_file
 
 youtube_dl.utils.bug_reports_message = lambda: ''
@@ -79,6 +78,7 @@ class Song:
     def __init__(self, url, thumbnail, user: discord.Member):
         self.url = url
         self.thumbnail = thumbnail
+        self.requester = user
 
     def make_embed(self) -> discord.Embed:
         pass

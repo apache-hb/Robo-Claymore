@@ -1,6 +1,5 @@
 import aiohttp
 import re
-from ..store import url_request
 
 retro_url = 'https://photofunia.com/effects/retro-wave?server=3'
 

@@ -159,7 +159,7 @@ class Owner:
 
     @whitelist.command(name = "purge")
     async def _whitelist_purge(self, ctx):
-        whitelist = []
+        self.whitelist = []
         await ctx.send('Whitelist was purged')
 
     @_whitelist_add.after_invoke

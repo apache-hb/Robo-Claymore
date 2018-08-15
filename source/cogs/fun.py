@@ -10,7 +10,7 @@ from io import BytesIO
 from PIL import Image, ImageFont, ImageDraw
 from .utils import make_retro
 
-from .store import try_file, emoji, json_request, request_async, get_bytes, get_image, quick_embed
+from .store import try_file, emoji, json_request, get_bytes, get_image, quick_embed
 
 ball_awnsers = [
     'Definetly',
