@@ -69,6 +69,9 @@ async def on_command_error(ctx, exception):
         if 'Cannot connect to host' in str(exception.original):#there must be a better way of checking error types
             return await ctx.send('My internet connection to that site has been blocked')
 
+    elif isinstance(exception, discord.ext.commands.errors.CommandOnCooldown):
+        return await ctx.send(exception)
+
     traceback.print_exception(type(exception), exception, exception.__traceback__, file=sys.stderr)
 
 @bot.check
@@ -103,7 +106,7 @@ os.makedirs('cogs/store/backup/', exist_ok = True)
 
 for storefile in glob('cogs/store/*.json'):
     copyfile(storefile, 'cogs/store/backup/' + os.path.basename(storefile))
-    print('Backed up {}'.format(storefile))
+    print(f'Backed up {storefile}')
 
 #no point catching exceptions here
 bot.run(config['discord']['token'])

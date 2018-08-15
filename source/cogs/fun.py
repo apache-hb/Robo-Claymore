@@ -4,6 +4,7 @@ import json
 import aiohttp
 import discord
 import copy
+from glob import glob
 from io import BytesIO
 
 from PIL import Image, ImageFont, ImageDraw
@@ -122,7 +123,26 @@ class Fun:
         self.autoreact_list = json.load(try_file('cogs/store/autoreact.json', '{}'))
         self.hidden = False
         self.youtube_crime = Image.open('cogs/images/crime.png', mode = 'r').convert('RGBA')
+        self.frothy_images = []
+        for image in glob('cogs/images/frothy/*.png'):
+            self.frothy_images.append(BytesIO(open(image, 'rb').read()))
         print('cog {} loaded'.format(self.__class__.__name__))
+
+    @commands.command(
+        name = "frothy",
+        description = "Im not very confident in my skills in many of the games i play",
+        brief = "Frothy slowman"
+    )
+    async def _frothy(self, ctx, index: int = None):
+        if index is None:
+            image = random.choice(self.frothy_images)
+        else:
+            try:
+                image = self.frothy_images[index]
+            except IndexError:
+                image = random.choice(self.frothy_images)
+        f = discord.File(image, filename = 'frothy.png')
+        await ctx.send(file = f)
 
     @commands.command(
         name = "despacito",

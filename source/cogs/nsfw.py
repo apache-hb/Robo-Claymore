@@ -21,7 +21,6 @@ class Nsfw:
 
         if tags is None:
             url = 'https://e621.net/post/index.json?limit=25'
-
         else:
             url = 'https://e621.net/post/index.json?tags={}&limit=25'.format(tags)
 
@@ -154,8 +153,8 @@ class Nsfw:
     )
     async def _pussy(self, ctx):
         r = await json_request('https://nekobot.xyz/api/image?type=pussy')
-        embed = quick_embed(ctx)
-        embed.set_image(url = r['messsage'])
+        embed = quick_embed(ctx, 'not catgirls')
+        embed.set_image(url = r['message'])
         await ctx.send(embed = embed)
 
     @commands.command(
@@ -252,7 +251,6 @@ class Nsfw:
             embed = quick_embed(ctx, 'Random image from sankakucomplex', description = f'with the tags ``{tags}``')
             embed.add_field(name = 'Link (isnt embedable)', value = await tinyurl(choice))
             await ctx.send(embed = embed)
-
 
 def setup(bot):
     bot.add_cog(Nsfw(bot))

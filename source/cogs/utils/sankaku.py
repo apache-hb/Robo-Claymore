@@ -24,7 +24,10 @@ async def _request(url: str, headers: dict):
 
 async def _request_subpage(sublink: str):
 	resp = await _request(page + sublink, headers)
-	soup = bs4.BeautifulSoup(resp, 'html.parser')
+	try:
+		soup = bs4.BeautifulSoup(resp, 'html.parser')
+	except TypeError:
+		return None
 	for a in soup.findAll('a'):
 		if a.get('href') is None:
 			continue

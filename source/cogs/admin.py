@@ -163,9 +163,12 @@ class Admin:
     async def on_member_join(self, user):
         for server in self.autorole_list:
             if server['server_id'] == user.guild.id:
-                user_roles = user.roles
+                user_roles = []
+                user_roles += user.roles
                 for role in server['roles']:
                     new_role = discord.utils.get(user.roles, id = role)
+                    if new_role is None:
+                        continue
                     user_roles.append(new_role)
                 try:
                     return await user.edit(roles = user_roles)
