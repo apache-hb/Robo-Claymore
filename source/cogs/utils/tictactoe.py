@@ -1,3 +1,5 @@
+#TODO get shit working
+
 class TicTacToeException(Exception):
 	pass
 

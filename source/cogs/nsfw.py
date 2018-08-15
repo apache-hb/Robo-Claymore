@@ -1,5 +1,6 @@
 from discord.ext import commands
-from .store import tinyurl, embedable, quick_embed, url_request, get_bytes
+from .store import tinyurl, embedable, quick_embed, url_request, get_bytes, embedable, json_request
+from .utils import skkcomplex_request
 
 from defusedxml.ElementTree import fromstring
 import json
@@ -123,6 +124,135 @@ class Nsfw:
             embed.set_image(url = post['large_file_url'])
 
         return await ctx.send(embed = embed)
+
+    @commands.command(
+        name = "gif",
+        description = "a porn gif",
+        brief = "at least its normal"
+    )
+    async def _gif(self, ctx):
+        r = await json_request('https://nekobot.xyz/api/image?type=pgif')
+        embed = quick_embed(ctx, 'its gif not jif')
+        embed.set_image(url = r['message'])
+        await ctx.send(embed = embed)
+
+    @commands.command(
+        name = "4k",
+        description = "get a 4k prawn image",
+        breif = "high quality"
+    )
+    async def _4k(self, ctx):
+        r = await json_request('https://nekobot.xyz/api/image?type=4k')
+        embed = quick_embed(ctx, 'imagine how much that camera cost')
+        embed.set_image(url = r['message'])
+        await ctx.send(embed = embed)
+
+    @commands.command(
+        name = "pussy",
+        description = "do i have to explain this?",
+        brief = "really tho"
+    )
+    async def _pussy(self, ctx):
+        r = await json_request('https://nekobot.xyz/api/image?type=pussy')
+        embed = quick_embed(ctx)
+        embed.set_image(url = r['messsage'])
+        await ctx.send(embed = embed)
+
+    @commands.command(
+        name = "hentai",
+        description = "get hentai",
+        brief = "its called art"
+    )
+    async def _hentai(self, ctx):
+        r = await json_request('https://nekobot.xyz/hentai/wvo4a5lt8r12miuxc69k.gif')
+        embed = quick_embed(ctx, 'Its called hetai, and its art')
+        embed.set_image(url = r['message'])
+        await ctx.send(embed = embed)
+
+    @commands.command(
+        name = "neko",
+        description = "get a questionable neko image",
+        brief = "Y tho?"
+    )
+    async def _neko(self, ctx):
+        r = await json_request('https://nekobot.xyz/api/image?type=lewdneko')
+        embed = quick_embed(ctx, 'Elon musk should make them a reality')
+        embed.set_image(url = r['message'])
+        await ctx.send(embed = embed)
+
+    @commands.command(
+        name = "safeneko",
+        description = "even if it is sfw its staying in nsfw",
+        brief = "miss me with that anime shit"
+    )
+    async def _safeneko(self, ctx):
+        r = await json_request('https://cdn.nekos.life/neko/neko_285.jpg')
+        embed = quick_embed(ctx, 'jesus is still dissapointed')
+        embed.set_image(url = r['url'])
+        await ctx.send(embed = embed)
+
+    @commands.command(
+        name = "anal",
+        description = "i dont want to have to write this",
+        brief = "why am i even doing this"
+    )
+    async def _anal(self, ctx):
+        r = await json_request('https://nekobot.xyz/api/image?type=hentai_anal')
+        embed = quick_embed(ctx, 'wake me up inside')
+        embed.set_image(url = r['message'])
+        await ctx.send(embed = embed)
+
+    @commands.command(
+        name = "holo",
+        description = "i dont even watch anime",
+        brief = "what even is this?"
+    )
+    async def _holo(self, ctx):
+        r = await json_request('https://nekos.life/api/v2/img/hololewd')
+        embed = quick_embed(ctx, 'what even')
+        embed.set_image(url = r['url'])
+        await ctx.send(embed = embed)
+
+    @commands.command(
+        name = "gasm",
+        description = "at least this one is self explanitory",
+        brief = "im pretty sure theres a picture of jontron in there as well"
+    )
+    async def _gasm(self, ctx):
+        r = await json_request('https://nekos.life/api/v2/img/gasm')
+        embed = quick_embed(ctx, 'yeet')
+        embed.set_image(url = r['url'])
+        await ctx.send(embed = embed)
+
+    @commands.command(
+        name = "kitsune",
+        description = "apparently its a foxgirl",
+        brief = "but catgirls already exist"
+    )
+    async def _kitsune(self, ctx):
+        r = await json_request('https://nekobot.xyz/api/image?type=lewdkitsune')
+        embed = quick_embed(ctx, 'can i get uHHHHHHHH')
+        embed.set_image(url = r['message'])
+        await ctx.send(embed = embed)
+
+    @commands.command(
+        name = "sankakucomplex",
+        aliases = ['skk', 'complex', 'sankaku'],
+        description = "get a post from chan.sankakucomplex.com",
+        brief = "api machine broke"
+    )
+    @commands.cooldown(1, 10, commands.BucketType.user)
+    async def _skk(self, ctx, *, tags: str):
+        async with ctx.channel.typing():
+            array = await skkcomplex_request(tags)
+            try:
+                choice = 'https:' + random.choice(array)
+            except IndexError:
+                return await ctx.send('Nothing found with the tags ``{}``'.format(tags))
+            embed = quick_embed(ctx, 'Random image from sankakucomplex', description = 'with the tags {}'.format(tags))
+            embed.add_field(name = 'Link (isnt embedable)', value = await tinyurl(choice))
+            await ctx.send(embed = embed)
+
 
 def setup(bot):
     bot.add_cog(Nsfw(bot))

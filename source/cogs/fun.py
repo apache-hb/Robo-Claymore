@@ -9,7 +9,7 @@ from io import BytesIO
 from PIL import Image, ImageFont, ImageDraw
 from .utils import make_retro
 
-from .store import try_file, emoji, json_request, request_async, get_bytes, get_image
+from .store import try_file, emoji, json_request, request_async, get_bytes, get_image, quick_embed
 
 ball_awnsers = [
     'Definetly',
@@ -211,6 +211,17 @@ class Fun:
                             await ctx.add_reaction(react)
                             break
                 return
+
+    @commands.command(
+        name = "duck",
+        description = "now this, this i like",
+        brief = "its a duck, it is perfect"
+    )
+    async def _duck(self, ctx):
+        r = await json_request('https://api.random-d.uk/random')
+        embed = quick_embed(ctx, 'ducks are the best animals')
+        embed.set_image(url = r['url'])
+        await ctx.send(embed = embed)
 
     @commands.command(
         name = "normie",
