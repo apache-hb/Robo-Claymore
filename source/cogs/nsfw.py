@@ -1,5 +1,5 @@
 from discord.ext import commands
-from .store import tinyurl, embedable, quick_embed, url_request, get_bytes, embedable, json_request
+from .store import tinyurl, embedable, quick_embed, url_request, json_request
 from .utils import skkcomplex_request
 
 from defusedxml.ElementTree import fromstring
