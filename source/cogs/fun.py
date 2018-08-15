@@ -296,6 +296,16 @@ class Fun:
 
         await ctx.send(file = img)
 
+    @commands.command(
+        name = "cat",
+        description = "get a picture of a cat",
+        brief = "cats are nice"
+    )
+    async def _cat(self, ctx):
+        img = await get_bytes('https://cataas.com/cat')
+        ret = discord.File(img, filename = 'cat.png')
+        await ctx.send(file = ret)
+
     #TODO: store metadata
     @commands.group(invoke_without_command = True)
     async def autoreact(self, ctx):
