@@ -32,7 +32,7 @@ class Nsfw:
         ret = json.loads(await url_request(url = url, headers = headers))
 
         if not ret:
-            return await ctx.send('Nothing with tags {} found'.format(tags))
+            return await ctx.send(f'Nothing with tags ``{tags}`` found')
 
         post = random.choice(ret)
 
@@ -56,7 +56,7 @@ class Nsfw:
         root = fromstring(await url_request(url = self.rule34_api.format(tags)))
 
         if not root:
-            return await ctx.send('Nothing with tags {} found'.format(tags))
+            return await ctx.send(f'Nothing with tags ``{tags}`` found')
 
         post = random.choice(root)
 
@@ -85,7 +85,7 @@ class Nsfw:
         try:
             ret = json.loads(await url_request(url = self.gelbooru_api.format(tags)))
         except ValueError:
-            return await ctx.send('Nothing with tags {} found'.format(tags))
+            return await ctx.send(f'Nothing with tags ``{tags}`` found')
 
         post = random.choice(ret)
 
@@ -164,7 +164,7 @@ class Nsfw:
         brief = "its called art"
     )
     async def _hentai(self, ctx):
-        r = await json_request('https://nekobot.xyz/hentai/wvo4a5lt8r12miuxc69k.gif')
+        r = await json_request('https://nekobot.xyz/api/image?type=hentai')
         embed = quick_embed(ctx, 'Its called hetai, and its art')
         embed.set_image(url = r['message'])
         await ctx.send(embed = embed)
@@ -248,8 +248,8 @@ class Nsfw:
             try:
                 choice = 'https:' + random.choice(array)
             except IndexError:
-                return await ctx.send('Nothing found with the tags ``{}``'.format(tags))
-            embed = quick_embed(ctx, 'Random image from sankakucomplex', description = 'with the tags {}'.format(tags))
+                return await ctx.send(f'Nothing found with the tags ``{tags}``')
+            embed = quick_embed(ctx, 'Random image from sankakucomplex', description = f'with the tags ``{tags}``')
             embed.add_field(name = 'Link (isnt embedable)', value = await tinyurl(choice))
             await ctx.send(embed = embed)
 

@@ -99,12 +99,12 @@ class Games:
         brief = "get weapon info"
     )
     async def _warframe_weaponinfo(self, ctx, *, name: str):
-        ret = await url_request(url = 'https://api.warframestat.us/weapons/search/{}'.format(name.lower()))
+        ret = await url_request(url = f'https://api.warframestat.us/weapons/search/{name.lower()}')
 
         if not ret:
-            return await ctx.send('{} was not found in the warframe database'.format(name))
+            return await ctx.send(f'{name} was not found in the warframe database')
 
-        embed = quick_embed(ctx, title = 'Information about {}'.format(name), description = 'Taken from the official warframe database')
+        embed = quick_embed(ctx, title = f'Information about {name}', description = 'Taken from the official warframe database')
 
         a = []
         for weapon in ret:
@@ -117,13 +117,9 @@ class Games:
         embed.add_field(name = 'Type', value = ret[0]['type'])
 
         try:
+            stats = ret[0]
             embed.add_field(name = 'Base damage',
-            value = 'A total of {} damage comprised of {} slash, {} puncture and {} impact'.format(
-                ret[0]['damage'],
-                ret[0]['slash'],
-                ret[0]['puncture'],
-                ret[0]['impact']
-            ))
+            value = f'A total of {stats["damage"]} damage comprised of {stats["slash"]} slash, {stats["puncture"]} puncture and {stats["impact"]} impact')
         except KeyError:
             embed.add_field(name = 'Base damage', value = ret[0]['damage'])
 
@@ -172,11 +168,11 @@ class Games:
         brief = "get an items drop info"
     )
     async def _warframe_dropinfo(self, ctx, *, name: str):
-        ret = json.loads(await url_request(url = 'https://api.warframestat.us/drops/search/{}'.format(name.lower())))
+        ret = json.loads(await url_request(url = f'https://api.warframestat.us/drops/search/{name.lower()}'))
         if not ret:
-            return await ctx.send('{} was not found in the warframe database'.format(name))
+            return await ctx.send(f'{name} was not found in the warframe database')
 
-        embed = quick_embed(ctx, title = 'Information about {}'.format(name), description = 'Taken from the warframe database')
+        embed = quick_embed(ctx, title = f'Information about {name}', description = 'Taken from the warframe database')
 
         for location in ret[:25]:
             embed.add_field(name = 'Item {} drops from {}'.format(location['item'], location['place']),
@@ -226,7 +222,7 @@ class Games:
 
                 return await ctx.send(embed = embed)
 
-        await ctx.send('No frame called {} found'.format(name))
+        await ctx.send(f'No frame called {name} found')
 
     @warframe.command(
         name = "sortie",
@@ -240,14 +236,14 @@ class Games:
 
         for index, value in enumerate(ret['variants'], start = 1):
 
-            embed.add_field(name = 'Mission {}'.format(index),
+            embed.add_field(name = f'Mission {index}',
             value = 'Mission type: {}\nModifier: {}\nLocation: {}'.format(
                 value['missionType'],
                 value['modifier'],
                 value['node']
             ), inline = False)
 
-        embed.set_footer(text = 'Sortie for {}'.format(time.time()))
+        embed.set_footer(text = f'Sortie for {time.time()}')
 
         return await ctx.send(embed = embed)
 
@@ -262,7 +258,7 @@ class Games:
         embed = quick_embed(ctx, title = 'Currently running sorties', description = 'Taken from the warframe web api')
 
         for index, alert in enumerate(ret):
-            embed.add_field(name = 'Alert {}'.format(index),
+            embed.add_field(name = f'Alert {index}',
             value = 'Location {}\nMission type: {}\nFaction: {}\nRewards: {}\nExpires in: {}'.format(
                 alert['mission']['node'],
                 alert['mission']['type'],
@@ -352,7 +348,7 @@ class Games:
         brief = "random pilot loadout"
     )
     async def _titanfall_randompilot(self, ctx):
-        ret = '{} Here is a random loadout```diff\n'.format(ctx.author.mention)
+        ret = f'{ctx.author.mention} Here is a random loadout```diff\n'
 
         ret += '+ Pilot: ' + random.choice(titanfall_pilot_variables['pilots']) + '\n'
         ret += '- Grenade: ' + random.choice(titanfall_pilot_variables['grenades']) + '\n'

@@ -149,7 +149,7 @@ class Fun:
         else:
             ret = random.randint(1, 10)
 
-        await ctx.send('I rate ``{}`` a {} out of 10'.format(thing, ret))
+        await ctx.send(f'I rate ``{thing}`` a {ret} out of 10')
 
     @commands.command(
         name = "coinflip",
@@ -351,7 +351,7 @@ class Fun:
                     reacts[react].append(phrase)
                 except KeyError:
                     reacts[react] = [phrase]
-                return await ctx.send('``{}`` was added as an autoreact to ``{}``'.format(react, phrase))
+                return await ctx.send(f'``{react}`` was added as an autoreact to ``{phrase}``')
 
     @autoreact.command(
         name = "remove",

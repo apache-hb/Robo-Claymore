@@ -362,7 +362,7 @@ ZALGO!""",
         func = ctx.bot.get_command(name)
 
         if func is None:
-            return await ctx.send('No command called ``{}`` found'.format(name))
+            return await ctx.send(f'No command called ``{name}`` found')
 
         ret = getsource(func.callback)
 
@@ -409,7 +409,7 @@ ZALGO!""",
             user = ctx.author
         embed = quick_embed(ctx,
         title = 'Information about {0.name}#{0.discriminator}'.format(user),
-        description = 'User ID: {}'.format(user.id))
+        description = f'User ID: {user.id}')
 
         embed.set_thumbnail(url = user.avatar_url)
 
@@ -453,7 +453,7 @@ ZALGO!""",
     )
     @commands.guild_only()
     async def _serverinfo(self, ctx):
-        embed = quick_embed(ctx, title = 'Server information about {}'.format(ctx.guild.name), description = 'ID: {}'.format(ctx.guild.id))
+        embed = quick_embed(ctx, title = f'Server information about {ctx.guild.name}', description = f'ID: {ctx.guild.id}')
         now = datetime.now()
         diffrence = now - ctx.guild.created_at
         embed.add_field(name = 'Created at',
@@ -478,7 +478,7 @@ ZALGO!""",
         embed.set_thumbnail(url = self.bot.user.avatar_url)
         embed.add_field(name = 'discord.py version', value = discord.__version__)
         embed.add_field(name = 'bot name and id',
-        value="Name: {name}, ID: {id}".format(id = self.bot.user.id, name = self.bot.user.name))
+        value=f"Name: {self.bot.user.id}, ID: {self.bot.user.name}")
         embed.add_field(name = 'Architecture', value = platform.machine())
         embed.add_field(name = 'Version', value = platform.version())
         embed.add_field(name = 'Platform', value = platform.platform())
@@ -540,7 +540,7 @@ ZALGO!""",
             if post['data']['over_18'] and not ctx.channel.is_nsfw():
                 return await ctx.send('That post is nsfw, and must be requested in an nsfw channel')
 
-        embed = quick_embed(ctx, title = 'Post from {}'.format(target),
+        embed = quick_embed(ctx, title = f'Post from {target}',
             description = 'Posted by {}'.format(post['data']['author']))
 
         embed.add_field(name = 'Link', value = await tinyurl(post['data']['url']))
@@ -639,7 +639,7 @@ ZALGO!""",
                 embed = quick_embed(ctx, 'possible results')
                 for pair in fuzzed:
                     if pair[1] > 50:
-                        embed.add_field(name = pair[0], value = '{}% match'.format(pair[1]), inline = False)
+                        embed.add_field(name = pair[0], value = f'{pair[1]}% match', inline = False)
 
                 if any(pair[1] < 85 for pair in fuzzed):
                     return await ctx.send(embed = quick_embed(ctx, 'No matches'))
@@ -663,7 +663,7 @@ ZALGO!""",
                     return await ctx.send('That tag already exists')
 
                 server['contents'].append(ret)
-                return await ctx.send('added tag {}'.format(name))
+                return await ctx.send(f'added tag {name}')
 
 
     @tag.command(
@@ -677,8 +677,8 @@ ZALGO!""",
                 for item in server['contents'][:]:
                     if item['tag'] == name.lower():
                         server['contents'].remove(item)
-                        return await ctx.send('deleted tag {}'.format(name))
-                return await ctx.send('not tag called {} found'.format(name))
+                        return await ctx.send(f'deleted tag {name}')
+                return await ctx.send(f'not tag called {name} found')
 
 
     @tag.command(
@@ -759,9 +759,9 @@ ZALGO!""",
             if server['id'] == ctx.guild.id:
                 try:
                     server['contents'].remove(index)
-                    return await ctx.send('removed quote {}'.format(index))
+                    return await ctx.send(f'removed quote {index}')
                 except ValueError:
-                    return await ctx.send('no quote at index {}'.format(index))
+                    return await ctx.send(f'no quote at index {index}')
 
     @quote.command(
         name = "list",

@@ -58,7 +58,7 @@ class Admin:
             return
 
         try:
-            await user.ban(delete_message_days = 7, reason = 'Softban by {}'.format(ctx.author))
+            await user.ban(delete_message_days = 7, reason = f'ban by {ctx.author}')
         except discord.errors.Forbidden:
             await ctx.send('I dont have the correct permissions to ban that user')
         else:
@@ -76,9 +76,9 @@ class Admin:
             return
 
         try:
-            await user.ban(delete_message_days = 7, reason = 'Softban by {}'.format(ctx.author))
+            await user.ban(delete_message_days = 7, reason = 'Softban by {ctx.author}')
             await asyncio.sleep(15)
-            await user.unban(reason = 'Softban by {}'.format(ctx.author))
+            await user.unban(reason = f'softban by {ctx.author}')
             await user.send(await ctx.channel.create_invite(max_uses = 1))
         except discord.errors.Forbidden:
             await ctx.send('I dont have the permissions to do that')
@@ -101,7 +101,7 @@ class Admin:
         except discord.errors.Forbidden:
             await ctx.send('I dont have the permissions to delete messages')
         else:
-            await ctx.send('{} messages have been purged'.format(amount))
+            await ctx.send(f'{amount} messages have been purged')
 
     @commands.command(
         name = "massnick",
@@ -114,7 +114,7 @@ class Admin:
         if not nickname is None:
             if not 2 <= len(nickname) <= 32:
                 return await ctx.send('Nickname length must be between 2 and 32 characters')
-            await ctx.send('Setting all nicknames to {}'.format(nickname))
+            await ctx.send(f'Setting all nicknames to {nickname}')
         else:
             await ctx.send('Resetting nicknames')
 
@@ -127,7 +127,7 @@ class Admin:
             except discord.errors.Forbidden:
                 pass
 
-        await ctx.send('massnicked {} users'.format(a))
+        await ctx.send(f'massnicked {a} users')
 
     @commands.group(invoke_without_command = True)
     @commands.guild_only()
@@ -188,14 +188,14 @@ class Admin:
 
                     server['roles'].append(role.id)
                     json.dump(self.autorole_list, open('cogs/store/autorole.json', 'w'), indent = 4)
-                    return await ctx.send('Added {} to the autorole list'.format(role))
+                    return await ctx.send(f'Added {role} to the autorole list')
                 else:#removing an autorole
                     if not role.id in server['roles']:
                         return await ctx.send('That role is not an autorole')
 
                     server['roles'].remove(role.id)
                     json.dump(self.autorole_list, open('cogs/store/autorole.json', 'w'), indent = 4)
-                    return await ctx.send('Removed {} from the autorole list'.format(role))
+                    return await ctx.send(f'Removed {role} from the autorole list')
         self.autorole_list.append({
             'server_id': guild.id,
             'roles': []

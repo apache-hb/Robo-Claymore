@@ -21,7 +21,7 @@ class Help:
         fuzzed = process.extract(name, chain(self.bot.all_commands, self.bot.cogs.keys()), limit = 3)
 
         for pair in fuzzed:
-            ret.add_field(name = pair[0], value = '{}% chance this is what you wanted'.format(str(pair[1])))
+            ret.add_field(name = pair[0], value = f'{pair[1]}% chance this is what you wanted')
 
         await ctx.send(embed = ret)
 
@@ -83,7 +83,7 @@ class Help:
             except AttributeError:
                 ret += cog + '\n'
 
-        embed = quick_embed(ctx, title = 'All commands for {}'.format(ctx.bot.user.name))
+        embed = quick_embed(ctx, title = f'All commands for {ctx.bot.user.name}')
         embed.add_field(name = 'All cogs', value = ret)
 
         return embed
@@ -92,7 +92,7 @@ class Help:
         cog = self.__get_cog(name)
 
         if cog is None:
-            return quick_embed(ctx, 'No command called {} found'.format(name))
+            return quick_embed(ctx, f'No command called {name} found')
 
         try:
             description = cog.description
@@ -105,9 +105,9 @@ class Help:
         for command in ctx.bot.get_cog_commands(cog.__class__.__name__):
             if not command.hidden:
                 try:
-                    embed.add_field(name=command.name, value=command.brief)
+                    embed.add_field(name=command.name, value=command.brief, inline = False)
                 except AttributeError:
-                    embed.add_field(name=command.name, value='No description')
+                    embed.add_field(name=command.name, value='No description', inline = False)
 
         return embed
 
@@ -129,7 +129,7 @@ class Help:
         if isinstance(command, discord.ext.commands.core.Group):
             return self.group_embed(ctx, name)
 
-        embed = quick_embed(ctx, title = command.name, description = 'Inside cog {}'.format(command.cog_name))
+        embed = quick_embed(ctx, title = command.name, description = f'Inside cog {command.cog_name}')
 
         try:
             description = command.description
