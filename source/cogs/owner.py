@@ -68,15 +68,15 @@ class Owner:
         self.bully.append(ret)
 
         await user.edit(nick = name)
-        await ctx.send('Now bullying {}'.format(user.name))
+        await ctx.send(f'Now bullying {user.name}')
 
     @_bully.command(name = "stop")
     async def _bully_stop(self, ctx, user: discord.Member):
         for item in bully[:]:
             if item['user'] == user.id:
                 bully.remove(item)
-                return await ctx.send('i have stopped bullying {}'.format(user.name))
-        await ctx.send('I was never bullying {}'.format(user.name))
+                return await ctx.send(f'i have stopped bullying {user.name}')
+        await ctx.send(f'I was never bullying {user.name}')
 
     #this command just changes a bool and waits, its used to stop spamming without restarting the bot
     @commands.command(name = "panic")
@@ -94,7 +94,7 @@ class Owner:
 
     @commands.command(name = "massdm")
     async def _massdm(self, ctx, count: int = 0, *, message: str = 'My name jeff'):
-        await ctx.send('the crime against humanity has begun for {} cycles'.format(count + 1))
+        await ctx.send(f'the crime against humanity has begun for {count + 1} cycles')
 
         for _ in range(count):
             if self.spam:
@@ -106,9 +106,14 @@ class Owner:
             else:
                 return await ctx.send('The spam has been inturrupted')
 
+    @commands.command(name = "massprod")
+    async def _massprod(self, ctx):
+        for user in ctx.guild.members:
+            await ctx.send(user.mention, delete_after = .5)
+
     @commands.command(name = "prod")
     async def _prod(self, ctx, user: discord.Member, count: int = 10, *, message: str = 'Skidaddle skidoodle'):
-        await ctx.send('The spam against {} has begun for {} cycles'.format(user.name, count))
+        await ctx.send(f'The spam against {user.name} has begun for {count} cycles')
 
         for _ in range(count):
             if self.spam:
@@ -125,6 +130,8 @@ class Owner:
         for user in ctx.guild.members:
             ret += ' '+user.mention
         await ctx.send(await hastebin(content = ret))
+
+    #TODO: whitelist managing
 
     @commands.group(invoke_without_command = True)
     async def whitelist(self, ctx):
@@ -144,22 +151,21 @@ class Owner:
     async def _whitelist_add(self, ctx, user: discord.Member):
         if not user.id in whitelist:
             whitelist.append(user.id)
-            return await ctx.send('{} was added to the whitelist'.format(user.name))
+            return await ctx.send(f'{user.name} was added to the whitelist')
 
-        await ctx.send('{} is already on the whitelist'.format(user.name))
+        await ctx.send(f'{user.name} is already on the whitelist')
 
     @whitelist.command(name = "remove")
     async def _whitelist_remove(self, ctx, user: discord.Member):
         try:
             whitelist.remove(user.id)
         except ValueError:
-            return await ctx.send('{} is not in the whitelist'.format(user.name))
+            return await ctx.send(f'{user.name} is not in the whitelist')
 
-        await ctx.send('{} was removed from the whitelist'.format(user.name))
+        await ctx.send(f'{user.name} was removed from the whitelist')
 
     @whitelist.command(name = "purge")
     async def _whitelist_purge(self, ctx):
-        self.whitelist = []
         await ctx.send('Whitelist was purged')
 
     @_whitelist_add.after_invoke
@@ -167,6 +173,8 @@ class Owner:
     @_whitelist_remove.after_invoke
     async def _whitelist_after(self, _):
         json.dump(whitelist, open('cogs/store/whitelist.json', 'w'), indent = 4)
+
+    #TODO: blacklist managing
 
     @commands.group(invoke_without_command = True)
     async def blacklist(self, ctx):
@@ -209,7 +217,7 @@ class Owner:
             self.bot.load_extension('cogs.' + name.lower())
         except Exception as e:
             return await ctx.send(e)
-        return await ctx.send('Cog {} loaded correctly'.format(name))
+        return await ctx.send(f'Cog {name} loaded correctly')
 
     @cogs.command(name = "unload")
     async def _cogs_unload(self, ctx, name: str):
@@ -217,7 +225,7 @@ class Owner:
             self.bot.unload_extension('cogs.' + name.lower())
         except Exception as e:
             return await ctx.send(e)
-        return await ctx.send('Cog {} unloaded'.format(name))
+        return await ctx.send(f'Cog {name} unloaded')
 
     @cogs.command(name = "reload")
     async def _cogs_reload(self, ctx, name: str):
@@ -226,12 +234,12 @@ class Owner:
             self.bot.load_extension('cogs.' + name.lower())
         except Exception as e:
             return await ctx.send(e)
-        return await ctx.send('Cog {} reloaded correctly'.format(name))
+        return await ctx.send(f'Cog {name} reloaded correctly')
 
     @cogs.command(name = "enable")
     async def _cogs_enable(self, ctx, name: str):
         if ctx.bot.get_cog(name.lower()) is None:
-            return await ctx.send('{} is not a cog'.format(name))
+            return await ctx.send(f'{name} is not a cog')
 
         if not name.lower() in config['disabled']['cogs']:
             return await ctx.send('That cog isn\'t disabled')
@@ -242,7 +250,7 @@ class Owner:
     @cogs.command(name = "disable")
     async def _cogs_disable(self, ctx, name: str):
         if ctx.bot.get_cog(name.lower()) is None:
-            return await ctx.send('{} is not a cog'.format(name))
+            return await ctx.send(f'{name} is not a cog')
 
         if name.lower() in config['disabled']['cogs']:
             return await ctx.send('That cog is already disabled')
@@ -261,7 +269,7 @@ class Owner:
         server = ctx.bot.get_guild(guild)
 
         if server is None:
-            return await ctx.send('I am not in a server with an id of {}'.format(guild))
+            return await ctx.send(f'I am not in a server with an id of {guild}')
 
         for user in server.members:
             ret += ' '+user.mention
@@ -275,7 +283,7 @@ class Owner:
             return await ctx.send('No user with that id found')
 
         embed = quick_embed(ctx, title = 'User information')
-        embed.add_field(name = 'Username', value = '{}#{}'.format(ret.name, ret.discriminator))
+        embed.add_field(name = 'Username', value = '{0.name}#{0.discriminator}'.format(ret))
         embed.set_thumbnail(url = ret.avatar_url)
         embed.add_field(name = 'Created at', value = ret.created_at)
 
@@ -286,11 +294,11 @@ class Owner:
         guild = ctx.bot.get_guild(server)
 
         if guild is None:
-            return await ctx.send('No server with an id of {} found'.format(server))
+            return await ctx.send(f'No server with an id of {server} found')
 
-        ret = '```\n{}\n'.format(guild.name)
+        ret = f'```\n{guild.name}\n'
         for channel in guild.text_channels[:25]:
-            ret += '{}#{}\n'.format(channel.name, channel.id)
+            ret += '{0.name}#{0.id}\n'.format(channel)
         ret += '```'
 
         await ctx.send(ret)
@@ -300,7 +308,7 @@ class Owner:
         guild_channel = ctx.bot.get_channel(channel)
 
         if guild_channel is None:
-            return await ctx.send('No channel with an id of {} found'.format(channel))
+            return await ctx.send(f'No channel with an id of {channel} found')
 
         embed = quick_embed(ctx, "bot permissions")
 
@@ -320,7 +328,7 @@ class Owner:
         target = ctx.bot.get_channel(channel)
 
         if target is None:
-            return await ctx.send('No channel with an id of {} found'.format(channel))
+            return await ctx.send(f'No channel with an id of {channel} found')
 
         ret = '{}#{}\n'.format(target.name, target.id)
         try:
@@ -337,10 +345,10 @@ class Owner:
         if target is None:
             return await ctx.send('No channel found')
 
-        ret = 'Messages in {}#{}\n'.format(target.name, target.id)
+        ret = 'Messages in {0.name}#{0.id}\n'.format(target)
 
         async for message in target.history():
-            ret += '{}: {}\n'.format(message.author.name, message.content)
+            ret += '{0.author.name}: {0.content}\n'.format(message)
 
         await ctx.send(await hastebin(ret))
 

@@ -11,3 +11,6 @@ pyfiglet
 youtube_dl
 fuzzywuzzy
 python-Levenshtein
+randomdict
+numpy
+opencv-python

@@ -364,6 +364,9 @@ ZALGO!""",
         if func is None:
             return await ctx.send(f'No command called ``{name}`` found')
 
+        if func.cog_name == 'Owner':
+            return await ctx.send('Nice try fucko')
+
         ret = getsource(func.callback)
 
         if not len(ret) <= 1800:

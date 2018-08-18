@@ -73,9 +73,8 @@ async def get_bytes(url: str):
 #get the last image put in chat
 async def get_image(ctx):
     channel = ctx.message.channel
-    history = await channel.history(limit = 25)
-    for message in history[::-1]:
-        if message.attachments is not None:
+    async for message in channel.history(limit = 25):
+        if message.attachments:
             return message.attachments[0].url
 
 def embedable(url: str):

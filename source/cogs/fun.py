@@ -6,9 +6,10 @@ import discord
 import copy
 from glob import glob
 from io import BytesIO
+from randomdict import RandomDict as rdict
 
 from PIL import Image, ImageFont, ImageDraw
-from .utils import make_retro
+from .utils import make_retro, replace_eyes, overlay_van
 
 from .store import try_file, emoji, json_request, get_bytes, get_image, quick_embed
 
@@ -126,6 +127,15 @@ class Fun:
         self.frothy_images = []
         for image in glob('cogs/images/frothy/*.png'):
             self.frothy_images.append(BytesIO(open(image, 'rb').read()))
+
+        woke_eye = Image.open('cogs/images/eyes/woke_eye.png').convert('RGBA')
+
+        self.eye_dict = rdict(
+            #red = 'red_eye.png',
+            woke = woke_eye,
+            lens = woke_eye
+        )
+
         print('cog {} loaded'.format(self.__class__.__name__))
 
     @commands.command(
@@ -315,7 +325,7 @@ class Fun:
         brief = "A S T H E T I C"
     )
     @commands.cooldown(1, 10, commands.BucketType.user)
-    async def retro(self, ctx, *, text: str):
+    async def _retro(self, ctx, *, text: str):
         try:
             ret = await make_retro(text, random.choice(['2', '5', '4']))
         except TimeoutError:
@@ -326,6 +336,52 @@ class Fun:
         img = discord.File(await get_bytes(ret), filename = 'retro.jpg')
 
         await ctx.send(file = img)
+
+    @commands.command(
+        name = "eyes",
+        aliases = ['eye'],
+        description = "replace the eyes of an image with different eyes",
+        brief = "lens flare makes for good retinas"
+    )
+    @commands.cooldown(1, 20, commands.BucketType.user)
+    async def _eyes(self, ctx, eye: str = None):
+        try:
+            image = await get_bytes(await get_image(ctx))
+        except TypeError:
+            return await ctx.send('no image found (be sure to upload it directly as links dont work)')
+        if eye is None:
+            to_overlay = self.eye_dict.random_value()
+        else:
+            try:
+                to_overlay = self.eye_dict[eye.lower()]
+            except KeyError:
+                return await ctx.send(f'``{eye}`` is not a valid eye')
+        try:
+            face = await replace_eyes(image, to_overlay)
+        except LookupError:
+            return await ctx.send('No eyes were found')
+
+        ret = discord.File(face.getvalue(), filename = 'eye.png')
+        await ctx.send(file = ret)
+
+    @commands.command(
+        name = "van",
+        aliases = ['creepy', 'creep', 'creepvan'],
+        description = "put someone in a creepy van",
+        brief = "want some candy?"
+    )
+    @commands.cooldown(1, 10, commands.BucketType.user)
+    async def _van(self, ctx, user: discord.Member = None):
+        if user is None:
+            user = ctx.message.author
+
+        async with ctx.channel.typing():
+            avatar = await get_bytes(user.avatar_url)
+
+            img = await overlay_van(avatar)
+
+            f = discord.File(img.getvalue(), filename = 'van.png')
+            await ctx.send(file = f)
 
     @commands.command(
         name = "cat",
