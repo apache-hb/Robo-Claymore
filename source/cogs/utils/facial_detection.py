@@ -2,7 +2,7 @@ import io
 import cv2
 import numpy as np
 
-from PIL import Image, ImageDraw
+from PIL import Image
 
 eye_cascade = cv2.CascadeClassifier('cogs/cascades/eye_cascade.xml')
 
