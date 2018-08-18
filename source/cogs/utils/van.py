@@ -12,7 +12,6 @@ async def overlay_van(avatar: BytesIO):
 
 	avatar_img.thumbnail((135, 135), Image.ANTIALIAS)
 
-	w, h = avatar_img.size
 	x_loc = window_loc[0]#int(window_loc[0] - w // 2)
 	y_loc = window_loc[1]#int(window_loc[1] - h // 2)
 	ret = Image.new("RGBA", van_image.size, (255, 255, 255, 255))
