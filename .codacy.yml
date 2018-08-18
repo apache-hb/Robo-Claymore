@@ -1,4 +1,6 @@
 ---
 engines:
-  exculde_paths:
-    - **.xml
+  coverage:
+    enabled: true
+    exclude_paths:
+      - cogs/cascades/eye_cascade.xml

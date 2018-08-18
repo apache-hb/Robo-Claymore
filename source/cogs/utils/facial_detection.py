@@ -19,7 +19,6 @@ async def find_eyes(image):
     return eyes
 
 async def replace_eyes(face_image: io.BytesIO, eye_image):
-    #print(eye_image, face_image)
 
     face_image.seek(0)
     file_bytes = np.asarray(bytearray(face_image.read()), dtype = np.uint8)
@@ -33,7 +32,6 @@ async def replace_eyes(face_image: io.BytesIO, eye_image):
     #eye_image is alread a PIL.Image
 
     for (x, y, w, h) in eye_locs:
-        print(x, y, w, h)
         wsize = (w * 2) // 1.25
         hsize = (h * 2) // 1.25
         simage = eye_image.resize((int(wsize), int(hsize)))

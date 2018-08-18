@@ -19,7 +19,7 @@ async def _request(url: str, headers: dict):
             if resp.status == 200:
                 return await resp.text()
             else:
-                print(resp.status)
+                return None
 
 async def _request_subpage(sublink: str):
     resp = await _request(page + sublink, headers)
