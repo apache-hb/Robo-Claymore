@@ -1,0 +1,4 @@
+---
+engines:
+  exculde_paths:
+    - **.xml
