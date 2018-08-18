@@ -4,7 +4,7 @@ from io import BytesIO
 van_image = Image.open('cogs/images/creepy_van.png').convert('RGBA')
 
 #this is the center of the window
-window_loc = (110, 440)
+window_loc = (90, 440)
 
 async def overlay_van(avatar: BytesIO):
 	avatar.seek(0)
