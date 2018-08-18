@@ -12,7 +12,9 @@ async def find_eyes(image):
 
 	eyes = eye_cascade.detectMultiScale(gray, 1.3, 5)
 
-	if not eyes.any():
+	try: #do this to silence warnings
+		eyes[0]
+	except IndexError:
 		raise LookupError("No eyes were found")
 
 	return eyes
@@ -32,6 +34,7 @@ async def replace_eyes(face_image: io.BytesIO, eye_image):
 	#eye_image is alread a PIL.Image
 
 	for (x, y, w, h) in eye_locs:
+		print(x, y, w, h)
 		wsize = (w * 2) // 1.25
 		hsize = (h * 2) // 1.25
 		simage = eye_image.resize((int(wsize), int(hsize)))
