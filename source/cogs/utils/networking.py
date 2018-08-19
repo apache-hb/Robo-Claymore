@@ -1,9 +1,6 @@
 import aiohttp
 from mimetypes import MimeTypes
-from urllib.request import pathname2url
 from io import BytesIO
-import json
-import discord
 
 MIME = MimeTypes()
 
@@ -50,6 +47,8 @@ async def get_bytes(url: str):
 
 #get the last image put in chat
 async def get_image(ctx):
+    if ctx.message.attachments:
+        return ctx.message.attachments[0].url
     channel = ctx.message.channel
     async for message in channel.history(limit = 25):
         if message.attachments:

@@ -1,6 +1,7 @@
 import discord
 from mimetypes import MimeTypes
 from emoji import UNICODE_EMOJI as uemoji
+from urllib.request import pathname2url
 
 MIME = MimeTypes()
 

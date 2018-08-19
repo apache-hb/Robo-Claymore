@@ -2,8 +2,8 @@ from discord.ext import commands
 
 async def can_override(ctx, user = None):
     if user is None:
-        user = ctx.author
-    return await ctx.bot.is_owner(user) or user.id in whitelist
+        user = ctx.author #TODO: add whitelist
+    return await ctx.bot.is_owner(user) #or user.id in whitelist
 
 def is_admin():
     async def predicate(ctx):
