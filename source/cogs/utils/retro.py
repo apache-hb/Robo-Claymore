@@ -3,9 +3,10 @@ import re
 
 retro_url = 'https://photofunia.com/effects/retro-wave?server=3'
 
+#stolen from notsobot
 retro_regex = re.compile("((https)(\:\/\/|)?u3\.photofunia\.com\/.\/results\/.\/.\/.*(\.jpg\?download))")
 
-async def make_retro(text, kind):
+async def make_retro(text: str, kind):
     if '|' in text:
         text = text.split('|')
     elif len(text) >= 15:#split into 15 char bits
@@ -34,4 +35,3 @@ async def make_retro(text, kind):
     match = retro_regex.findall(txt)
     if match:
         return match[0][0]
-    return

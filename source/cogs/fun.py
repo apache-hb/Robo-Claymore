@@ -10,6 +10,7 @@ from randomdict import RandomDict as rdict
 
 from PIL import Image, ImageFont, ImageDraw
 from .utils import make_retro, replace_eyes, overlay_van
+from .utils.converters import image_to_bytes
 
 from .store import try_file, emoji, json_request, get_bytes, get_image, quick_embed
 
@@ -123,6 +124,7 @@ class Fun:
         self.bot = bot
         self.autoreact_list = json.load(try_file('cogs/store/autoreact.json', '{}'))
         self.hidden = False
+        self.comic_sans = ImageFont.truetype('cogs/images/comic_sans.ttf', size = 15)
         self.youtube_crime = Image.open('cogs/images/crime.png', mode = 'r').convert('RGBA')
         self.frothy_images = []
         for image in glob('cogs/images/frothy/*.png'):
@@ -308,13 +310,10 @@ class Fun:
         #make sure not to edit the original version
         base = copy.deepcopy(self.youtube_crime)
 
-        font = ImageFont.truetype('cogs/images/comic_sans.ttf', size = 15)
-
         draw_context = ImageDraw.Draw(base)
-        draw_context.text((340, 125), text, (0, 0, 0), font = font)
+        draw_context.text((340, 125), text, (0, 0, 0), font = self.comic_sans)
 
-        output = BytesIO()
-        base.save(output, format = 'PNG')
+        output = image_to_bytes(base)
 
         ret = discord.File(output.getvalue(), filename = 'crime.png')
         await ctx.send(file = ret)
@@ -400,7 +399,7 @@ class Fun:
 
     @autoreact.before_invoke
     async def autoreact_ensure(self, ctx):
-        for (guild, _) in self.autoreact_list.items():
+        for guild in self.autoreact_list:
             if guild == str(ctx.guild.id):
                 return
         self.autoreact_list[ctx.guild.id] = {}

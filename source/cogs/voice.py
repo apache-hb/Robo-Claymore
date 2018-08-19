@@ -86,7 +86,7 @@ class Song:
 #make a song by searching for a url
 #raises LookupError if no song is found
 async def search_url(url: str) -> Song:
-    raise LookupError()
+    raise NotImplementedError()
 
 class Playlist:
     def __init__(self, song):
@@ -108,6 +108,10 @@ class Playlist:
         self.songs.append(song)
 
     def make_embed(self) -> discord.Embed:
+        if not self.songs:
+            return discord.Embed(title = 'No songs left')
+        embed = discord.Embed(title = 'Songs in queue')
+        embed.description = f'there are {len(self.songs)} song(s) left in the queue'
         pass
 
     def currently_playing(self) -> discord.Embed:

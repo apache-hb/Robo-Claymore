@@ -48,7 +48,7 @@ class Help:
         breif = 'list all commands'
     )
     async def _all_commands(self, ctx):
-        embed = quick_embed(ctx, title = 'All cogs and commands')
+        embed = quick_embed(ctx, title = 'All cogs and commands', description = f'{len(self.bot.all_commands)} commands total')
 
         for cog in ctx.bot.cogs:
             ret = ''

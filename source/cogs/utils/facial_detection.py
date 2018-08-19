@@ -1,6 +1,7 @@
 import io
 import cv2
 import numpy as np
+from converters import bytes_to_image, bytes_to_cv2, image_to_bytes
 
 from PIL import Image
 
@@ -20,15 +21,11 @@ async def find_eyes(image):
 
 async def replace_eyes(face_image: io.BytesIO, eye_image):
 
-    face_image.seek(0)
-    file_bytes = np.asarray(bytearray(face_image.read()), dtype = np.uint8)
-    #convert BytesIO to cv2.image to find the eyes
-    face = cv2.imdecode(file_bytes, cv2.IMREAD_COLOR)
+    face = bytes_to_cv2(face_image)
     eye_locs = await find_eyes(face)
 
     #now convert the face from BytesIO to PIL.Image to do the editing
-    face_image.seek(0)
-    output = Image.open(face_image).convert('RGBA')
+    output = bytes_to_image(face_image)
     #eye_image is alread a PIL.Image
 
     for (x, y, w, h) in eye_locs:
@@ -38,6 +35,4 @@ async def replace_eyes(face_image: io.BytesIO, eye_image):
 
         output.paste(simage, (int(x - (w/4)), int(y - (h/4))), simage)
 
-    ret = io.BytesIO()
-    output.save(ret, format = 'PNG')
-    return ret
+    return image_to_bytes(output)

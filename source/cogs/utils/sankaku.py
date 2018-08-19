@@ -18,8 +18,6 @@ async def _request(url: str, headers: dict):
         async with session.get(url, headers = headers) as resp:
             if resp.status == 200:
                 return await resp.text()
-            else:
-                return None
 
 async def _request_subpage(sublink: str):
     resp = await _request(page + sublink, headers)
