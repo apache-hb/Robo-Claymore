@@ -9,10 +9,10 @@ from io import BytesIO
 from randomdict import RandomDict as rdict
 
 from PIL import Image, ImageFont, ImageDraw
-from .utils import make_retro, replace_eyes, overlay_van
+from .utils import make_retro, replace_eyes, overlay_van, make_meme
 from .utils.facial_detection import image_to_bytes
 from .utils.shortcuts import try_file, emoji, quick_embed
-from .utils.networking import json_request, get_bytes
+from .utils.networking import json_request, get_bytes, get_image
 
 ball_awnsers = [
     'Definetly',
@@ -125,6 +125,7 @@ class Fun:
         self.autoreact_list = json.load(try_file('cogs/store/autoreact.json', '{}'))
         self.hidden = False
         self.comic_sans = ImageFont.truetype('cogs/images/comic_sans.ttf', size = 15)
+        self.big_sans = ImageFont.truetype('cogs/images/comic_sans.ttf', size = 54)
         self.youtube_crime = Image.open('cogs/images/crime.png', mode = 'r').convert('RGBA')
         self.frothy_images = []
         for image in glob('cogs/images/frothy/*.png'):
@@ -381,6 +382,29 @@ class Fun:
             img = await overlay_van(avatar)
 
             f = discord.File(img.getvalue(), filename = 'van.png')
+            await ctx.send(file = f)
+
+    @commands.command(
+        name = "memegen",
+        description = "turn an image into a meme with a header and footer",
+        brief = " use '|' to split the text"
+    )
+    @commands.cooldown(1, 10, commands.BucketType.user)
+    async def _memegen(self, ctx, *, text: str = None):
+        img = await get_bytes(await get_image(ctx))
+        if text is None:
+            header = 'top text'
+            footer = 'bottom text'
+        elif '|' in text:
+            txt = text.split('|')
+            header = txt[0][:15]
+            footer = txt[1][:15]
+        else:
+            header = text[:15]
+            footer = text[15:30]
+        async with ctx.channel.typing():
+            ret = make_meme(img, self.big_sans, header = header, footer  = footer)
+            f = discord.File(ret.getvalue(), filename = 'meme.png')
             await ctx.send(file = f)
 
     @commands.command(

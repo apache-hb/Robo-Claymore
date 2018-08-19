@@ -13,3 +13,4 @@ from .shortcuts import (
 	try_file, quick_embed, embedable,
 	emoji, only_mentions_bot
 )
+from .memegen import make_meme
