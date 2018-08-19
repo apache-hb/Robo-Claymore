@@ -3,7 +3,7 @@ import asyncio
 import json
 from discord.ext import commands
 import youtube_dl
-from .store import try_file
+from .utils.shortcuts import try_file
 
 youtube_dl.utils.bug_reports_message = lambda: ''
 

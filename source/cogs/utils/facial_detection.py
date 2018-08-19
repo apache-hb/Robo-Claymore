@@ -1,11 +1,23 @@
 import io
 import cv2
 import numpy as np
-from converters import bytes_to_image, bytes_to_cv2, image_to_bytes
-
 from PIL import Image
 
 eye_cascade = cv2.CascadeClassifier('cogs/cascades/eye_cascade.xml')
+
+def bytes_to_image(image: io.BytesIO) -> Image:
+	image.seek(0)
+	return Image.open(image).convert('RGBA')
+
+def image_to_bytes(image: Image) -> io.BytesIO:
+	ret = io.BytesIO()
+	image.save(ret, format = 'PNG')
+	return ret
+
+def bytes_to_cv2(image: io.BytesIO):
+	image.seek(0)
+	image_bytes = np.asarray(bytearray(image.read()), dtype = np.uint8)
+	return cv2.imdecode(image_bytes, cv2.IMREAD_COLOR)
 
 async def find_eyes(image):
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
@@ -29,7 +41,7 @@ async def replace_eyes(face_image: io.BytesIO, eye_image):
     #eye_image is alread a PIL.Image
 
     for (x, y, w, h) in eye_locs:
-        wsize = (w * 2) // 1.25
+        wsize = (w * 2) // 1.25 #corectly size the eyes
         hsize = (h * 2) // 1.25
         simage = eye_image.resize((int(wsize), int(hsize)))
 

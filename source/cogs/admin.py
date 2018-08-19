@@ -1,8 +1,9 @@
 import discord
 from discord.ext import commands
 import json
-from .store import can_override, quick_embed, try_file
 from .utils import checks
+from .utils.checks import can_override
+from .utils.shortcuts import quick_embed, try_file
 
 class Admin:
     def __init__(self, bot):

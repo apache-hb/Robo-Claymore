@@ -1,5 +1,5 @@
 from discord.ext import commands
-from .store import quick_embed
+from .utils.shortcuts import quick_embed
 import discord
 from fuzzywuzzy import process
 from itertools import chain
@@ -24,7 +24,6 @@ class Help:
             ret.add_field(name = pair[0], value = f'{pair[1]}% chance this is what you wanted')
 
         await ctx.send(embed = ret)
-
 
     @commands.command(
         name = "help",

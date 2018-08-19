@@ -33,5 +33,5 @@ async def make_retro(text: str, kind):
             txt = await resp.text()
 
     match = retro_regex.findall(txt)
-    if match:
+    if match: #this bit is also stolen from notsobot
         return match[0][0]

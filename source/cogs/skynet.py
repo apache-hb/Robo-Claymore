@@ -1,4 +1,4 @@
-from .store import try_file
+from .utils.shortcuts import try_file
 import os
 import time
 import json

@@ -4,8 +4,9 @@ import json
 import discord
 from discord.ext import commands
 
-from .store import (hastebin, quick_embed, try_file, can_override, blacklist)
-
+from .utils.networking import hastebin
+from .utils.checks import can_override
+from .utils.shortcuts import quick_embed, try_file
 
 class Owner:
     def __init__(self, bot):
@@ -196,7 +197,8 @@ class Owner:
     @_blacklist_remove.after_invoke
     @_blacklist_purge.after_invoke
     async def _blacklist_after(self, _):
-        json.dump(blacklist, open('cogs/store/blacklist.json', 'w'), indent = 4)
+        pass
+        #json.dump(blacklist, open('cogs/store/blacklist.json', 'w'), indent = 4)
 
     @commands.group(name = "cogs", invoke_without_command = True)
     async def cogs(self, ctx):

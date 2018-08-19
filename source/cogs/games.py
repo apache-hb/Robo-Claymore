@@ -1,5 +1,6 @@
 from discord.ext import commands
-from .store import quick_embed, url_request
+from .utils.shortcuts import quick_embed
+from .utils.networking import url_request
 import time
 import json
 import random

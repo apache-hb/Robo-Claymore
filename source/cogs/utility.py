@@ -13,9 +13,9 @@ from discord.ext import commands
 from pyfiglet import figlet_format
 from fuzzywuzzy import process
 
-from .store import (can_override, embedable, hastebin, hastebin_error,
-                    quick_embed, tinyurl, url_request, try_file)
-
+from .utils.checks import can_override
+from .utils.shortcuts import embedable, quick_embed, try_file
+from .utils.networking import hastebin, hastebin_error, tinyurl, url_request
 from .utils import zalgo
 
 # stolen from appuselfbot

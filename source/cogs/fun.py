@@ -10,9 +10,9 @@ from randomdict import RandomDict as rdict
 
 from PIL import Image, ImageFont, ImageDraw
 from .utils import make_retro, replace_eyes, overlay_van
-from .utils.converters import image_to_bytes
-
-from .store import try_file, emoji, json_request, get_bytes, get_image, quick_embed
+from .utils.facial_detection import image_to_bytes
+from .utils.shortcuts import try_file, emoji, quick_embed
+from .utils.networking import json_request, get_bytes
 
 ball_awnsers = [
     'Definetly',
@@ -348,6 +348,7 @@ class Fun:
             image = await get_bytes(await get_image(ctx))
         except TypeError:
             return await ctx.send('no image found (be sure to upload it directly as links dont work)')
+
         if eye is None:
             to_overlay = self.eye_dict.random_value()
         else:

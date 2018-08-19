@@ -5,7 +5,8 @@ from glob import glob
 import traceback
 import sys
 import os
-from cogs.store import (can_override, quick_embed, blacklist)
+from cogs.utils.checks import can_override
+from cogs.utils.shortcuts import quick_embed
 from shutil import copyfile
 
 logs = open('cogs/store/claymore.log', 'a')
@@ -80,9 +81,9 @@ async def check_commands(ctx):
     if await can_override(ctx):
         return True
 
-    if ctx.author.id in blacklist:#make sure to tell blocked people to eat pant
-        await ctx.send('Go away')
-        return False
+    #if ctx.author.id in blacklist:#make sure to tell blocked people to eat pant
+    #    await ctx.send('Go away')
+    #    return False
 
     return True
 
