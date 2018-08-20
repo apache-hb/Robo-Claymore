@@ -1,6 +1,8 @@
+import json
+
 import discord
 from discord.ext import commands
-import json
+
 from .utils import checks
 from .utils.checks import can_override
 from .utils.shortcuts import quick_embed, try_file

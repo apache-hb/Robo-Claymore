@@ -90,10 +90,16 @@ async def search_url(url: str) -> Song:
 
 class Playlist:
     def __init__(self, song):
+        self.volume = 50
         if isinstance(song, list):
             self.songs = song
         else:
             self.songs = [song]
+
+    def set_volume(new: int):
+        if new not in range(0, 100):
+            raise IndexError()
+        self.volume = new
 
     def next(self) -> Song:
         return self.songs.pop()
@@ -112,13 +118,20 @@ class Playlist:
             return discord.Embed(title = 'No songs left')
         embed = discord.Embed(title = 'Songs in queue')
         embed.description = f'there are {len(self.songs)} song(s) left in the queue'
-        pass
+        for song in self.songs:
+            embed.add_field(name = song.name, value = f'Requested by {song.requester.name}')
 
     def currently_playing(self) -> discord.Embed:
-        pass
+        return self.songs[0]
 
     def serialize(self):
-        pass
+        r = []
+        for each in self.songs:
+            r.append({
+                'requester': each.requester.name,
+                'url': each.url
+            })
+        return json.dumps(r)
 
 class Voice:
     def __init__(self, bot):

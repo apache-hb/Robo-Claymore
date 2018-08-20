@@ -1,18 +1,19 @@
-from discord.ext import commands
-import random
-import json
-import aiohttp
-import discord
 import copy
+import json
+import random
 from glob import glob
 from io import BytesIO
+
+import aiohttp
+import discord
+from discord.ext import commands
+from PIL import Image, ImageDraw, ImageFont
 from randomdict import RandomDict as rdict
 
-from PIL import Image, ImageFont, ImageDraw
-from .utils import make_retro, replace_eyes, overlay_van, make_meme
+from .utils import make_meme, make_retro, overlay_van, replace_eyes
 from .utils.facial_detection import image_to_bytes
-from .utils.shortcuts import try_file, emoji, quick_embed
-from .utils.networking import json_request, get_bytes, get_image
+from .utils.networking import get_bytes, get_image, json_request
+from .utils.shortcuts import emoji, quick_embed, try_file
 
 ball_awnsers = [
     'Definetly',
@@ -343,7 +344,7 @@ class Fun:
         description = "replace the eyes of an image with different eyes",
         brief = "lens flare makes for good retinas"
     )
-    @commands.cooldown(1, 20, commands.BucketType.user)
+    @commands.cooldown(1, 10, commands.BucketType.user)
     async def _eyes(self, ctx, eye: str = None):
         try:
             image = await get_bytes(await get_image(ctx))

@@ -10,13 +10,13 @@ import discord
 from aiowolfram import Wolfram
 from bs4 import BeautifulSoup as bs
 from discord.ext import commands
-from pyfiglet import figlet_format
 from fuzzywuzzy import process
+from pyfiglet import figlet_format
 
-from .utils.checks import can_override
-from .utils.shortcuts import embedable, quick_embed, try_file
-from .utils.networking import hastebin, hastebin_error, tinyurl, url_request
 from .utils import zalgo
+from .utils.checks import can_override
+from .utils.networking import hastebin, hastebin_error, tinyurl, url_request
+from .utils.shortcuts import embedable, quick_embed, try_file
 
 # stolen from appuselfbot
 # https://github.com/appu1232/Discord-Selfbot

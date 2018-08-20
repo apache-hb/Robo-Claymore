@@ -1,8 +1,10 @@
-from discord.ext import commands
-from .utils.shortcuts import quick_embed
-import discord
-from fuzzywuzzy import process
 from itertools import chain
+
+import discord
+from discord.ext import commands
+from fuzzywuzzy import process
+
+from .utils.shortcuts import quick_embed
 
 class Help:
     def __init__(self, bot):

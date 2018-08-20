@@ -1,9 +1,11 @@
-from discord.ext import commands
-from .utils.shortcuts import quick_embed
-from .utils.networking import url_request
-import time
 import json
 import random
+import time
+
+from discord.ext import commands
+
+from .utils.networking import url_request
+from .utils.shortcuts import quick_embed
 
 titanfall_pilot_variables = {
     'pilots': [
@@ -78,11 +80,26 @@ class Games:
         self.bot = bot
         self.hidden = False
         self.frames = None#used for warframe cache
+        self.config = json.load(open('cogs/store/config.json'))
+        try:
+            self.count = self.config['count']
+        except KeyError:
+            self.config['count'] = 0
         print('cog {} loaded'.format(self.__class__.__name__))
 
     @classmethod
     def polarity_converter(self, text: str):
         return text.replace('<:madurai:319586146499690496>', 'Maduri').replace('<:naramon:319586146478850048>', 'Naramon').replace('<:vazarin:319586146269003778>', 'Varazin')
+
+    @commands.command(
+        name = "count",
+        description = "count",
+        brief = "count"
+    )
+    async def _count(self, ctx):
+        self.config['count'] += 1
+        await ctx.send(self.config['count'])
+        json.dump(self.config, open('cogs/store/config.json', 'w'), indent = 4)
 
     @commands.group(invoke_without_command = True)
     async def warframe(self, ctx):

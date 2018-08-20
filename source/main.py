@@ -1,13 +1,15 @@
+import json
+import os
+import sys
+import traceback
+from glob import glob
+from shutil import copyfile
+
 import discord
 from discord.ext import commands
-import json
-from glob import glob
-import traceback
-import sys
-import os
+
 from cogs.utils.checks import can_override
 from cogs.utils.shortcuts import quick_embed
-from shutil import copyfile
 
 logs = open('cogs/store/claymore.log', 'a')
 
@@ -24,7 +26,8 @@ except FileNotFoundError:
         },
         'wolfram': {
             'key': input('Enter wolfram alpha key (optional)')
-        }
+        },
+        'count': 0
     }
     json.dump(config, open('cogs/store/config.json', 'w'), indent = 4)
 
@@ -37,7 +40,7 @@ bot = commands.Bot(
 #get rid of the help command to allow for a custom one
 bot.remove_command('help')
 
-__version__ = '0.2.0'
+__version__ = '0.3.5'
 
 @bot.event
 async def on_ready():
@@ -79,11 +82,7 @@ async def on_command_error(ctx, exception):
 async def check_commands(ctx):
     #let the bot owner and whitelisted users always override
     if await can_override(ctx):
-        return True
-
-    #if ctx.author.id in blacklist:#make sure to tell blocked people to eat pant
-    #    await ctx.send('Go away')
-    #    return False
+        return True #this is some legacy code if i've ever seen it
 
     return True
 
@@ -97,7 +96,7 @@ async def after_any_command(ctx):
 
 if __name__ == '__main__':
     for cog in glob('cogs/*.py'):
-        if not cog in ['cogs/__init__.py', 'cogs/store.py']:
+        if not cog in ['cogs/__init__.py']:
             try:
                 bot.load_extension(cog.replace('cogs/', 'cogs.').replace('.py', ''))
             except Exception as e:

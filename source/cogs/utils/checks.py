@@ -7,40 +7,40 @@ async def can_override(ctx, user = None):
 
 def is_admin():
     async def predicate(ctx):
-        if not ctx.author.permissions_in(ctx.channel).administrator or not await can_override(ctx):
-            await ctx.send('You dont have the required admin permissions')
-            return False
-        return True
+        if ctx.author.permissions_in(ctx.channel).administrator or await can_override(ctx):
+            return True
+        await ctx.send('You dont have the required admin permissions')
+        return False
     return commands.check(predicate)
 
 def can_kick():
     async def predicate(ctx):
-        if not ctx.author.permissions_in(ctx.channel).kick_members or not await can_override(ctx):
-            await ctx.send('You dont have the permission to kick')
-            return False
-        return True
+        if ctx.author.permissions_in(ctx.channel).kick_members or await can_override(ctx):
+            return True
+        await ctx.send('You dont have the permission to kick')
+        return False
     return commands.check(predicate)
 
 def can_ban():
     async def predicate(ctx):
-        if not ctx.author.permissions_in(ctx.channel).ban_members or not await can_override(ctx):
-            await ctx.send('You dont have the permission to ban')
-            return False
-        return True
+        if ctx.author.permissions_in(ctx.channel).ban_members or await can_override(ctx):
+            return True
+        await ctx.send('You dont have the permission to ban')
+        return False
     return commands.check(predicate)
 
 def manage_messages():
     async def predicate(ctx):
-        if not ctx.author.permissions_in(ctx.channel).manage_messages or not await can_override(ctx):
-            await ctx.send('You dont have the permission to delete messages')
-            return False
-        return True
+        if ctx.author.permissions_in(ctx.channel).manage_messages or await can_override(ctx):
+            return True
+        await ctx.send('You dont have the permission to delete messages')
+        return False
     return commands.check(predicate)
 
 def manage_nicknames():
     async def predicate(ctx):
-        if not ctx.author.permissions_in(ctx.channel).manage_nicknames or not await can_override(ctx):
-            await ctx.send('You dont have the permission to manage nicknames')
-            return False
-        return True
+        if ctx.author.permissions_in(ctx.channel).manage_nicknames or await can_override(ctx):
+            return True
+        await ctx.send('You dont have the permission to manage nicknames')
+        return False
     return commands.check(predicate)

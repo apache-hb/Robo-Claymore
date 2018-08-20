@@ -1,7 +1,8 @@
-from .utils.shortcuts import try_file
+import json
 import os
 import time
-import json
+
+from .utils.shortcuts import try_file
 
 class SkyNet:
     def __init__(self, bot):
