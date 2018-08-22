@@ -10,22 +10,25 @@ from .utils.shortcuts import quick_embed, try_file
 class Admin:
     def __init__(self, bot):
         self.bot = bot
-        self.autorole_list = json.load(try_file('cogs/store/autorole.json'))
-        self.hidden = False
-        print('Cog {} loaded'.format(self.__class__.__name__))
+
+        self.server_blacklists = json.load(try_file('cogs/store/server_blacklist.json', content = '{}'))
+
+        self.autorole_list = json.load(try_file('cogs/store/autorole.json', content = '{}'))
+
+        print(f'cog {self.__class__.__name__} loaded')
 
     async def will_manage(self, ctx, user: discord.Member, kind: str):
         if not await can_override(ctx, user):
-            await ctx.send('I dont want to {} them'.format(kind))
+            await ctx.send(f'I dont want to {kind} them')
             return False
         elif user.id == self.bot.user.id:
-            await ctx.send('I dont want to {} myself'.format(kind))
+            await ctx.send(f'I dont want to {kind} myself')
             return False
         elif user.id == ctx.author.id:
-            await ctx.send('I wont let you {} yourself'.format(kind))
+            await ctx.send(f'I wont let you {kind} yourself')
             return False
         if user.permissions_in(ctx.channel).administrator:
-            await ctx.send('I wont {} admins'.format(kind))
+            await ctx.send(f'I wont {kind} admins')
             return False
         else:
             return True
@@ -136,79 +139,19 @@ class Admin:
     @commands.guild_only()
     @checks.is_admin()
     async def autorole(self, ctx):
-        for server in self.autorole_list:
-            if server['server_id'] == ctx.guild.id:
-                ret = ''
-                if not server['roles']:
-                    ret = 'This server has no autoroles'
-                else:
-                    for role in server['roles']:
-                        ret += str(discord.utils.get(ctx.guild.roles, id = role)) + '\n'
+        for (server, roles) in self.autorole_list.items():
+            if int(server) == ctx.guild.id:
+                if not roles:
+                    return await ctx.send('this server has no autoroles')
 
-                embed = quick_embed(ctx, title = 'Autoroles')
-                embed.add_field(name = 'All roles', value = ret)
+                embed = quick_embed(ctx, title = 'all autoroles')
+
+                for role in roles:
+                    r = discord.utils.get(ctx.guild.roles, id = role)
+                    if r is not None:
+                        embed.add_field(name = r.name, value = r.id)
+
                 return await ctx.send(embed = embed)
-        self.autorole_list.append({
-            'server_id': user.guild.id,
-            'roles': []
-        })
-        json.dump(self.autorole_list, open('cogs/store/autorole.json', 'w'), indent = 4)
-        return await self.autorole(ctx)
-
-
-    async def on_guild_role_delete(self, role):
-        for server in self.autorole_list:
-            if server['server_id'] == role.guild.id:
-                if role.id in server['roles']:
-                    server['roles'].remove(role.id)
-                    json.dump(self.autorole_list, open('cogs/store/autorole.json', 'w'), indent = 4)
-
-    async def on_member_join(self, user):
-        for server in self.autorole_list:
-            if server['server_id'] == user.guild.id:
-                user_roles = []
-                user_roles += user.roles
-                for role in server['roles']:
-                    new_role = discord.utils.get(user.roles, id = role)
-                    if new_role is None:
-                        continue
-                    user_roles.append(new_role)
-                try:
-                    return await user.edit(roles = user_roles)
-                except discord.errors.Forbidden:
-                    return
-        self.autorole_list.append({
-            'server_id': user.guild.id,
-            'roles': []
-        })
-        json.dump(self.autorole_list, open('cogs/store/autorole.json', 'w'), indent = 4)
-        return await self.on_member_join(user)
-
-    #if kind is true it will add the autorole, otherwise it will try and delete it
-    async def edit_autorole_list(self, ctx, role: discord.Role, kind: bool):
-        for server in self.autorole_list:
-            if server['server_id'] == ctx.guild.id:
-                if kind:#adding an autorole
-                    if role.id in server['roles']:
-                        return await ctx.send('That role is already in the autorole list')
-
-                    server['roles'].append(role.id)
-                    json.dump(self.autorole_list, open('cogs/store/autorole.json', 'w'), indent = 4)
-                    return await ctx.send(f'Added {role} to the autorole list')
-                else:#removing an autorole
-                    if not role.id in server['roles']:
-                        return await ctx.send('That role is not an autorole')
-
-                    server['roles'].remove(role.id)
-                    json.dump(self.autorole_list, open('cogs/store/autorole.json', 'w'), indent = 4)
-                    return await ctx.send(f'Removed {role} from the autorole list')
-        self.autorole_list.append({
-            'server_id': guild.id,
-            'roles': []
-        })
-        json.dump(self.autorole_list, open('cogs/store/autorole.json', 'w'), indent = 4)
-        return self.edit_autorole_list(guild, role, kind)
-
 
     @autorole.command(
         name = "add",
@@ -218,7 +161,12 @@ class Admin:
     @commands.guild_only()
     @checks.is_admin()
     async def _autorole_add(self, ctx, role: discord.Role):
-        return await self.edit_autorole_list(ctx, role, True)
+        for (server, roles) in self.autorole_list.items():
+            if int(server) == ctx.guild.id:
+                if role.id in roles:
+                    return await ctx.send('that role has already been added')
+                roles.append(role.id)
+                return await ctx.send(f'added ``{role.name}`` to the autorole list')
 
     @autorole.command(
         name = "remove",
@@ -228,7 +176,116 @@ class Admin:
     @commands.guild_only()
     @checks.is_admin()
     async def _autorole_remove(self, ctx, role: discord.Role):
-        return await self.edit_autorole_list(ctx, role, False)
+        for (server, roles) in self.autorole_list.items():
+            if int(server) == ctx.guild.id:
+                if role.id not in roles:
+                    return await ctx.send('that role is not an autorole')
+                roles.remove(role.id)
+                return await ctx.send(f'removed ``{role.name}`` from the autorole list')
+
+    @autorole.before_invoke
+    async def _autorole_before(self, ctx):
+        for (server, roles) in self.autorole_list.items():
+            if int(server) == ctx.guild.id:
+                return
+        self.autorole_list[str(ctx.guild.id)] = []
+
+    @autorole.after_invoke
+    async def _autorole_after(self, _):
+        json.dump(self.autorole_list, open('cogs/store/autorole.json', 'w'), indent = 4)
+
+    async def on_member_join(self, user):
+        for (server, roles) in self.autorole_list.items():
+            if int(server) == user.guild.id:
+                if not roles:
+                    return
+                to_add = []
+                for role in roles:
+
+                    for each in user.guild.roles:
+                        if each.id == role:#but why not use discord.utils.get
+                            r = each #because it didnt fucking work, thats why
+                            break
+                        r = None
+
+                    if r is None:
+                        continue
+                    to_add.append(r)
+
+                if not to_add:
+                    return
+
+                try:
+                    return await user.edit(roles = to_add, reason = 'autorole')
+                except discord.errors.Forbidden:
+                    return
+
+    async def __global_check(self, ctx):
+        for (server, users) in self.server_blacklists.items():
+            if int(server) == ctx.guild.id:
+                if ctx.author.id in users:
+                    await ctx.send('an admin has stopped you from using commands')
+                    return False
+                return True
+        return True
+
+    @commands.group(invoke_without_command = True)
+    @commands.guild_only()
+    async def blacklist(self, ctx):
+        for (server, users) in self.server_blacklists.items():
+            if int(server) == ctx.guild.id:
+                if not users:
+                    return await ctx.send('this server has no blacklisted users')
+                u = []
+                for us in users:
+                    if us is None:
+                        continue
+                    usr = self.bot.get_user(us)
+                    u.append(usr.name)
+                ret = ',\n'.join(u)
+                if len(ret) > 1500:
+                    ret = [ret[i:i + 1500] for i in range(0, len(reacts), 1500)]
+                    for part in ret:
+                        await ctx.send(f'```css\n{part}```')
+                    return await ctx.send('all users sent, maybe you have too many blocked for your own good')
+                return await ctx.send(f'```css\n{ret}```')
+
+    @blacklist.command(name = "add")
+    @commands.guild_only()
+    @checks.is_admin()
+    async def _blacklist_add(self, ctx, user: discord.Member):
+        for (server, users) in self.server_blacklists.items():
+            if int(server) == ctx.guild.id:
+                if user.id in users:
+                    return await ctx.send('that user is already in the blacklist')
+                if user.id == ctx.author.id:
+                    return await ctx.send('cant block yourself')
+                if user.id == self.bot.user.id:
+                    return await ctx.send('can you donteth')
+                users.append(user.id)
+                return await ctx.send(f'added ``{user.name}`` to the blacklist')
+
+    @blacklist.command(name = "remove")
+    @commands.guild_only()
+    @checks.is_admin()
+    async def _blacklist_remove(self, ctx, user: discord.Member):
+        for (server, users) in self.server_blacklists.items():
+            if int(server) == ctx.guild.id:
+                if user.id not in users:
+                    return await ctx.send(f'``{user.name}`` isnt blacklisted')
+                users.remove(user.id)
+                return await ctx.send(f'removed ``{user.name}`` from the blacklist')
+
+    @blacklist.before_invoke
+    async def _blacklist_before(self, ctx):
+        for (server, users) in self.server_blacklists.items():
+            if int(server) == ctx.guild.id:
+                return
+        self.server_blacklists[str(ctx.guild.id)] = []
+
+    @blacklist.after_invoke
+    async def _blacklist_after(self, _):
+        json.dump(self.server_blacklists, open('cogs/store/server_blacklist.json', 'w'), indent = 4)
 
 def setup(bot):
     bot.add_cog(Admin(bot))

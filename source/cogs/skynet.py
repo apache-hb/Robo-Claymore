@@ -8,7 +8,7 @@ class SkyNet:
     def __init__(self, bot):
         self.bot = bot
         self.hidden = True
-        print('Cog {} loaded'.format(self.__class__.__name__))
+        print(f'cog {self.__class__.__name__} loaded')
 
     async def on_message(self, ctx):
         if ctx.author.bot:
@@ -17,15 +17,14 @@ class SkyNet:
         if ctx.content.startswith(('!', '&', '/', '*', '$', '#')):
             return
 
-        new = ''
         if ctx.guild is None:
             new = 'cogs/store/skynet/messages/'
         else:
-            new = 'cogs/store/skynet/{0.guild.id}/'.format(ctx)
+            new = f'cogs/store/skynet/{ctx.guild.id}/'
 
         os.makedirs(new, exist_ok = True)
 
-        ret = json.load(try_file(new + '{}.json'.format(ctx.channel.id)))
+        ret = json.load(try_file(new + f'{ctx.channel.id}.json'))
         ret.append({
             'content': ctx.content,
             'meta': {
@@ -34,7 +33,7 @@ class SkyNet:
                 'time': time.time()
             }
         })
-        json.dump(ret, open(new + '{}.json'.format(ctx.channel.id), 'w'), indent = 4)
+        json.dump(ret, open(new + f'{ctx.channel.id}.json', 'w'), indent = 4)
 
 
 def setup(bot):

@@ -78,14 +78,13 @@ titanfall_pilot_variables = {
 class Games:
     def __init__(self, bot):
         self.bot = bot
-        self.hidden = False
         self.frames = None#used for warframe cache
         self.config = json.load(open('cogs/store/config.json'))
         try:
             self.count = self.config['count']
         except KeyError:
             self.config['count'] = 0
-        print('cog {} loaded'.format(self.__class__.__name__))
+        print(f'cog {self.__class__.__name__} loaded')
 
     @classmethod
     def polarity_converter(self, text: str):
@@ -386,8 +385,9 @@ class Games:
     async def _titanfall_randomloadout(self, ctx):
         await ctx.send('soon™')
 
-    #TODO: make tic tac toe work properly and not be shit
 
+    #TODO: make tic tac toe work properly and not be shit
+    #probably never going to happen is it
 #     tttreacts = {
 #         'accept': '✅',
 #         '1': '1⃣',

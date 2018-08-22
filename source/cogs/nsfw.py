@@ -11,8 +11,7 @@ from .utils.shortcuts import embedable, quick_embed
 class Nsfw:
     def __init__(self, bot):
         self.bot = bot
-        self.hidden = False
-        print('cog {} loaded'.format(self.__class__.__name__))
+        print(f'cog {self.__class__.__name__} loaded')
 
     @commands.command(
         name = "e621",

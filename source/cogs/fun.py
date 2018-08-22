@@ -1,6 +1,7 @@
 import copy
 import json
 import random
+from ntpath import basename
 from glob import glob
 from io import BytesIO
 
@@ -124,23 +125,33 @@ class Fun:
     def __init__(self, bot):
         self.bot = bot
         self.autoreact_list = json.load(try_file('cogs/store/autoreact.json', '{}'))
-        self.hidden = False
-        self.comic_sans = ImageFont.truetype('cogs/images/comic_sans.ttf', size = 15)
-        self.big_sans = ImageFont.truetype('cogs/images/comic_sans.ttf', size = 54)
-        self.youtube_crime = Image.open('cogs/images/crime.png', mode = 'r').convert('RGBA')
+
+        #gather all the fonts into big and small versions
+        self.small_fonts = rdict()
+        self.big_fonts = rdict() #do this because you cant change font size later (idk why)
+
+        for font_path in glob('cogs/fonts/*.ttf'):
+            name = basename(font_path)
+
+            #Load both a big and small version of the font
+            self.small_fonts[name[:-4]] = ImageFont.truetype(font_path, size = 15)
+            self.big_fonts[name[:-4]] = ImageFont.truetype(font_path, size = 54)
+
+        #gather all the images of frothy for the `frothy` command
         self.frothy_images = []
         for image in glob('cogs/images/frothy/*.png'):
             self.frothy_images.append(BytesIO(open(image, 'rb').read()))
 
-        woke_eye = Image.open('cogs/images/eyes/woke_eye.png').convert('RGBA')
+        #gather all the images of eyes for the `eyes` command
+        self.eyes = rdict()
+        for eye_path in glob('cogs/images/eyes/*.png'):
+            name = basename(eye_path)
+            #do [:-4] to trim off the `.png` ending
+            self.eyes[name[:-4]] = Image.open(eye_path).convert('RGBA')
 
-        self.eye_dict = rdict(
-            #red = 'red_eye.png',
-            woke = woke_eye,
-            lens = woke_eye
-        )
+        self.youtube_crime = Image.open('cogs/images/crime.png', mode = 'r').convert('RGBA')
 
-        print('cog {} loaded'.format(self.__class__.__name__))
+        print(f'cog {self.__class__.__name__} loaded')
 
     @commands.command(
         name = "frothy",
@@ -313,7 +324,7 @@ class Fun:
         base = copy.deepcopy(self.youtube_crime)
 
         draw_context = ImageDraw.Draw(base)
-        draw_context.text((340, 125), text, (0, 0, 0), font = self.comic_sans)
+        draw_context.text((340, 125), text, (0, 0, 0), font = self.small_fonts['comic_sans'])
 
         output = image_to_bytes(base)
 
@@ -358,10 +369,13 @@ class Fun:
                 to_overlay = self.eye_dict[eye.lower()]
             except KeyError:
                 return await ctx.send(f'``{eye}`` is not a valid eye')
+
         try:
             face = await replace_eyes(image, to_overlay)
         except LookupError:
             return await ctx.send('No eyes were found')
+        except TypeError:
+            return await ctx.send('That image is too big to proccess')
 
         ret = discord.File(face.getvalue(), filename = 'eye.png')
         await ctx.send(file = ret)
@@ -393,18 +407,26 @@ class Fun:
     @commands.cooldown(1, 10, commands.BucketType.user)
     async def _memegen(self, ctx, *, text: str = None):
         img = await get_bytes(await get_image(ctx))
-        if text is None:
+
+        lst = text.split(' ')
+        try:#the first word may be a font
+            font = self.big_fonts[lst[0]]
+        except KeyError:#if it isnt a font, just use a random one
+            font = self.big_fonts.random_value()
+
+        if text is None:#check non first because
             header = 'top text'
             footer = 'bottom text'
-        elif '|' in text:
+        elif '|' in text:#this raises an exception if text is None
             txt = text.split('|')
             header = txt[0][:15]
             footer = txt[1][:15]
         else:
             header = text[:15]
             footer = text[15:30]
+
         async with ctx.channel.typing():
-            ret = make_meme(img, self.big_sans, header = header, footer  = footer)
+            ret = make_meme(img, font, header = header, footer = footer)
             f = discord.File(ret.getvalue(), filename = 'meme.png')
             await ctx.send(file = f)
 
@@ -418,17 +440,34 @@ class Fun:
         ret = discord.File(img, filename = 'cat.png')
         await ctx.send(file = ret)
 
-    #TODO: store metadata
     @commands.group(invoke_without_command = True)
+    @commands.guild_only()
     async def autoreact(self, ctx):
-        pass
+        for (server, reacts) in self.autoreact_list.items():
+            if int(server) == ctx.guild.id:
+                if len(reacts) > 25:
+                    all_reacts = [reacts[i:i + 24] for i in range(0, len(reacts), 24)]
 
-    @autoreact.before_invoke
-    async def autoreact_ensure(self, ctx):
-        for guild in self.autoreact_list:
-            if guild == str(ctx.guild.id):
-                return
-        self.autoreact_list[ctx.guild.id] = {}
+                    for idx, each in enumerate(all_reacts):
+                        embed = quick_embed(ctx, title = f'embed page ``{idx}``')
+                        for key, page in each.items():
+                            embed.add_field(name = key, value = '\n'.join(page))
+
+                        await ctx.author.send(embed = embed)
+
+                    return await ctx.send('i have sent the autoreacts to your inbox')
+
+                else:
+                    embed = quick_embed(ctx, title = 'all autoreacts')
+                    for key, val in reacts.items():
+                        if not val:
+                            continue
+                        embed.add_field(name = key, value = '\n'.join(val))
+
+                    await ctx.author.send(embed = embed)
+
+                    return await ctx.send('i sent the autoreacts to your inbox')
+                return await ctx.send('there are no autoreacts for this server')
 
     @autoreact.command(
         name = "add",
@@ -440,51 +479,44 @@ class Fun:
         text = text.split(' ')
         react = text[-1]
         phrase = ' '.join(text[:-1])
-        #get the last word in `text`
-        #by spliting the scetence and getting the last element
+
         if not emoji(react):
-            return await ctx.send('Only emojis may be used as reactions')
+            return await ctx.send(f'``{react}`` is not a thing i can react with')
+
         for (server, reacts) in self.autoreact_list.items():
-            if server == str(ctx.guild.id):
+            if int(server) == ctx.guild.id:
                 try:
                     if phrase in reacts[react]:
-                        return await ctx.send('That is already an autoreact')
+                        return await ctx.send('that react has already been added')
                     reacts[react].append(phrase)
                 except KeyError:
                     reacts[react] = [phrase]
-                return await ctx.send(f'``{react}`` was added as an autoreact to ``{phrase}``')
+                return await ctx.send(f'{react} is now added to messages that contain ``{phrase}``')
 
     @autoreact.command(
         name = "remove",
-        description = "remove an autoract from the current server",
+        description = "remove an autoreact from the current server",
         brief = "remove an autoreact"
     )
     @commands.guild_only()
-    async def autoreact_remove(self, ctx, *, phrase: str):
+    async def autoreact_remove(self, ctx, react: str):
         for (server, reacts) in self.autoreact_list.items():
-            if server == str(ctx.guild.id):
-                worked = False
-                #since each autoreact is stored like
-                # "emoji": [
-                #   list of phrases
-                # ]
-                # we need to iterate over every pair and
-                # ignore the emoji to correctly remove the phrase
+            if int(server) == ctx.guild.id:
+                try:
+                    del reacts[react]
+                    return await ctx.send(f'everything reacting to ``{react}`` has been removed')
+                except KeyError:
+                    return await ctx.send(f'couldnt find anything that reacted to {react}')
 
-                for (_, phrases) in reacts.items():
-                    try:
-                        phrases.remove(phrase)
-                        worked = True
-                    except KeyError:
-                        continue
-                if worked:
-                    ret = '{} was removed as an autoreact phrase'
-                else:
-                    ret = '{} was not an autoreact phrase'
-                return await ctx.send(ret.format(phrase))
+    @autoreact.before_invoke
+    async def autoreact_before(self, ctx):
+        for (server, reacts) in self.autoreact_list.items():
+            if int(server) == ctx.guild.id:
+                return#make sure the server exists
+        self.autoreact_list[str(ctx.guild.id)] = {}
+        #and create it if it doesnt exist
 
-    @autoreact_add.after_invoke
-    @autoreact_remove.after_invoke
+    @autoreact.after_invoke
     async def autoreact_after(self, _):
         json.dump(self.autoreact_list, open('cogs/store/autoreact.json', 'w'), indent = 4)
 

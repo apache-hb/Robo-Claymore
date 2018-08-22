@@ -9,8 +9,7 @@ from .utils.shortcuts import quick_embed
 class Help:
     def __init__(self, bot):
         self.bot = bot
-        self.hidden = False
-        print('cog {} loaded'.format(self.__class__.__name__))
+        print(f'cog {self.__class__.__name__} loaded')
 
     def __get_cog(self, name: str):
         for (key, val) in self.bot.cogs.items():
@@ -100,7 +99,7 @@ class Help:
         except AttributeError:
             description = 'No description'
 
-        embed = quick_embed(ctx, title = 'All subcommands in {}'.format(name),
+        embed = quick_embed(ctx, title = f'All subcommands in {name}',
         description = description)
 
         for command in ctx.bot.get_cog_commands(cog.__class__.__name__):
@@ -115,7 +114,7 @@ class Help:
     def group_embed(self, ctx, name: str) -> discord.Embed:
         group = self.bot.all_commands.get(name)
 
-        embed = quick_embed(ctx, 'All subcommands for group {}'.format(name))
+        embed = quick_embed(ctx, f'All subcommands for group {name}')
 
         for command in group.walk_commands():
             embed.add_field(name = command.name,
@@ -166,4 +165,5 @@ class Help:
         return embed
 
 def setup(bot):
+    bot.remove_command('help')
     bot.add_cog(Help(bot))

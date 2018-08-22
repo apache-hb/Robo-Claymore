@@ -4,7 +4,7 @@ import json
 from discord.ext import commands
 import youtube_dl
 from .utils.shortcuts import try_file
-
+#TODO redo all the stuff here as well
 youtube_dl.utils.bug_reports_message = lambda: ''
 
 yt_format = {
@@ -133,12 +133,13 @@ class Playlist:
             })
         return json.dumps(r)
 
+#TODO all of this
 class Voice:
     def __init__(self, bot):
         self.bot = bot
         self.queues = []
         self.user_playlists = json.load(try_file('cogs/store/playlist.json'))
-        print('cog {} loaded'.format(self.__class__.__name__))
+        print(f'cog {self.__class__.__name__} loaded')
 
     @commands.group(invoke_without_command = True)
     async def playlist(self, ctx):

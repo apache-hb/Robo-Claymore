@@ -12,12 +12,23 @@ class Owner:
     def __init__(self, bot):
         self.bot = bot
         self.config = json.load(try_file('cogs/store/config.json'))
-        self.spam = True
+
+        self.blocklist = json.load(try_file('cogs/store/blacklist.json'))
+
+        #This replaces the spam bool as it allows ofr much cleaner and more reliable
+        #killing of function execution
+        #thanks to PikalaxALT#5823 for help with this
+        self.futures = {}
+
         self.hidden = True
         self.bully = []
-        print('cog {} loaded'.format(self.__class__.__name__))
+        #TODO move stuff like the config to external file to be global
+        #TODO whitelist, blacklist and related checks
+        print(f'cog {self.__class__.__name__} loaded')
 
     async def __local_check(self, ctx):
+        print('{0.author.name} tried to use {0.invoked_with}'.format(ctx))
+
         if await can_override(ctx):
             return True
         await ctx.send('go away')
@@ -37,9 +48,17 @@ class Owner:
                 except discord.errors.Forbidden:
                     pass
 
-    @commands.command(name = "test")
+    @commands.group(name = "test")
     async def _test(self, ctx):
         return await ctx.message.add_reaction('🇧')
+
+    @_test.command(name = "sub")
+    async def _test_sub(self, ctx):
+        await ctx.send('a')
+
+    @_test.after_invoke
+    async def _asdasd(self, ctx):
+        print('jhdjfsd')
 
     @commands.command(name = "eval")
     async def _eval(self, ctx, *, text: str):
@@ -52,6 +71,7 @@ class Owner:
     async def _echo(self, ctx, *, text: str):
         await ctx.send(text)
 
+    #TODO make this nicer to use and easier to read/write
     @commands.group(invoke_without_command = False, name = "bully")
     async def _bully(self, ctx):
         pass
@@ -82,123 +102,95 @@ class Owner:
     #this command just changes a bool and waits, its used to stop spamming without restarting the bot
     @commands.command(name = "panic")
     async def _panic(self, ctx):
-        self.spam = False
-        ret = await ctx.send('Stopping spam')
-        await asyncio.sleep(15)
-        self.spam = True
-        await ret.edit(content = 'The spam should be over')
+        r = await ctx.send('stopping spam')
+        for (messageid, future) in self.futures.items():
+            future.cancel()
+        self.futures.clear()
+        await r.edit(content = 'spam should be over now')
 
     @commands.command(name = "ping")
     async def _ping(self, ctx):
-        ret = '%.{}f'.format(3) % ctx.bot.latency
-        await ctx.send('{} seconds latency to discord'.format(ret))
+        await ctx.send('%.3f seconds latency to discord' % ctx.bot.latency)
 
-    @commands.command(name = "massdm")
-    async def _massdm(self, ctx, count: int = 0, *, message: str = 'My name jeff'):
+    async def do_massdm(self, ctx, count: int, message: str):
         await ctx.send(f'the crime against humanity has begun for {count + 1} cycles')
 
         for _ in range(count):
-            if self.spam:
-                for user in ctx.guilds.members:
-                    try:
-                        await user.send(message)
-                    except discord.errors.Forbidden:
-                        pass
-            else:
-                return await ctx.send('The spam has been inturrupted')
+            for user in ctx.guilds.members:
+                try:
+                    await user.send(message)
+                except discord.errors.Forbidden:
+                    pass
+
+    @commands.command(name = "massdm")
+    async def _massdm(self, ctx, count: int = 0, *, message: str = 'My name jeff'):
+        future = self.do_massdm(ctx, count, message)
+        self.futures[ctx.message.id] = asyncio.ensure_future(future)
+        try:
+            await asyncio.wait_for(future, timeout = 9999)
+        except RuntimeError:
+            return await ctx.send('command was cancelled/ended')
 
     @commands.command(name = "massprod")
     async def _massprod(self, ctx):
         for user in ctx.guild.members:
             await ctx.send(user.mention, delete_after = .5)
 
-    @commands.command(name = "prod")
-    async def _prod(self, ctx, user: discord.Member, count: int = 10, *, message: str = 'Skidaddle skidoodle'):
+    async def do_prod(self, ctx, user: discord.Member, count: int, message: str):
         await ctx.send(f'The spam against {user.name} has begun for {count} cycles')
 
         for _ in range(count):
-            if self.spam:
-                try:
-                    await user.send(message)
-                except discord.errors.Forbidden:
-                    return await ctx.send('They blocked me')
-            else:
-                return await ctx.send('The spam has been inturrupted')
+            try:
+                await user.send(message)
+            except discord.errors.Forbidden:
+                return await ctx.send('They blocked me')
+
+    @commands.command(name = "prod")
+    async def _prod(self, ctx, user: discord.Member, count: int = 10, *, message: str = 'Skidaddle skidoodle'):
+        future = self.do_prod(ctx, user, count, message)
+        self.futures[ctx.message.id] = asyncio.ensure_future(future)
+        try:
+            await asyncio.wait_for(future, timeout = 999999)
+        except RuntimeError:
+            return await ctx.send('command was cancelled/ended')
 
     @commands.command(name = "userlist")
     async def _userlist(self, ctx):
         ret = ''
         for user in ctx.guild.members:
-            ret += ' '+user.mention
+            ret += ' ' + user.mention
         await ctx.send(await hastebin(content = ret))
 
-    #TODO: whitelist managing
+    async def __global_check(self, ctx):
+        if ctx.author.id in self.blocklist:
+            await ctx.send('eat pant')
+            return False
+        return True
 
     @commands.group(invoke_without_command = True)
-    async def whitelist(self, ctx):
-        if not whitelist:
-            return await ctx.send('No users have been whitelisted yet')
-
-        embed = quick_embed(ctx, title = "all whitelisted users")
-
-
-        for identifier in whitelist:
-            user = await ctx.bot.get_user_info(identifier)
-            embed.add_field(name = user.name, value = user.id)
-
+    async def block(self, ctx):
+        if not self.blocklist:
+            return await ctx.send('no one is blocked')
+        embed = quick_embed(ctx, title = 'all blocked users')
+        for user in self.blocklist:
+            u = self.bot.get_user(user)
+            embed.add_field(name = u, value = u.id)
         await ctx.send(embed = embed)
 
-    @whitelist.command(name = "add")
-    async def _whitelist_add(self, ctx, user: discord.Member):
-        if not user.id in whitelist:
-            whitelist.append(user.id)
-            return await ctx.send(f'{user.name} was added to the whitelist')
 
-        await ctx.send(f'{user.name} is already on the whitelist')
+    @block.command(name = "add")
+    async def _block_add(self, ctx, user: discord.User):
+        if user.id not in self.blocklist:
+            self.blocklist.append(user.id)
+            return await ctx.send(f'added ``{user.name}`` to the blocklist')
+        await ctx.send(f'``{user.name}`` is already blocked')
 
-    @whitelist.command(name = "remove")
-    async def _whitelist_remove(self, ctx, user: discord.Member):
-        try:
-            whitelist.remove(user.id)
-        except ValueError:
-            return await ctx.send(f'{user.name} is not in the whitelist')
-
-        await ctx.send(f'{user.name} was removed from the whitelist')
-
-    @whitelist.command(name = "purge")
-    async def _whitelist_purge(self, ctx):
-        await ctx.send('Whitelist was purged')
-
-    @_whitelist_add.after_invoke
-    @_whitelist_purge.after_invoke
-    @_whitelist_remove.after_invoke
-    async def _whitelist_after(self, _):
-        json.dump(whitelist, open('cogs/store/whitelist.json', 'w'), indent = 4)
-
-    #TODO: blacklist managing
-
-    @commands.group(invoke_without_command = True)
-    async def blacklist(self, ctx):
-        pass
-
-    @blacklist.command(name = "add")
-    async def _blacklist_add(self, ctx, user: discord.Member):
-        pass
-
-    @blacklist.command(name = "remove")
-    async def _blacklist_remove(self, ctx, user: discord.Member):
-        pass
-
-    @blacklist.command(name = "purge")
-    async def _blacklist_purge(self, ctx):
-        pass
-
-    @_blacklist_add.after_invoke
-    @_blacklist_remove.after_invoke
-    @_blacklist_purge.after_invoke
-    async def _blacklist_after(self, _):
-        pass
-        #json.dump(blacklist, open('cogs/store/blacklist.json', 'w'), indent = 4)
+    @block.command(name = "remove")
+    async def _block_remove(self, ctx, user: discord.User):
+        if user.id in self.blocklist:
+            self.blocklist.remove(user.id)
+            return await ctx.send(f'removed ``{user.name}`` from the blocklist')
+        await ctx.send(f'``{user.name}`` isnt blocked')
 
     @commands.group(name = "cogs", invoke_without_command = True)
     async def cogs(self, ctx):
@@ -238,29 +230,6 @@ class Owner:
             return await ctx.send(e)
         return await ctx.send(f'Cog {name} reloaded correctly')
 
-    @cogs.command(name = "enable")
-    async def _cogs_enable(self, ctx, name: str):
-        if ctx.bot.get_cog(name.lower()) is None:
-            return await ctx.send(f'{name} is not a cog')
-
-        if not name.lower() in config['disabled']['cogs']:
-            return await ctx.send('That cog isn\'t disabled')
-
-        config['disabled']['cogs'].remove(name.lower())
-        json.dump(config, open('cogs/store/config.json', 'w'), indent = 4)
-
-    @cogs.command(name = "disable")
-    async def _cogs_disable(self, ctx, name: str):
-        if ctx.bot.get_cog(name.lower()) is None:
-            return await ctx.send(f'{name} is not a cog')
-
-        if name.lower() in config['disabled']['cogs']:
-            return await ctx.send('That cog is already disabled')
-
-        config['disabled']['cogs'].append(name.lower())
-        json.dump(config, open('cogs/store/config.json', 'w'), indent = 4)
-
-
     @commands.group(invoke_without_command = True)
     async def remote(self, ctx):
         pass
@@ -299,8 +268,8 @@ class Owner:
             return await ctx.send(f'No server with an id of {server} found')
 
         ret = f'```\n{guild.name}\n'
-        for channel in guild.text_channels[:25]:
-            ret += '{0.name}#{0.id}\n'.format(channel)
+        for channel in guild.text_channels[:25]:#only send the first 25 channels in the server
+            ret += '{0.name}#{0.id}\n'.format(channel)#TODO class them under categorys if there are any
         ret += '```'
 
         await ctx.send(ret)
@@ -320,23 +289,25 @@ class Owner:
 
         for perm in dir(perms):
             if perm.startswith('__') or callable(getattr(perms, perm)):
-                continue
+                continue#TODO extract to function (maybe `all_attrs(obj)`)
             embed.add_field(name = perm, value = getattr(perms, perm))
 
         await ctx.send(embed = embed)
 
     @remote.command(name = "channelinfo")
-    async def _remote_channelinfo(self, ctx, channel: int):
+    async def _remote_channelinfo(self, ctx, channel: int, create_invite: bool = False):
         target = ctx.bot.get_channel(channel)
 
         if target is None:
             return await ctx.send(f'No channel with an id of {channel} found')
 
         ret = '{}#{}\n'.format(target.name, target.id)
-        try:
-            ret += str(await target.create_invite())
-        except Exception:
-            ret += 'I cant make an invite for this channel\n'
+
+        if create_invite:
+            try:
+                ret += str(await target.create_invite())
+            except Exception:
+                ret += 'I cant make an invite for this channel\n'
 
         await ctx.send(ret)
 

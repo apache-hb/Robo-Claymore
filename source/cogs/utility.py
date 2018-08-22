@@ -103,12 +103,12 @@ USER_AGENT = '{} (https://github.com/Apache-HB/Robo-Claymore)'
 class Utility:
     def __init__(self, bot):
         self.bot = bot
-        self.hidden = False
+        #TODO this is probably better in a dictionary
         self.config = json.load(try_file('cogs/store/config.json'))
-        self.tags = json.load(try_file('cogs/store/tags.json'))
-        self.quotes = json.load(try_file('cogs/store/quotes.json'))
+        self.tags = json.load(try_file('cogs/store/tags.json', content = '{}'))
+        self.quotes = json.load(try_file('cogs/store/quotes.json', content = '{}'))
         self.wolfram = Wolfram(self.config['wolfram']['key'])
-        print('cog {} loaded'.format(self.__class__.__name__))
+        print(f'cog {self.__class__.__name__} loaded')
 
     #TODO get this to actually work and return an article
     @commands.command(name = "wikia", hidden = True)
@@ -258,7 +258,7 @@ ZALGO!""",
     async def _invite(self, ctx):
         ret = ''
         ret += 'Invite me with this link\n'
-        ret += '<https://discordapp.com/oauth2/authorize?client_id={}&scope=bot&permissions=66321471>\n'.format(self.bot.user.id)
+        ret += '<https://discordapp.com/oauth2/authorize?client_id={}&scope=bot&permissions=8>\n'.format(self.bot.user.id)
         ret += 'and join my owners discord server here\n'
         ret += 'https://discord.gg/y3uSzCK'
         await ctx.send(ret)
@@ -389,12 +389,12 @@ ZALGO!""",
         ret = json.loads(await url_request(url = url))
 
         if not ret['list']:
-            return await ctx.send('Nothing about {} found'.format(search))
+            return await ctx.send(f'Nothing about {search} found')
 
         post = random.choice(ret['list'])
 
-        embed = quick_embed(ctx, title = 'Definition of {}'.format(post['word']),
-        description = 'Written by {}'.format(post['author']))
+        embed = quick_embed(ctx, title = f'Definition of {post["word"]}',
+        description = f'Written by {post['author']}')
         embed.add_field(name = 'Description', value = post['definition'])
         embed.add_field(name = 'Example', value = post['example'])
         embed.add_field(name = 'Permalink', value = post['permalink'])
@@ -420,7 +420,7 @@ ZALGO!""",
 
         if ctx.guild is not None:
             diffrence = now - user.joined_at
-            embed.add_field(name = 'Time spent in {}'.format(ctx.guild.name),
+            embed.add_field(name = f'Time spent in {ctx.guild.name}',
             value = 'First joined at {}, thats over {} days ago'.format(
                 user.joined_at.date(),
                 diffrence.days
@@ -476,7 +476,7 @@ ZALGO!""",
         brief = "what about wall-e?"
     )
     async def _botinfo(self, ctx):
-        embed = quick_embed(ctx, title='Info about me, {}'.format(self.bot.user.name))
+        embed = quick_embed(ctx, title = f'Info about me, {self.bot.user.name}')
         embed.add_field(name = 'Working directory', value = dir_path)
         embed.set_thumbnail(url = self.bot.user.avatar_url)
         embed.add_field(name = 'discord.py version', value = discord.__version__)
@@ -539,7 +539,7 @@ ZALGO!""",
         try: post = j['data']['children'][index]
         except IndexError: return await ctx.send('There is no post with that index')
 
-        if await can_override(ctx):
+        if await can_override(ctx):#TODO fix this
             if post['data']['over_18'] and not ctx.channel.is_nsfw():
                 return await ctx.send('That post is nsfw, and must be requested in an nsfw channel')
 
@@ -596,7 +596,7 @@ ZALGO!""",
 
     @prettyprint.command(
         name = "json",
-        description = "prettyprint and format xml",
+        description = "prettyprint and format json",
         brief = "json can be pretty"
     )
     async def _prettyprint_json(self, ctx, *, text: str):
@@ -620,190 +620,125 @@ ZALGO!""",
 
         await ctx.send('```html\n' + ret.replace('`', '\`') + '```')
 
+
+
+    def get_server_tag(self, server: int):
+        for (serverid, tags) in self.tags.items():
+            if int(serverid) == server:
+                return tags
+
     @commands.group(invoke_without_command = True)
     @commands.guild_only()
     async def tag(self, ctx, name: str = None):
-        for server in self.tags:
-            if server['id'] == ctx.guild.id:
+        tags = self.get_server_tag(ctx.guild.id)
+        if not tags:
+            return await ctx.send('this server has no tags')
 
-                if not server['contents']:
-                    return await ctx.send('this server has no saved tags')
+        if name is None:
+            _, ret = random.choice(list(tags.items()))
+            return await ctx.send(ret)
 
-                if name is None:
-                    ret = random.choice(server['contents'])
-                    return await ctx.send(ret['content'])
+        try:
+            await ctx.send(tags[name.lower()])
+        except KeyError:
+            await ctx.send(f'no tag called {name} found')
 
-                for item in server['contents']:
-                    if item['tag'] == name:
-                        return await ctx.send(item['content'])
-
-                fuzzed = process.extract(name, [item['tag'] for item in server['contents']], limit = 3)
-
-                embed = quick_embed(ctx, 'possible results')
-                for pair in fuzzed:
-                    if pair[1] > 50:
-                        embed.add_field(name = pair[0], value = f'{pair[1]}% match', inline = False)
-
-                if any(pair[1] < 85 for pair in fuzzed):
-                    return await ctx.send(embed = quick_embed(ctx, 'No matches'))
-
-                await ctx.send(embed = embed)
-
-    @tag.command(
-        name = "add",
-        description = "add a tag for the current server",
-        brief = "tags are quotes without indexes"
-    )
+    @tag.command(name = "add")
+    @commands.guild_only()
     async def _tag_add(self, ctx, name: str, *, content: str):
-        ret = {
-            'tag': name.lower(),
-            'content': content
-        }
-        for server in self.tags:
-            if server['id'] == ctx.guild.id:
+        for (server, tags) in self.tags.items():
+            if int(server) == ctx.guild.id:
+                tags[name.lower()] = content
+                return await ctx.send(f'added(or overwrite) the tag ``{name}``')
 
-                if any(item['tag'] == name.lower() for item in server['contents']):
-                    return await ctx.send('That tag already exists')
-
-                server['contents'].append(ret)
-                return await ctx.send(f'added tag {name}')
-
-
-    @tag.command(
-        name = "remove",
-        description = "remove a tag from the current server",
-        brief = "killjoy"
-    )
+    @tag.command(name = "remove")
+    @commands.guild_only()
     async def _tag_remove(self, ctx, name: str):
-        for server in self.tags:
-            if server['id'] == ctx.guild.id:
-                for item in server['contents'][:]:
-                    if item['tag'] == name.lower():
-                        server['contents'].remove(item)
-                        return await ctx.send(f'deleted tag {name}')
-                return await ctx.send(f'not tag called {name} found')
+        for (server, tags) in self.tags.items():
+            if int(server) == ctx.guild.id:
+                try:
+                    del tags[name.lower()]
+                    return await ctx.send(f'removed the tag ``{name}``')
+                except KeyError:
+                    return await ctx.send(f'no tag called ``{name}``')
 
-
-    @tag.command(
-        name = "list",
-        description = "get a list of all this servers tags",
-        brief = "all the tags"
-    )
+    @tag.command(name = "list")
+    @commands.guild_only()
     async def _tag_list(self, ctx):
-        for server in self.tags:
-            if server['id'] == ctx.guild.id:
-
-                if not server['contents']:
-                    return await ctx.send('this server has no tags')
-
-                ret = ''
-                for pair in server['contents']:
-                    ret += pair['tag'] + '\n'
-
-                if len(ret) > 2000:
-                    ret = [ret[i:i+1500] for i in range(0, len(ret), 1500)]
-
-                    for part in ret:
-                        await ctx.author.send('```\n' + part + '```')
-
-                else:
-                    return await ctx.author.send('```\n' + ret + '```')
+        pass
 
     @tag.before_invoke
+    @_tag_add.before_invoke
+    @_tag_remove.before_invoke
+    @_tag_list.before_invoke
     async def _tag_before(self, ctx):
-        for server in self.tags:
-            if server['id'] == ctx.guild.id:
-                return
-        self.tags.append({
-            'id': ctx.guild.id,
-            'contents': []
-        })
+        if self.get_server_tag(ctx.guild.id) is None:
+            self.tags[str(ctx.guild.id)] = {}
 
-    @_tag_remove.after_invoke
     @_tag_add.after_invoke
-    async def _tag_after(self, _):
+    @_tag_remove.after_invoke
+    async def _tag_after(self, ctx):
         json.dump(self.tags, open('cogs/store/tags.json', 'w'), indent = 4)
+
+
+    def get_server_quotes(self, server: int):
+        for (serverid, quotes) in self.quotes.items():
+            if int(serverid) == server:
+                return quotes
 
     @commands.group(invoke_without_command = True)
     @commands.guild_only()
     async def quote(self, ctx, index: int = None):
-        for server in self.quotes:
-            if server['id'] == ctx.guild.id:
+        quotes = self.get_server_quotes(ctx.guild.id)
+        if not quotes:
+            return await ctx.send('no öätś')
+        if index is None:
+            return await ctx.send(random.choice(quotes))
 
-                if not server['contents']:
-                    return await ctx.send('this server has no saved quotes')
+        try:
+            await ctx.send(quotes[index])
+        except IndexError:
+            await ctx.send(f'no quote with an index of ``{index}``')
 
-                if index is None:
-                    return await ctx.send(random.choice(server['contents']))
-
-                try:
-                    return await ctx.send(server['contents'][index+1])
-                except IndexError:
-                    return await ctx.send('this server does not have a quote of that index')
-
-    @quote.command(
-        name = "add",
-        description = "add a quote to the current server",
-        brief = "like tags but without names"
-    )
+    @quote.command(name = "add")
+    @commands.guild_only()
     async def _quote_add(self, ctx, *, content: str):
-        for server in self.quotes:
-            if server['id'] == ctx.guild.id:
-                server['contents'].append(content)
-                return await ctx.send('added quote with an index of {}'.format(len(server['contents'])-2))
+        for (server, quotes) in self.quotes.items():
+            if int(server) == ctx.guild.id:
+                quotes.append(content)
+                return await ctx.send(f'added quote with an index of {len(quotes)-1}')
 
-    @quote.command(
-        name = "remove",
-        description = "remove a quote from the current server",
-        brief = "but why"
-    )
+    @quote.command(name = "remove")
+    @commands.guild_only()
     async def _quote_remove(self, ctx, index: int):
-        for server in self.quotes:
-            if server['id'] == ctx.guild.id:
+        for (server, quotes) in self.quotes.items():
+            if int(server) == ctx.guild.id:
                 try:
-                    server['contents'].remove(index)
-                    return await ctx.send(f'removed quote {index}')
-                except ValueError:
-                    return await ctx.send(f'no quote at index {index}')
+                    quotes.pop(index)
+                    return await ctx.send(f'removed quote at index {index}')
+                except IndexError:
+                    return await ctx.send(f'no quote found at index {index}')
 
-    @quote.command(
-        name = "list",
-        description = "get a list of all quotes this server has",
-        brief = "all the quotes"
-    )
+    @quote.command(name = "list")
+    @commands.guild_only()
     async def _quote_list(self, ctx):
-        for server in self.quotes:
-            if server['id'] == ctx.guild.id:
+        for (server, quotes) in self.quotes.items():
+            if int(server) == ctx.guild.id:
+                pass
 
-                if not server['contents']:
-                    return await ctx.send('this server has no quotes')
-
-                ret = ''
-                for index, item in enumerate(server['contents']):
-                    ret += '{}: {}\n'.format(index, item)
-
-                if len(ret) > 1900:
-                    ret = [ret[i:i+1500] for i in range(0, len(ret), 1500)]
-
-                    for part in ret:
-                        await ctx.author.send('```\n' + part + '```')
-
-                else:
-                    return await ctx.author.send('```\n' + ret + '```')
-
+    @_quote_add.before_invoke
+    @_quote_remove.before_invoke
+    @_quote_list.before_invoke
     @quote.before_invoke
     async def _quote_before(self, ctx):
-        for server in self.quotes:
-            if server['id'] == ctx.guild.id:
+        for (server, quotes) in self.quotes.items():
+            if int(server) == ctx.guild.id:
                 return
-        self.quotes.append({
-            'id': ctx.guild.id,
-            'contents': []
-        })
+        self.quotes[str(ctx.guild.id)] = []
 
     @_quote_add.after_invoke
     @_quote_remove.after_invoke
-    async def _quote_after(self, _):
+    async def _quote_after(self, ctx):
         json.dump(self.quotes, open('cogs/store/quotes.json', 'w'), indent = 4)
 
 def setup(bot):

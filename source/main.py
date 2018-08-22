@@ -25,7 +25,7 @@ except FileNotFoundError:
             'owner': input('Enter the owners id')
         },
         'wolfram': {
-            'key': input('Enter wolfram alpha key (optional)')
+            'key': input('Enter wolfram-alpha key (optional)')
         },
         'count': 0
     }
@@ -37,10 +37,7 @@ bot = commands.Bot(
     owner_id = int(config['discord']['owner'])
 )
 
-#get rid of the help command to allow for a custom one
-bot.remove_command('help')
-
-__version__ = '0.3.5'
+__version__ = '0.3.8'
 
 @bot.event
 async def on_ready():
@@ -56,54 +53,49 @@ bot ready'''.format(bot, discord, __version__))
 async def on_message(context):
     await bot.process_commands(context)
 
+ignored_errors = [
+    commands.errors.CheckFailure,
+    commands.errors.CommandNotFound
+]
+
 @bot.event
 async def on_command_error(ctx, exception):
-    if isinstance(exception, discord.ext.commands.errors.MissingRequiredArgument):
-        embed = quick_embed(ctx, title = 'Incorrect command usage', description = 'When using command {}'.format(ctx.command.name))
+    if any(isinstance(exception, err) for err in ignored_errors):
+        return
+
+    if isinstance(exception, commands.errors.MissingRequiredArgument):
+        embed = quick_embed(ctx, title = 'Incorrect command usage', description = f'When using command {ctx.command.name}')
         embed.add_field(name = 'The correct usage is', value = ctx.command.signature)
         return await ctx.send(embed = embed)
 
-    elif isinstance(exception, discord.ext.commands.errors.CheckFailure):
-        return
-
-    elif isinstance(exception, discord.ext.commands.errors.CommandNotFound):
-        return
-
-    elif isinstance(exception, discord.ext.commands.CommandInvokeError):
+    elif isinstance(exception, commands.CommandInvokeError):
         if 'Cannot connect to host' in str(exception.original):#there must be a better way of checking error types
             return await ctx.send('My internet connection to that site has been blocked')
 
-    elif isinstance(exception, discord.ext.commands.errors.CommandOnCooldown):
+    elif isinstance(exception, commands.errors.CommandOnCooldown):
         return await ctx.send(exception)
 
     traceback.print_exception(type(exception), exception, exception.__traceback__, file=sys.stderr)
-
-@bot.check
-async def check_commands(ctx):
-    #let the bot owner and whitelisted users always override
-    if await can_override(ctx):
-        return True #this is some legacy code if i've ever seen it
-
-    return True
 
 @bot.after_invoke
 async def after_any_command(ctx):
     logs.write('{0.author.name}#{0.author.id} invoked command {0.invoked_with}\n'.format(ctx))
     logs.flush()
 
-    if ctx.cog.__class__.__name__ == 'Owner':#specifically log if an owner only command is used
-        print('{0.author.name} tried to use {0.invoked_with}'.format(ctx))
-
 if __name__ == '__main__':
-    for cog in glob('cogs/*.py'):
-        if not cog in ['cogs/__init__.py']:
-            try:
-                bot.load_extension(cog.replace('cogs/', 'cogs.').replace('.py', ''))
-            except Exception as e:
-                print(cog, 'failed to load becuase: ', e)
+    for cog in glob('cogs/*.py'): #skip __init__ as its not a cog
+
+        if cog in ['cogs/__init__.py']:
+            continue
+
+        try:
+            bot.load_extension(cog.replace('/', '.')[:-3])#turn cogs/file.py info cogs.file
+        except Exception as e:
+            print(f'{cog} failed to load becuase: {e}')
 
 os.makedirs('cogs/store/backup/', exist_ok = True)
 
+#backup all the config files
 for storefile in glob('cogs/store/*.json'):
     copyfile(storefile, 'cogs/store/backup/' + os.path.basename(storefile))
     print(f'Backed up {storefile}')

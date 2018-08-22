@@ -38,6 +38,10 @@ async def replace_eyes(face_image: io.BytesIO, eye_image):
 
     #now convert the face from BytesIO to PIL.Image to do the editing
     output = bytes_to_image(face_image)
+
+    w, h = output.size()
+    if w > 3000 or h > 3000:
+        raise TypeError()
     #eye_image is alread a PIL.Image
 
     for (x, y, w, h) in eye_locs:
