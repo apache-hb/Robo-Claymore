@@ -52,14 +52,6 @@ class Owner:
     async def _test(self, ctx):
         return await ctx.message.add_reaction('🇧')
 
-    @_test.command(name = "sub")
-    async def _test_sub(self, ctx):
-        await ctx.send('a')
-
-    @_test.after_invoke
-    async def _asdasd(self, ctx):
-        print('jhdjfsd')
-
     @commands.command(name = "eval")
     async def _eval(self, ctx, *, text: str):
         try:
@@ -103,7 +95,7 @@ class Owner:
     @commands.command(name = "panic")
     async def _panic(self, ctx):
         r = await ctx.send('stopping spam')
-        for (messageid, future) in self.futures.items():
+        for (_, future) in self.futures.items():
             future.cancel()
         self.futures.clear()
         await r.edit(content = 'spam should be over now')

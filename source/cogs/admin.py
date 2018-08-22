@@ -15,6 +15,8 @@ class Admin:
 
         self.autorole_list = json.load(try_file('cogs/store/autorole.json', content = '{}'))
 
+        self.leave_channels = json.load(try_file('cogs/store/leave.json', content = '{}'))
+
         print(f'cog {self.__class__.__name__} loaded')
 
     async def will_manage(self, ctx, user: discord.Member, kind: str):
@@ -135,6 +137,28 @@ class Admin:
 
         await ctx.send(f'massnicked {a} users')
 
+    async def on_member_remove(self, member):
+        channelid = self.leave_channels.get(str(member.guild.id), None)
+        if channelid is None:
+            return
+        for each in member.guild.channels:
+            if each.id == channelid:
+                await each.send(f'``{member.name}#{member.discriminator}`` just left')
+
+
+    @commands.command(name = "setleave")
+    @commands.guild_only()
+    @checks.is_admin()
+    async def _setleave(self, ctx, channel: discord.TextChannel = None):
+        self.leave_channels[str(ctx.guild.id)] = getattr(channel, 'id', None)
+        if channel is None:
+            return await ctx.send('cleared the leave channel')
+        await ctx.send(f'set leave channel to ``{channel.name}``')
+
+    @_setleave.after_invoke
+    async def _after_leave(self, _):
+        json.dump(self.leave_channels, open('cogs/store/leave.json', 'w'), indent = 4)
+
     @commands.group(invoke_without_command = True)
     @commands.guild_only()
     @checks.is_admin()
@@ -185,7 +209,7 @@ class Admin:
 
     @autorole.before_invoke
     async def _autorole_before(self, ctx):
-        for (server, roles) in self.autorole_list.items():
+        for server in self.autorole_list:
             if int(server) == ctx.guild.id:
                 return
         self.autorole_list[str(ctx.guild.id)] = []
@@ -278,7 +302,7 @@ class Admin:
 
     @blacklist.before_invoke
     async def _blacklist_before(self, ctx):
-        for (server, users) in self.server_blacklists.items():
+        for server in self.server_blacklists:
             if int(server) == ctx.guild.id:
                 return
         self.server_blacklists[str(ctx.guild.id)] = []

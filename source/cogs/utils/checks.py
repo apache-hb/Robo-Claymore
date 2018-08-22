@@ -1,7 +1,4 @@
 from discord.ext import commands
-import discord
-import json
-from .shortcuts import try_file
 
 async def can_override(ctx, user = None):
     if user is None:

@@ -510,7 +510,7 @@ class Fun:
 
     @autoreact.before_invoke
     async def autoreact_before(self, ctx):
-        for (server, reacts) in self.autoreact_list.items():
+        for server in self.autoreact_list:
             if int(server) == ctx.guild.id:
                 return#make sure the server exists
         self.autoreact_list[str(ctx.guild.id)] = {}

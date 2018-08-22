@@ -8,7 +8,6 @@ from shutil import copyfile
 import discord
 from discord.ext import commands
 
-from cogs.utils.checks import can_override
 from cogs.utils.shortcuts import quick_embed
 
 logs = open('cogs/store/claymore.log', 'a')
