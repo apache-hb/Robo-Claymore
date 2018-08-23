@@ -1,6 +1,6 @@
 from PIL import Image
 from io import BytesIO
-from . import image_to_bytes, bytes_to_image
+from .converters import image_to_bytes, bytes_to_image
 
 van_image = Image.open('cogs/images/creepy_van.png').convert('RGBA')
 

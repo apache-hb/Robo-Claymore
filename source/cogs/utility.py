@@ -393,8 +393,7 @@ ZALGO!""",
 
         post = random.choice(ret['list'])
 
-        embed = quick_embed(ctx, title = f'Definition of {post["word"]}',
-        description = f'Written by {post["author"]}')
+        embed = quick_embed(ctx, title = f'Definition of {post["word"]}', description = f'Written by {post["author"]}')
         embed.add_field(name = 'Description', value = post['definition'])
         embed.add_field(name = 'Example', value = post['example'])
         embed.add_field(name = 'Permalink', value = post['permalink'])

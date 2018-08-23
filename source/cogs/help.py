@@ -34,7 +34,6 @@ class Help:
     async def _help(self, ctx, *, name: str = None):
         if name is None:
             await ctx.send(embed = self.__all(ctx))
-
         elif self.__get_cog(name) is not None:
             await ctx.send(embed = self.__cog(ctx, name.lower()))
         elif name.lower() in ctx.bot.all_commands:

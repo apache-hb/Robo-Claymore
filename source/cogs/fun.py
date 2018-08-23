@@ -15,6 +15,7 @@ from .utils import make_meme, make_retro, overlay_van, replace_eyes
 from .utils.facial_detection import image_to_bytes
 from .utils.networking import get_bytes, get_image, json_request
 from .utils.shortcuts import emoji, quick_embed, try_file
+from .utils.expanding_brain import make_expanding_brain
 
 ball_awnsers = [
     'Definetly',
@@ -138,9 +139,8 @@ class Fun:
             self.big_fonts[name[:-4]] = ImageFont.truetype(font_path, size = 54)
 
         #gather all the images of frothy for the `frothy` command
-        self.frothy_images = []
-        for image in glob('cogs/images/frothy/*.png'):
-            self.frothy_images.append(BytesIO(open(image, 'rb').read()))
+        self.frothy_images = [BytesIO(open(image, 'rb').read())
+                                for image in glob('cogs/images/frothy/*.png')]
 
         #gather all the images of eyes for the `eyes` command
         self.eyes = rdict()
@@ -253,7 +253,10 @@ class Fun:
                 for (react, phrases) in reacts.items():
                     for each in phrases:
                         if each in ctx.content.lower():
-                            await ctx.add_reaction(react)
+                            if react.endswith('>'):
+                                await ctx.add_reaction(react[:-1])
+                            else:
+                                await ctx.add_reaction(react)
                             break
                 return
 
@@ -330,6 +333,24 @@ class Fun:
 
         ret = discord.File(output.getvalue(), filename = 'crime.png')
         await ctx.send(file = ret)
+
+    @commands.command(
+        name = "brain",
+        description = "make an expanding brain meme",
+        brief = "whomst'd've'y'aint"
+    )
+    @commands.cooldown(1, 10, commands.BucketType.user)
+    async def _brain(self, ctx, *, text: str):
+        txt = text.split('|')
+
+        async with ctx.channel.typing():
+            try:
+                img = await make_expanding_brain(txt, self.big_fonts.random_item()[1])
+            except IndexError:
+                return await ctx.send('you must use between 2 and 6 phrases in a brain meme')
+
+            f = discord.File(img.getvalue(), filename = 'brain.png')
+            await ctx.send(file = f)
 
     @commands.command(
         name = "retro",
@@ -516,7 +537,8 @@ class Fun:
         self.autoreact_list[str(ctx.guild.id)] = {}
         #and create it if it doesnt exist
 
-    @autoreact.after_invoke
+    @autoreact_add.after_invoke
+    @autoreact_remove.after_invoke
     async def autoreact_after(self, _):
         json.dump(self.autoreact_list, open('cogs/store/autoreact.json', 'w'), indent = 4)
 
