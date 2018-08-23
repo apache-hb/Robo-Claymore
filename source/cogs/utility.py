@@ -669,7 +669,7 @@ ZALGO!""",
                 for chunk in [tags[i:i + 25] for i in range(0, len(tags), 25)]:
                     embed = quick_embed(ctx, 'all tags')
                     for each in chunk:
-                        embed.add_field(name = chunk.key(), value = chunk.item())
+                        embed.add_field(name = each.key(), value = each.item())
                     await ctx.author.send(embed = embed)
                 return await ctx.send('i have sent all the tags to your inbox')
 
@@ -743,7 +743,7 @@ ZALGO!""",
     @_quote_list.before_invoke
     @quote.before_invoke
     async def _quote_before(self, ctx):
-        for (server, quotes) in self.quotes.items():
+        for server in self.quotes:
             if int(server) == ctx.guild.id:
                 return
         self.quotes[str(ctx.guild.id)] = []
