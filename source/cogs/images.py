@@ -1,9 +1,16 @@
 import discord
 from aiohttp.client_exceptions import InvalidURL
 from discord.ext import commands
-from .utils.images import do_choice, do_note, do_button, do_kick, do_villan_image, do_retard
+
 from .utils.converters import bytes_to_image
+from .utils.images import (
+    do_button, do_choice,
+    do_kick, do_note, do_retard,
+    do_villan_image, do_words,
+    do_prison, do_shout, do_tweet
+)
 from .utils.networking import get_bytes
+
 
 class Images:
     def __init__(self, bot):
@@ -13,6 +20,7 @@ class Images:
     @commands.command(
         name = "button"
     )
+    @commands.cooldown(1, 10, commands.BucketType.user)
     async def _button(self, ctx, *, text: str):
         async with ctx.channel.typing():
             r = await do_button(text)
@@ -22,6 +30,7 @@ class Images:
     @commands.command(
         name = "choice"
     )
+    @commands.cooldown(1, 10, commands.BucketType.user)
     async def _choice(self, ctx, *, text: str):
         split = text.split('|')
         async with ctx.channel.typing():
@@ -36,6 +45,7 @@ class Images:
     @commands.command(
         name = "note"
     )
+    @commands.cooldown(1, 10, commands.BucketType.user)
     async def _note(self, ctx, *, text: str):
         async with ctx.channel.typing():
             f = await do_note(text)
@@ -64,15 +74,24 @@ class Images:
             ret = discord.File(r.getvalue(), filename = 'kick.png')
             await ctx.send(file = ret)
 
-    @commands.command(name = "words")
+    @commands.command(name = "firstwords")
+    @commands.cooldown(1, 10, commands.BucketType.user)
     async def _words(self, ctx, *, text: str):
-        pass
+        async with ctx.channel.typing():
+            r = await do_words(text)
+            ret = discord.File(r.getvalue(), filename = 'words.png')
+            await ctx.send(file = ret)
 
     @commands.command(name = "prison")
+    @commands.cooldown(1, 10, commands.BucketType.user)
     async def _prison(self, ctx, *, text: str):
-        pass
+        async with ctx.channel.typing():
+            r = await do_prison(text)
+            ret = discord.File(r.getvalue(), filename = 'prison.png')
+            await ctx.send(file = ret)
 
     @commands.command(name = "retard")
+    @commands.cooldown(1, 10, commands.BucketType.user)
     async def _retard(self, ctx, *, text: str):
         async with ctx.channel.typing():
             r = await do_retard(text)
@@ -80,12 +99,22 @@ class Images:
             await ctx.send(file = ret)
 
     @commands.command(name = "shout")
-    async def _shout(self, ctx, *, text: str):
-        pass
+    @commands.cooldown(1, 10, commands.BucketType.user)
+    async def _shout(self, ctx, first: discord.User, second: discord.User):
+        async with ctx.channel.typing():
+            f = await get_bytes(first.avatar_url)
+            s = await get_bytes(second.avatar_url)
+            r = await do_shout(bytes_to_image(f), bytes_to_image(s))
+            ret = discord.File(r.getvalue(), filename = 'shout.png')
+            await ctx.send(file = ret)
 
     @commands.command(name = "tweet")
+    @commands.cooldown(1, 10, commands.BucketType.user)
     async def _tweet(self, ctx, *, text: str):
-        pass
+        async with ctx.channel.typing():
+            r = await do_tweet(text)
+            ret = discord.File(r.getvalue(), filename = 'tweet.png')
+            await ctx.send(file = ret)
 
     @commands.command(name = "villan")
     @commands.cooldown(1, 20, commands.BucketType.user)

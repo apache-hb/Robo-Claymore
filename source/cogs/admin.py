@@ -267,7 +267,7 @@ class Admin:
                     u.append(usr.name)
                 ret = ',\n'.join(u)
                 if len(ret) > 1500:
-                    ret = [ret[i:i + 1500] for i in range(0, len(reacts), 1500)]
+                    ret = [ret[i:i + 1500] for i in range(0, len(ret), 1500)]
                     for part in ret:
                         await ctx.send(f'```css\n{part}```')
                     return await ctx.send('all users sent, maybe you have too many blocked for your own good')

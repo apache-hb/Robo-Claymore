@@ -4,18 +4,6 @@ from . import image_to_bytes
 from glob import glob
 from ntpath import basename
 
-blue_button_loc = (100, 100)
-button_choice_locs = ((50, 100), (50, 200))
-class_note_loc = (100, 100)
-door_kick_loc = (100, 100)
-first_words_loc = (100, 100)
-letter_loc = (100, 100)
-prison_loc = (100, 100)
-retarded_loc = (100, 100)
-shouting_locs = ((50, 50), (200, 50))
-tweet_loc = (50, 50)
-villan_locs = ((50, 50), (50, 200))
-
 images = {}
 files = glob('cogs/images/*.jpg')
 files.extend(glob('cogs/images/*.png'))
@@ -25,6 +13,8 @@ for each in files:
     images[name[:-4]] = Image.open(each).convert('RGBA')
 
 font = ImageFont.truetype('cogs/fonts/comic_sans.ttf', size = 35)
+small_font = ImageFont.truetype('cogs/fonts/comic_sans.ttf', size = 25)
+big_font = ImageFont.truetype('cogs/fonts/comic_sans.ttf', size = 55)
 
 async def do_choice(first: str, second: str):
     img = deepcopy(images['choice'])
@@ -54,12 +44,16 @@ async def do_kick(image: Image):
     return image_to_bytes(ret)
 
 async def do_words(text: str):
-    pass
+    img = copy(images['first_words'])
+    draw = ImageDraw.Draw(img)
+    draw.text((50, 300), text, (0, 0, 0), font = font)
+    return image_to_bytes(img)
 
 async def do_prison(text: str):
-    pass
-
-small_font = ImageFont.truetype('cogs/fonts/comic_sans.ttf', size = 25)
+    img = copy(images['prison'])
+    draw = ImageDraw.Draw(img)
+    draw.text((250, 250), text, (0, 0, 0), font = small_font)
+    return image_to_bytes(img)
 
 async def do_retard(text: str):
     img = copy(images['retarded'])
@@ -68,10 +62,20 @@ async def do_retard(text: str):
     return image_to_bytes(img)
 
 async def do_shout(first: Image, second: Image):
-    pass
+    img = copy(images['shouting'])
+    ret = Image.new('RGBA', img.size, (255, 255, 255, 255))
+    first.thumbnail((128, 128), Image.ANTIALIAS)
+    second.thumbnail((128, 128), Image.ANTIALIAS)
+    ret.paste(first, (30, 50), first)
+    ret.paste(second, (330, 50), second)
+    ret.paste(img, (0, 0), img)
+    return image_to_bytes(ret)
 
 async def do_tweet(text: str):
-    pass
+    img = copy(images['trump_tweet'])
+    ret = ImageDraw.Draw(img)
+    ret.text((200, 250), text, (0, 0, 0), font = big_font)
+    return image_to_bytes(img)
 
 async def do_villan_image(first: Image, second: Image):
     img = copy(images['villans'])

@@ -102,7 +102,6 @@ USER_AGENT = '{} (https://github.com/Apache-HB/Robo-Claymore)'
 class Utility:
     def __init__(self, bot):
         self.bot = bot
-        #TODO this is probably better in a dictionary
         self.config = json.load(try_file('cogs/store/config.json'))
         self.tags = json.load(try_file('cogs/store/tags.json', content = '{}'))
         self.quotes = json.load(try_file('cogs/store/quotes.json', content = '{}'))
@@ -663,7 +662,16 @@ ZALGO!""",
     @tag.command(name = "list")
     @commands.guild_only()
     async def _tag_list(self, ctx):
-        pass
+        for (server, tags) in self.tags.items():
+            if int(server) == ctx.guild.id:
+                if not tags:
+                    return await ctx.send('this server has no tags')
+                for chunk in [tags[i:i + 25] for i in range(0, len(tags), 25)]:
+                    embed = quick_embed(ctx, 'all tags')
+                    for each in chunk:
+                        embed.add_field(name = chunk.key(), value = chunk.item())
+                    await ctx.author.send(embed = embed)
+                return await ctx.send('i have sent all the tags to your inbox')
 
     @tag.before_invoke
     @_tag_add.before_invoke
@@ -675,7 +683,7 @@ ZALGO!""",
 
     @_tag_add.after_invoke
     @_tag_remove.after_invoke
-    async def _tag_after(self, ctx):
+    async def _tag_after(self, _):
         json.dump(self.tags, open('cogs/store/tags.json', 'w'), indent = 4)
 
 
@@ -722,7 +730,13 @@ ZALGO!""",
     async def _quote_list(self, ctx):
         for (server, quotes) in self.quotes.items():
             if int(server) == ctx.guild.id:
-                pass
+                if not quotes:
+                    return await ctx.send('this server has no quotes')
+                ret = '\n'.join(quotes)
+                ret = [ret[i:i + 1500] for i in range(0, len(ret), 1500)]
+                for part in ret:
+                    await ctx.author.send(f'```{part}```')
+                return await ctx.send(f'{ctx.author.mention} i sent the quotes to your inbox')
 
     @_quote_add.before_invoke
     @_quote_remove.before_invoke
@@ -736,7 +750,7 @@ ZALGO!""",
 
     @_quote_add.after_invoke
     @_quote_remove.after_invoke
-    async def _quote_after(self, ctx):
+    async def _quote_after(self, _):
         json.dump(self.quotes, open('cogs/store/quotes.json', 'w'), indent = 4)
 
 def setup(bot):

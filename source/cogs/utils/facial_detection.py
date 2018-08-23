@@ -1,7 +1,5 @@
 import io
 import cv2
-import numpy as np
-from PIL import Image
 from .converters import bytes_to_cv2, bytes_to_image, image_to_bytes
 
 eye_cascade = cv2.CascadeClassifier('cogs/cascades/eye_cascade.xml')
