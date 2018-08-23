@@ -56,14 +56,16 @@ async def do_kick(image: Image):
 async def do_words(text: str):
 	pass
 
-async def do_letter(text: str):
-	pass
-
 async def do_prison(text: str):
 	pass
 
+small_font = ImageFont.truetype('cogs/fonts/comic_sans.ttf', size = 25)
+
 async def do_retard(text: str):
-	pass
+	img = copy(images['retarded'])
+	draw = ImageDraw.Draw(img)
+	draw.text((400, 50), text, (0, 0, 0), font = small_font)
+	return image_to_bytes(img)
 
 async def do_shout(first: Image, second: Image):
 	pass

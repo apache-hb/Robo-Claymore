@@ -1,7 +1,7 @@
 import discord
 from aiohttp.client_exceptions import InvalidURL
 from discord.ext import commands
-from .utils.images import do_choice, do_note, do_button, do_kick, do_villan_image
+from .utils.images import do_choice, do_note, do_button, do_kick, do_villan_image, do_retard
 from .utils.converters import bytes_to_image
 from .utils.networking import get_bytes
 import typing
@@ -69,17 +69,16 @@ class Images:
 	async def _words(self, ctx, *, text: str):
 		pass
 
-	@commands.command(name = "letter")
-	async def _letter(self, ctx, *, text: str):
-		pass
-
 	@commands.command(name = "prison")
 	async def _prison(self, ctx, *, text: str):
 		pass
 
 	@commands.command(name = "retard")
 	async def _retard(self, ctx, *, text: str):
-		pass
+		async with ctx.channel.typing():
+			r = await do_retard(text)
+			ret = discord.File(r.getvalue(), filename = 'retard.png')
+			await ctx.send(file = ret)
 
 	@commands.command(name = "shout")
 	async def _shout(self, ctx, *, text: str):

@@ -18,7 +18,7 @@ from .converters import bytes_to_cv2, image_to_bytes, bytes_to_image
 from .expanding_brain import make_expanding_brain
 from .images import (
 	do_choice, do_button, do_note,
-	do_kick, do_words, do_letter, do_prison,
+	do_kick, do_words, do_prison,
 	do_retard, do_shout, do_tweet,
 	do_villan_image
 )
