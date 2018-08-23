@@ -129,13 +129,13 @@ class Owner:
             await ctx.send(user.mention, delete_after = .5)
 
     async def do_prod(self, ctx, user: discord.Member, count: int, message: str):
-        await ctx.send(f'The spam against {user.name} has begun for {count} cycles')
+        await ctx.send(f'The spam against {user.mention} has begun for {count} cycles')
 
         for _ in range(count):
             try:
                 await user.send(message)
             except discord.errors.Forbidden:
-                return await ctx.send('They blocked me')
+                return await ctx.send(f'{user.mention} blocked me')
 
     @commands.command(name = "prod")
     async def _prod(self, ctx, user: discord.Member, count: int = 10, *, message: str = 'Skidaddle skidoodle'):

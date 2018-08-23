@@ -20,5 +20,5 @@ from .images import (
 	do_choice, do_button, do_note,
 	do_kick, do_words, do_prison,
 	do_retard, do_shout, do_tweet,
-	do_villan_image
+	do_villan_image, do_rtx, do_wack
 )

@@ -7,7 +7,8 @@ from .utils.images import (
     do_button, do_choice,
     do_kick, do_note, do_retard,
     do_villan_image, do_words,
-    do_prison, do_shout, do_tweet
+    do_prison, do_shout, do_tweet,
+    do_rtx, do_wack
 )
 from .utils.networking import get_bytes
 
@@ -135,6 +136,30 @@ class Images:
 
             r = await do_villan_image(bytes_to_image(first), bytes_to_image(second))
             ret = discord.File(r.getvalue(), filename = 'villan.png')
+            await ctx.send(file = ret)
+
+    @commands.command(name = "rtx")
+    async def _rtx(self, ctx, first: str, second: str):
+        async with ctx.channel.typing():
+            if len(ctx.message.mentions) == 2:
+                f = await get_bytes(ctx.message.mentions[0].avatar_url)
+                s = await get_bytes(ctx.message.mentions[1].avatar_url)
+            else:
+                try:
+                    f = await get_bytes(first)
+                    s = await get_bytes(second)
+                except InvalidURL:
+                    return await ctx.send('one of those urls was not valid')
+            r = await do_rtx(bytes_to_image(f), bytes_to_image(s))
+            ret = discord.File(r.getvalue(), filename = 'rtx.png')
+            await ctx.send(file = ret)
+
+    @commands.command(name = "wack")
+    async def _wack(self, ctx, user: discord.User):
+        async with ctx.channel.typing():
+            img = await get_bytes(user.avatar_url)
+            r = await do_wack(bytes_to_image(img))
+            ret = discord.File(r.getvalue(), filename = 'wack.png')
             await ctx.send(file = ret)
 
 def setup(bot):

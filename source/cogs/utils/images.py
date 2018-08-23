@@ -84,3 +84,22 @@ async def do_villan_image(first: Image, second: Image):
     img.paste(first, (200, 100), first)
     img.paste(second, (200, 1300), second)
     return image_to_bytes(img)
+
+async def do_rtx(first: Image, second: Image):
+    img = copy(images['rtx'])
+    first.thumbnail((353, 353), Image.ANTIALIAS)
+    second.thumbnail((353, 353), Image.ANTIALIAS)
+    ret = Image.new('RGBA', img.size, (255, 255, 255, 255))
+    ret.paste(first, (0, 0), first)
+    ret.paste(second, (0, 353), second)
+    ret.paste(img, (0, 0), img)
+    return image_to_bytes(ret)
+
+async def do_wack(image: Image):
+    img = copy(images['wack'])
+    w, h = img.size
+    ret = Image.new('RGBA', (w, h*2), (255, 255, 255, 255))
+    image.thumbnail((w, h), Image.ANTIALIAS)
+    ret.paste(image, (0, 0), image)
+    ret.paste(img, (0, h), img)
+    return image_to_bytes(ret)

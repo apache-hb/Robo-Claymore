@@ -88,7 +88,13 @@ class Games:
 
     @classmethod
     def polarity_converter(self, text: str):
-        return text.replace('<:madurai:319586146499690496>', 'Maduri').replace('<:naramon:319586146478850048>', 'Naramon').replace('<:vazarin:319586146269003778>', 'Varazin')
+        return text.replace(
+            '<:madurai:319586146499690496>', 'Maduri'
+        ).replace(
+            '<:naramon:319586146478850048>', 'Naramon'
+        ).replace(
+            '<:vazarin:319586146269003778>', 'Varazin'
+        )
 
     @commands.command(
         name = "count",
