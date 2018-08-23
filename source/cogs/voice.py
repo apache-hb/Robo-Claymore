@@ -96,7 +96,7 @@ class Playlist:
         else:
             self.songs = [song]
 
-    def set_volume(new: int):
+    def set_volume(self, new: int):
         if new not in range(0, 100):
             raise IndexError()
         self.volume = new

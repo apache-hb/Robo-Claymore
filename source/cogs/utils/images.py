@@ -21,62 +21,62 @@ files = glob('cogs/images/*.jpg')
 files.extend(glob('cogs/images/*.png'))
 
 for each in files:
-	name = basename(each)
-	images[name[:-4]] = Image.open(each).convert('RGBA')
+    name = basename(each)
+    images[name[:-4]] = Image.open(each).convert('RGBA')
 
 font = ImageFont.truetype('cogs/fonts/comic_sans.ttf', size = 35)
 
 async def do_choice(first: str, second: str):
-	img = deepcopy(images['choice'])
-	draw = ImageDraw.Draw(img)
-	draw.text((100, 100), first, (0, 0, 0), font = font)
-	draw.text((300, 50), second, (0, 0, 0), font = font)
-	return image_to_bytes(img)
+    img = deepcopy(images['choice'])
+    draw = ImageDraw.Draw(img)
+    draw.text((100, 100), first, (0, 0, 0), font = font)
+    draw.text((300, 50), second, (0, 0, 0), font = font)
+    return image_to_bytes(img)
 
 async def do_button(text: str):
-	img = copy(images['button'])
-	draw = ImageDraw.Draw(img)
-	draw.text((50, 250), text, (0, 0, 0), font = font)
-	return image_to_bytes(img)
+    img = copy(images['button'])
+    draw = ImageDraw.Draw(img)
+    draw.text((50, 250), text, (0, 0, 0), font = font)
+    return image_to_bytes(img)
 
 async def do_note(text: str):
-	img = copy(images['class_note'])
-	draw = ImageDraw.Draw(img)
-	draw.text((350, 500), text, (0, 0, 0), font = font)
-	return image_to_bytes(img)
+    img = copy(images['class_note'])
+    draw = ImageDraw.Draw(img)
+    draw.text((350, 500), text, (0, 0, 0), font = font)
+    return image_to_bytes(img)
 
 async def do_kick(image: Image):
-	img = copy(images['door_kick'])
-	ret = Image.new('RGBA', img.size, (255, 255, 255, 255))
-	image.thumbnail((256, 256), Image.ANTIALIAS)
-	ret.paste(image, (350, 50), image)
-	ret.paste(img, (0, 0), img)
-	return image_to_bytes(ret)
+    img = copy(images['door_kick'])
+    ret = Image.new('RGBA', img.size, (255, 255, 255, 255))
+    image.thumbnail((256, 256), Image.ANTIALIAS)
+    ret.paste(image, (350, 50), image)
+    ret.paste(img, (0, 0), img)
+    return image_to_bytes(ret)
 
 async def do_words(text: str):
-	pass
+    pass
 
 async def do_prison(text: str):
-	pass
+    pass
 
 small_font = ImageFont.truetype('cogs/fonts/comic_sans.ttf', size = 25)
 
 async def do_retard(text: str):
-	img = copy(images['retarded'])
-	draw = ImageDraw.Draw(img)
-	draw.text((400, 50), text, (0, 0, 0), font = small_font)
-	return image_to_bytes(img)
+    img = copy(images['retarded'])
+    draw = ImageDraw.Draw(img)
+    draw.text((400, 50), text, (0, 0, 0), font = small_font)
+    return image_to_bytes(img)
 
 async def do_shout(first: Image, second: Image):
-	pass
+    pass
 
 async def do_tweet(text: str):
-	pass
+    pass
 
 async def do_villan_image(first: Image, second: Image):
-	img = copy(images['villans'])
-	first.thumbnail((512, 512), Image.ANTIALIAS)
-	second.thumbnail((512, 512), Image.ANTIALIAS)
-	img.paste(first, (200, 100), first)
-	img.paste(second, (200, 1300), second)
-	return image_to_bytes(img)
+    img = copy(images['villans'])
+    first.thumbnail((512, 512), Image.ANTIALIAS)
+    second.thumbnail((512, 512), Image.ANTIALIAS)
+    img.paste(first, (200, 100), first)
+    img.paste(second, (200, 1300), second)
+    return image_to_bytes(img)

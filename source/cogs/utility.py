@@ -10,7 +10,6 @@ import discord
 from aiowolfram import Wolfram
 from bs4 import BeautifulSoup as bs
 from discord.ext import commands
-from fuzzywuzzy import process
 from pyfiglet import figlet_format
 
 from .utils import zalgo
