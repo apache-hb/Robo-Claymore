@@ -49,28 +49,22 @@ class Help:
     async def _all_commands(self, ctx):
         embed = quick_embed(ctx, title = 'All cogs and commands', description = f'{len(self.bot.all_commands)} commands total')
 
+        await ctx.author.send(embed = embed)
+
         for cog in ctx.bot.cogs:
+            emb = quick_embed(ctx, title = ctx.bot.get_cog(cog).__class__.__name__)
             ret = ''
             for command in ctx.bot.get_cog_commands(cog):
-                try:#if the cog is hidden, skip it
-                    if ctx.bot.get_cog(cog).hidden:
-                        continue
-                except AttributeError:
-                    pass
+                if getattr(ctx.bot.get_cog(cog), 'hidden', False):
+                    continue
 
-                try:
-                    if not command.hidden:
-                        ret += command.name + '\n'
-                except AttributeError:
+                if not getattr(command, 'hidden', False):
                     ret += command.name + '\n'
 
-            try:#if the command is hidden, dont add an empty body
-                if not ctx.bot.get_cog(cog).hidden:
-                    embed.add_field(name = cog, value = ret, inline = False)
-            except AttributeError:
-                pass
+            emb.add_field(name = cog, value = ret, inline = False)
 
-        await ctx.author.send(embed = embed)
+            if not getattr(ctx.bot.get_cog(cog), 'hidden', False):
+                await ctx.author.send(embed = emb)
 
     def __all(self, ctx):
         ret = ''

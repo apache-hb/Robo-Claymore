@@ -244,13 +244,16 @@ class Admin:
                     return
 
     async def __global_check(self, ctx):
-        for (server, users) in self.server_blacklists.items():
-            if int(server) == ctx.guild.id:
-                if ctx.author.id in users:
-                    await ctx.send('an admin has stopped you from using commands')
-                    return False
-                return True
-        return True
+        try:#TODO make this pretty
+            for (server, users) in self.server_blacklists.items():
+                if int(server) == ctx.guild.id:
+                    if ctx.author.id in users:
+                        await ctx.send('an admin has stopped you from using commands')
+                        return False
+                    return True
+            return True
+        except AttributeError:
+            return True
 
     @commands.group(invoke_without_command = True)
     @commands.guild_only()
