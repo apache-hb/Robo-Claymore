@@ -1,3 +1,9 @@
+"""
+Utils package for Robo-CLaymore
+intended for internal use
+could probably be used in other bots with a bit of work
+"""
+
 from .zalgo import zalgo
 from .checks import is_admin, can_kick, can_ban, manage_messages, manage_nicknames
 from .retro import make_retro

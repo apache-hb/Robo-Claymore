@@ -5,6 +5,7 @@ import random
 from datetime import datetime
 from inspect import getsource
 from xml.dom.minidom import parseString
+import os
 
 import discord
 from aiowolfram import Wolfram
@@ -102,30 +103,12 @@ USER_AGENT = '{} (https://github.com/Apache-HB/Robo-Claymore)'
 class Utility:
     def __init__(self, bot):
         self.bot = bot
+        self.dir_path = os.path.dirname(os.path.realpath(__file__))
         self.config = json.load(try_file('cogs/store/config.json'))
         self.tags = json.load(try_file('cogs/store/tags.json', content = '{}'))
         self.quotes = json.load(try_file('cogs/store/quotes.json', content = '{}'))
         self.wolfram = Wolfram(self.config['wolfram']['key'])
         print(f'cog {self.__class__.__name__} loaded')
-
-    #TODO get this to actually work and return an article
-    @commands.command(name = "wikia", hidden = True)
-    async def _wikia(self, ctx, sub_wiki: str, query: str):
-        ret = json.loads(
-            await url_request(
-                url = 'http://{}.wikia.com/api/v1/Articles/Details?'.format(sub_wiki),
-                params = {
-                    'format': 'json',
-                    'titles': search.lower()
-                },
-                headers = {
-                    'User-Agent': USER_AGENT.format('Wikia')
-                }
-            )
-        )
-        print(json.dumps(ret, indent=4))
-        await ctx.send('soon™')
-        # print(search(sub_wiki, query))
 
     @commands.command(
         name = "bytecode",
@@ -138,9 +121,7 @@ class Utility:
         if command is None:
             return await ctx.send('That command does not exist')
         code = dis.Bytecode(command.callback)
-        ret = ''
-        for instr in code:
-            ret += str(instr) + '\n'
+        ret = '\n'.join([str(instr) for instr in code])
         try:
             await ctx.send(ret)
         except discord.errors.HTTPException:
@@ -151,13 +132,13 @@ class Utility:
         description = """The Nezperdian hive-mind of chaos. Zalgo.
 He who Waits Behind The Wall.
 ZALGO!""",
-        brief = "To invoke the hive-mind representing chaos."
+        brief = "invoke the hive-mind representing chaos."
     )
     async def _zalgo(self, ctx, *, text: str = 'zalgo 50'):
         text = text.split(' ')
         try:
             intensity = int(text[-1])
-        except Exception:
+        except ValueError:
             intensity = 50
             text = ' '.join(text)
         else:
@@ -179,12 +160,7 @@ ZALGO!""",
         brief = "flip text"
     )
     async def _flip(self, ctx, *, text: str):
-        ret = ''
-        for char in text:
-            try: ret += inverted_dict[char.lower()]
-            except KeyError: ret += char
-
-        return await ctx.send(ret)
+        return await ctx.send(''.join([inverted_dict.get(char.lower(), char) for char in text]))
 
     @commands.command(
         name = "staggercase",
@@ -254,11 +230,11 @@ ZALGO!""",
         brief = "bring me with you"
     )
     async def _invite(self, ctx):
-        ret = ''
-        ret += 'Invite me with this link\n'
-        ret += '<https://discordapp.com/oauth2/authorize?client_id={}&scope=bot&permissions=8>\n'.format(self.bot.user.id)
-        ret += 'and join my owners discord server here\n'
-        ret += 'https://discord.gg/y3uSzCK'
+        ret = f'''
+Invite me with this link
+<https://discordapp.com/oauth2/authorize?client_id={self.bot.user.id}&scope=bot&permissions=8>
+and join my owners discord server here
+https://discord.gg/y3uSzCK'''
         await ctx.send(ret)
 
     @commands.command(
@@ -291,12 +267,7 @@ ZALGO!""",
     )
     async def _emoji(self, ctx, *, text: str = 'Bottom text'):
 
-        ret = ''
-        for a in text:
-            try:
-                ret += emoji_dict[a][0]
-            except KeyError:
-                ret += a
+        ret = ''.join(emoji_dict.get(char, char)[0] for char in text)
 
         if not len(ret) <= 1800:
             return await ctx.send(embed = await hastebin_error(ctx, ret))
@@ -353,7 +324,6 @@ ZALGO!""",
         brief = "hole lotta nerd shit"
     )
     async def _source(self, ctx, *, name: str = None):
-
         if name is None:
             return await ctx.send('https://github.com/Apache-HB/Robo-Claymore')
 
@@ -362,7 +332,7 @@ ZALGO!""",
         if func is None:
             return await ctx.send(f'No command called ``{name}`` found')
 
-        if func.cog_name == 'Owner':
+        if getattr(self.bot.get_cog(func.cog_name), 'hidden', False):
             return await ctx.send('Nice try fucko')
 
         ret = getsource(func.callback)
@@ -395,7 +365,7 @@ ZALGO!""",
         embed.add_field(name = 'Description', value = post['definition'])
         embed.add_field(name = 'Example', value = post['example'])
         embed.add_field(name = 'Permalink', value = post['permalink'])
-        embed.set_footer(text = 'Votes: {}/{}'.format(post['thumbs_up'], post['thumbs_down']))
+        embed.set_footer(text = f'Votes: {post["thumbs_up"]}/{post["thumbs_down"]}')
 
         await ctx.send(embed = embed)
 
@@ -407,9 +377,11 @@ ZALGO!""",
     async def _userinfo(self, ctx, user: discord.Member = None):
         if user is None:
             user = ctx.author
-        embed = quick_embed(ctx,
-        title = 'Information about {0.name}#{0.discriminator}'.format(user),
-        description = f'User ID: {user.id}')
+        embed = quick_embed(
+            ctx,
+            title = f'Information about {user.name}#{user.discriminator}',
+            description = f'User ID: {user.id}'
+        )
 
         embed.set_thumbnail(url = user.avatar_url)
 
@@ -417,24 +389,21 @@ ZALGO!""",
 
         if ctx.guild is not None:
             diffrence = now - user.joined_at
-            embed.add_field(name = f'Time spent in {ctx.guild.name}',
-            value = 'First joined at {}, thats over {} days ago'.format(
-                user.joined_at.date(),
-                diffrence.days
-            ), inline = False)
+            embed.add_field(
+                name = f'Time spent in {ctx.guild.name}',
+                value = f'First joined at {user.joined_at.date()}, thats over {diffrence.days} days ago',
+                inline = False
+            )
 
         diffrence = now - user.created_at
-        embed.add_field(name = 'Time spent on discord',
-        value = 'First joined at {}, thats over {} days ago'.format(
-            user.created_at.date(),
-            diffrence.days
-        ), inline = False)
+        embed.add_field(
+            name = 'Time spent on discord',
+            value = f'First joined at {user.created_at.date()}, thats over {diffrence.days} days ago',
+            inline = False
+        )
 
         if ctx.guild is not None:
-            roles = []
-            for role in user.roles:
-                roles.append(role.name)
-            embed.add_field(name = 'Roles', value = ', '.join(roles))
+            embed.add_field(name = 'Roles', value = ', '.join([role.name for role in user.roles]))
 
         await ctx.send(embed = embed)
 
@@ -453,13 +422,18 @@ ZALGO!""",
     )
     @commands.guild_only()
     async def _serverinfo(self, ctx):
-        embed = quick_embed(ctx, title = f'Server information about {ctx.guild.name}', description = f'ID: {ctx.guild.id}')
+        embed = quick_embed(
+            ctx,
+            title = f'Server information about {ctx.guild.name}',
+            description = f'ID: {ctx.guild.id}'
+        )
         now = datetime.now()
         diffrence = now - ctx.guild.created_at
-        embed.add_field(name = 'Created at',
-        value = '{}, thats over {} days ago'.format(
-            ctx.guild.created_at.date(), diffrence.days
-        ),inline = False)
+        embed.add_field(
+            name = 'Created at',
+            value = f'{ctx.guild.created_at.date()}, thats over {diffrence.days} days ago',
+            inline = False
+        )
         embed.add_field(name = 'User Count', value = len(ctx.guild.members))
         embed.add_field(name = 'Owner', value = ctx.guild.owner.name)
         embed.add_field(name = 'Text channels', value = len(ctx.guild.text_channels))
@@ -474,11 +448,14 @@ ZALGO!""",
     )
     async def _botinfo(self, ctx):
         embed = quick_embed(ctx, title = f'Info about me, {self.bot.user.name}')
-        embed.add_field(name = 'Working directory', value = dir_path)
+        embed.add_field(name = 'Working directory', value = self.dir_path)
         embed.set_thumbnail(url = self.bot.user.avatar_url)
         embed.add_field(name = 'discord.py version', value = discord.__version__)
-        embed.add_field(name = 'bot name and id',
-        value=f"Name: {self.bot.user.id}, ID: {self.bot.user.name}")
+        embed.add_field(name = 'Robo-Claymore version', value = self.bot.__version__)
+        embed.add_field(
+            name = 'bot name and id',
+            value=f'Name: {self.bot.user.id}, ID: {self.bot.user.name}'
+        )
         embed.add_field(name = 'Architecture', value = platform.machine())
         embed.add_field(name = 'Version', value = platform.version())
         embed.add_field(name = 'Platform', value = platform.platform())
@@ -526,32 +503,43 @@ ZALGO!""",
         else:
             return await ctx.send('Search mode must be new, top or hot')
 
-        to_get = 'https://www.reddit.com/r/{}/{}.json?t=all'.format(target.lower(), search)
+        to_get = f'https://www.reddit.com/r/{target.lower()}/{search}.json?t=all'
 
         j = json.loads(await url_request(url = to_get))
 
         if not j['data']['children']:
             return await ctx.send('No subreddit found')
 
-        try: post = j['data']['children'][index]
-        except IndexError: return await ctx.send('There is no post with that index')
+        try:
+            post = j['data']['children'][index]
+        except IndexError:
+            return await ctx.send('There is no post with that index')
 
-        if await can_override(ctx):#TODO fix this
+        #this check only applies to non whitelisted
+        if not await can_override(ctx):#if the post is nsfw and the channel isn't, stop
             if post['data']['over_18'] and not ctx.channel.is_nsfw():
                 return await ctx.send('That post is nsfw, and must be requested in an nsfw channel')
 
-        embed = quick_embed(ctx, title = f'Post from {target}',
-            description = 'Posted by {}'.format(post['data']['author']))
+        embed = quick_embed(
+            ctx,
+            title = f'Post from {target}',
+            description = f'Posted by {post["data"]["author"]}'
+        )
 
         embed.add_field(name = 'Link', value = await tinyurl(post['data']['url']))
 
         embed.add_field(name = 'Title', value = post['data']['title'])
-        embed.add_field(name = 'Votes', value = '{} Upvotes & {} Downvotes'.format(
-                post['data']['ups'], post['data']['downs']))
+        embed.add_field(
+            name = 'Votes',
+            value = f'{post["data"]["ups"]} Upvotes & {post["data"]["downs"]} Downvotes'
+        )
 
-        if not post['data']['selftext'] == '':
-            embed.add_field(name = 'Selftext',
-            value = post['data']['selftext'][:250] + (post['data']['selftext'][250:] and '...'))
+        if post['data']['selftext']:
+            embed.add_field(
+                name = 'Selftext',#if there is no selftext skip this
+                value = post['data']['selftext'][:250] + (post['data']['selftext'][250:] and '...')
+            )
+            #if there are more than 250 chars in the selftext, this takes the first 250 and then adds '...' to it
 
         if embedable(post['data']['url']):
             embed.set_image(url = post['data']['url'])
@@ -618,11 +606,8 @@ ZALGO!""",
         await ctx.send('```html\n' + ret.replace('`', '\`') + '```')
 
 
-
     def get_server_tag(self, server: int):
-        for (serverid, tags) in self.tags.items():
-            if int(serverid) == server:
-                return tags
+        return self.tags.get(str(server), None)
 
     @commands.group(invoke_without_command = True)
     @commands.guild_only()
@@ -688,9 +673,7 @@ ZALGO!""",
 
 
     def get_server_quotes(self, server: int):
-        for (serverid, quotes) in self.quotes.items():
-            if int(serverid) == server:
-                return quotes
+        return self.quotes.get(str(ctx.guild.id), None)
 
     @commands.group(invoke_without_command = True)
     @commands.guild_only()
@@ -732,7 +715,7 @@ ZALGO!""",
             if int(server) == ctx.guild.id:
                 if not quotes:
                     return await ctx.send('this server has no quotes')
-                ret = '\n'.join(quotes)
+                ret = '\n'.join(f'{idx}:{val}' for idx, val in enumerate(quotes))
                 ret = [ret[i:i + 1500] for i in range(0, len(ret), 1500)]
                 for part in ret:
                     await ctx.author.send(f'```{part}```')
@@ -743,10 +726,10 @@ ZALGO!""",
     @_quote_list.before_invoke
     @quote.before_invoke
     async def _quote_before(self, ctx):
-        for server in self.quotes:
-            if int(server) == ctx.guild.id:
-                return
-        self.quotes[str(ctx.guild.id)] = []
+        try:
+            self.quotes[str(ctx.guild.id)]
+        except KeyError:
+            self.quotes[str(ctx.guild.id)] = []
 
     @_quote_add.after_invoke
     @_quote_remove.after_invoke
@@ -756,5 +739,5 @@ ZALGO!""",
 def setup(bot):
     util = Utility(bot)
     bot.add_cog(util)
-    if util.config['wolfram']['key'] == '':
+    if not util.config['wolfram']['key']:
         bot.remove_command('wolfram')

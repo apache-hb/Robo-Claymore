@@ -129,9 +129,7 @@ class Games:
 
         embed = quick_embed(ctx, title = f'Information about {name}', description = 'Taken from the official warframe database')
 
-        a = []
-        for weapon in ret:
-            a.append(weapon['name'])
+        a = [weapon['name'] for weapon in ret]
         if a:
             embed.add_field(name = 'Variants', value = ', '.join(a))
         embed.add_field(name = 'Name', value = ret[0]['name'])
@@ -198,8 +196,10 @@ class Games:
         embed = quick_embed(ctx, title = f'Information about {name}', description = 'Taken from the warframe database')
 
         for location in ret[:25]:
-            embed.add_field(name = 'Item {} drops from {}'.format(location['item'], location['place']),
-            value = 'Rarity of {}% & a drop chance of {}%'.format(location['rarity'], location['chance']))
+            embed.add_field(
+                name = f'Item {location["item"]} drops from {location["place"]}',
+                value = f'Rarity of {location["rarity"]}% & a drop chance of {location["chance"]}%'
+            )
 
         await ctx.send(embed = embed)
 
@@ -215,8 +215,7 @@ class Games:
         for frame in self.frames:
             if name.lower() in frame['regex']:
 
-                try: colour = frame['color']
-                except KeyError: colour = 0x023cfc
+                colour = frame.get('color',  0x023cfc)
 
                 embed = quick_embed(ctx, title = frame['name'], description = frame['url'], colour = colour)
 
@@ -229,7 +228,7 @@ class Games:
                 try: embed.add_field(name = 'More info', value = frame['info'])
                 except KeyError: pass
 
-                if not frame['aura'] == '':
+                if frame['aura']:
                     embed.add_field(name = 'Default aura polarity', value = self.polarity_converter(frame['aura']))
 
                 embed.add_field(name = 'Default polarities', value = self.polarity_converter(', '.join(frame['polarities'])))
@@ -259,12 +258,14 @@ class Games:
 
         for index, value in enumerate(ret['variants'], start = 1):
 
-            embed.add_field(name = f'Mission {index}',
-            value = 'Mission type: {}\nModifier: {}\nLocation: {}'.format(
-                value['missionType'],
-                value['modifier'],
-                value['node']
-            ), inline = False)
+            embed.add_field(
+                name = f'Mission {index}',
+                value = f'''
+Mission type: {value["missionType"]}
+Modifier: {value["modifier"]}
+Location: {value["node"]}''',
+                inline = False
+            )
 
         embed.set_footer(text = f'Sortie for {time.time()}')
 
@@ -281,14 +282,17 @@ class Games:
         embed = quick_embed(ctx, title = 'Currently running sorties', description = 'Taken from the warframe web api')
 
         for index, alert in enumerate(ret):
-            embed.add_field(name = f'Alert {index}',
-            value = 'Location {}\nMission type: {}\nFaction: {}\nRewards: {}\nExpires in: {}'.format(
-                alert['mission']['node'],
-                alert['mission']['type'],
-                alert['mission']['faction'],
-                alert['mission']['reward']['asString'],
-                alert['eta']
-            ), inline = False)
+            mission = alert['mission']
+            embed.add_field(
+                name = f'Alert {index}',
+                value = f'''
+Location {mission["node"]}
+Mission type: {mission["type"]}
+Faction: {mission["faction"]}
+Rewards: {mission["reward"]["asString"]}
+Expires in: {alert["eta"]}''',
+                inline = False
+            )
 
         await ctx.send(embed = embed)
 
@@ -303,8 +307,10 @@ class Games:
         embed = quick_embed(ctx, title = 'BaroKi\'teer')
 
         if not ret['active']:
-            embed.add_field(name = 'Is currently away in the void',
-            value = 'He will be back in {}'.format(ret['startString']))
+            embed.add_field(
+                name = 'Is currently away in the void',
+                value = f'He will be back in {ret["startString"]}'
+            )
 
             return await ctx.send(embed = embed)
 
@@ -325,12 +331,14 @@ class Games:
         description = 'Could I interest you in some half price life support')
 
         embed.add_field(name = 'Item', value = ret[0]['item'])
-        embed.add_field(name = 'Discount',
-        vlaue = 'Original price: {}\nPercentage discount: {}\nCurrent price: {}'.format(
-            ret[0]['originalPrice'],
-            ret[0]['discount'],
-            ret[0]['salePrice']
-        ))
+        first = ret[0]
+        embed.add_field(
+            name = 'Discount',
+            value = f'''
+Original price: {first["originalPrice"]}
+Percentage discount: {first["discount"]}
+Current price: {first["salePrice"]}'''
+        )
 
         embed.add_field(name = 'Amount sold', value = str(ret[0]['sold']))
         embed.add_field(name = 'Time left', value = ret[0]['eta'])
@@ -345,8 +353,11 @@ class Games:
     async def _warframe_cetustime(self, ctx):
         ret = json.loads(await url_request(url = 'https://api.warframestat.us/pc/cetusCycle'))
 
-        embed = quick_embed(ctx, title = 'Current time on cetus',
-        description = 'Taken from the warframe web api')
+        embed = quick_embed(
+            ctx,
+            title = 'Current time on cetus',
+            description = 'Taken from the warframe web api'
+        )
 
         embed.add_field(name = 'Time', value = ret['isDay'])
         embed.add_field(name = 'Cycle ID', value = ret['id'])

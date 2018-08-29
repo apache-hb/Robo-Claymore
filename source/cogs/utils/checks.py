@@ -1,3 +1,7 @@
+"""
+checks and overrides for admin or owner only commands
+"""
+
 from discord.ext import commands
 
 async def can_override(ctx, user = None):

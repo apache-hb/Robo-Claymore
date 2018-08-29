@@ -110,8 +110,12 @@ class Help:
         embed = quick_embed(ctx, f'All subcommands for group {name}')
 
         for command in group.walk_commands():
-            embed.add_field(name = command.name,
-                value = 'Description: {0.description}\nUsage: {0.usage}\nAliases: {0.aliases}'.format(command)
+            embed.add_field(
+                name = command.name,
+                value = f'''
+Description: {command.description}
+Usage: {command.usage}
+Aliases: {command.aliases}'''
             )
 
         return embed
@@ -129,7 +133,7 @@ class Help:
         except AttributeError:
             description = 'None'
 
-        if description == '':
+        if not description:
             description = 'None'
 
         embed.add_field(name = 'Description', value = description)
@@ -139,7 +143,7 @@ class Help:
         except AttributeError:
             aliases = 'None'
 
-        if aliases == '':
+        if not aliases:
             aliases = 'None'
 
         embed.add_field(name = 'Aliases', value = aliases)
@@ -148,7 +152,7 @@ class Help:
             brief = command.brief
         except AttributeError:
             brief = 'None'
-        if brief == '':
+        if not brief:
             brief = 'None'
 
         embed.add_field(name = 'Brief', value = brief)

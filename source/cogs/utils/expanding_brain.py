@@ -1,7 +1,14 @@
-from PIL import Image, ImageDraw
+"""
+Expanding brain meme generator
+Put in a seperate file because it was very complex
+"""
+
+from copy import deepcopy
 from glob import glob
 from ntpath import basename
-from copy import deepcopy
+
+from PIL import Image, ImageDraw
+
 from . import image_to_bytes
 
 images = {}

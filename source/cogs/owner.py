@@ -22,8 +22,6 @@ class Owner:
 
         self.hidden = True
         self.bully = []
-        #TODO move stuff like the config to external file to be global
-        #TODO whitelist, blacklist and related checks
         print(f'cog {self.__class__.__name__} loaded')
 
     async def __local_check(self, ctx):
@@ -50,6 +48,7 @@ class Owner:
 
     @commands.group(name = "test")
     async def _test(self, ctx):
+        raise Exception
         return await ctx.message.add_reaction('🇧')
 
     @commands.command(name = "eval")
@@ -148,9 +147,7 @@ class Owner:
 
     @commands.command(name = "userlist")
     async def _userlist(self, ctx):
-        ret = ''
-        for user in ctx.guild.members:
-            ret += ' ' + user.mention
+        ret = ' '.join(user.mention for user in ctx.guild.members)
         await ctx.send(await hastebin(content = ret))
 
     async def __global_check(self, ctx):
@@ -186,10 +183,7 @@ class Owner:
 
     @commands.group(name = "cogs", invoke_without_command = True)
     async def cogs(self, ctx):
-        ret = ''
-
-        for cog in ctx.bot.cogs:
-            ret += cog + '\n'
+        ret = '\n'.join(cog for cog in ctx.bot.cogs)
 
         embed = quick_embed(ctx, title = 'All cogs currently registered',
         description = 'Disable and enable them with subcommands')
@@ -246,7 +240,7 @@ class Owner:
             return await ctx.send('No user with that id found')
 
         embed = quick_embed(ctx, title = 'User information')
-        embed.add_field(name = 'Username', value = '{0.name}#{0.discriminator}'.format(ret))
+        embed.add_field(name = 'Username', value = f'{ret.name}#{ret.discriminator}')
         embed.set_thumbnail(url = ret.avatar_url)
         embed.add_field(name = 'Created at', value = ret.created_at)
 
@@ -261,7 +255,7 @@ class Owner:
 
         ret = f'```\n{guild.name}\n'
         for channel in guild.text_channels[:25]:#only send the first 25 channels in the server
-            ret += '{0.name}#{0.id}\n'.format(channel)#TODO class them under categorys if there are any
+            ret += f'{channel.name}#{channel.id}\n'#TODO class them under categorys if there are any
         ret += '```'
 
         await ctx.send(ret)
@@ -293,7 +287,7 @@ class Owner:
         if target is None:
             return await ctx.send(f'No channel with an id of {channel} found')
 
-        ret = '{}#{}\n'.format(target.name, target.id)
+        ret = f'{target.name}#{target.id}\n'
 
         if create_invite:
             try:
@@ -310,10 +304,10 @@ class Owner:
         if target is None:
             return await ctx.send('No channel found')
 
-        ret = 'Messages in {0.name}#{0.id}\n'.format(target)
+        ret = f'Messages in {target.name}#{target.id}\n'
 
         async for message in target.history():
-            ret += '{0.author.name}: {0.content}\n'.format(message)
+            ret += f'{message.author.name}: {message.content}\n'
 
         await ctx.send(await hastebin(ret))
 

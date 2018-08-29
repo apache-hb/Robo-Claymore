@@ -1,3 +1,7 @@
+"""
+Package for facial detection
+"""
+
 import io
 import cv2
 from .converters import bytes_to_cv2, bytes_to_image, image_to_bytes

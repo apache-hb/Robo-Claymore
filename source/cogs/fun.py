@@ -162,6 +162,7 @@ class Fun:
         if index is None:
             image = random.choice(self.frothy_images)
         else:
+            image = self.frothy_images.get()
             try:
                 image = self.frothy_images[index]
             except IndexError:
@@ -306,9 +307,9 @@ class Fun:
         if len(text) > 22:
             first = text[:22]
             second = text[22:]
-            url = 'http://www.tombstonebuilder.com/generate.php?top1=R.I.P&top3={}&top4={}&top5={}'.format(user.name, first, second)
+            url = f'http://www.tombstonebuilder.com/generate.php?top1=R.I.P&top3={user.name}&top4={first}&top5={second}'
         else:
-            url = 'http://www.tombstonebuilder.com/generate.php?top1=R.I.P&top3={}&top4={}'.format(user.name, text)
+            url = f'http://www.tombstonebuilder.com/generate.php?top1=R.I.P&top3={user.name}&top4={text}'
 
         async with aiohttp.ClientSession() as session:
             async with session.get(url) as resp:

@@ -1,7 +1,12 @@
+"""
+Converters for images to other formats
+"""
+
 import io
-from PIL import Image
-import numpy as np
 import cv2
+import numpy as np
+from PIL import Image
+
 
 def bytes_to_image(image: io.BytesIO) -> Image:
     image.seek(0)

@@ -23,7 +23,7 @@ class Nsfw:
         if tags is None:
             url = 'https://e621.net/post/index.json?limit=25'
         else:
-            url = 'https://e621.net/post/index.json?tags={}&limit=25'.format(tags)
+            url = f'https://e621.net/post/index.json?tags={tags}&limit=25'
 
         headers = {
             'User-Agent': 'RoboClaymore (by ApacheActual#6945 on discord)'
@@ -58,9 +58,7 @@ class Nsfw:
         if not root:
             return await ctx.send(f'Nothing with tags ``{tags}`` found')
 
-        post = random.choice(root)
-
-        info = post.attrib
+        info = random.choice(root).attrib
 
         tags = info['tags']
         file_url = info['file_url']
@@ -108,7 +106,7 @@ class Nsfw:
             url = 'https://danbooru.donmai.us/posts.json?random=true'
 
         else:
-            url = 'https://danbooru.donmai.us/posts.json?limit=50?tags=\"{}\"'.format(tags.split(' '))
+            url = f'https://danbooru.donmai.us/posts.json?limit=50?tags=\"{tags.split(" ")}\"'
 
         ret = json.loads(await url_request(url = url))
 
@@ -249,7 +247,11 @@ class Nsfw:
                 choice = 'https:' + random.choice(array)
             except IndexError:
                 return await ctx.send(f'Nothing found with the tags ``{tags}``')
-            embed = quick_embed(ctx, 'Random image from sankakucomplex', description = f'with the tags ``{tags}``')
+            embed = quick_embed(
+                ctx,
+                'Random image from sankakucomplex.chan',
+                description = f'with the tags ``{tags}``'
+            )
             embed.add_field(name = 'Link (isnt embedable)', value = await tinyurl(choice))
             await ctx.send(embed = embed)
 
