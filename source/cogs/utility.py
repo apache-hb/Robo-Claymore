@@ -456,10 +456,10 @@ https://discord.gg/y3uSzCK'''
             name = 'bot name and id',
             value=f'Name: {self.bot.user.id}, ID: {self.bot.user.name}'
         )
-        embed.add_field(name = 'Architecture', value = platform.machine())
-        embed.add_field(name = 'Version', value = platform.version())
-        embed.add_field(name = 'Platform', value = platform.platform())
-        embed.add_field(name = 'Processor', value = platform.processor())
+        embed.add_field(name = 'Architecture', value = platform.machine() or 'Nothing')
+        embed.add_field(name = 'Version', value = platform.version() or 'Nothing')
+        embed.add_field(name = 'Platform', value = platform.platform() or 'Nothing')
+        embed.add_field(name = 'Processor', value = platform.processor() or 'Nothing')
         await ctx.send(embed = embed)
 
     @commands.command(
