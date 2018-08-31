@@ -9,6 +9,7 @@ Can be used externally
 from typing import List
 import aiohttp
 import bs4
+from .networking import json_request
 
 HEADERS = {
     'User-agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:29.0) Gecko/20100101 Firefox/29.0'
@@ -38,6 +39,10 @@ async def __request_subpage(sublink: str) -> str:
         elif each.get('href').startswith('//cs.sankakucomplex.com/data/'):
             return each.get('href') #get just one per subPAGE
 
+
+#so sankakucomplex has an api, but if you use it they ip ban you
+#so we just scrape their website instead
+#nice
 async def skkcomplex_request(tags: str) -> List[str]:
     """Request a page by tags and get a response as a list of urls to images"""
     req = await __request(f'https://chan.sankakucomplex.com/?tags={tags}&commit=Search', HEADERS)

@@ -1,12 +1,16 @@
 import json
 import random
+import discord
 
 from defusedxml.ElementTree import fromstring
 from discord.ext import commands
+from io import BytesIO
 
 from .utils import skkcomplex_request
-from .utils.networking import json_request, tinyurl, url_request
+from .utils.networking import json_request, tinyurl, url_request, get_bytes
 from .utils.shortcuts import embedable, quick_embed
+from .utils.converters import bytes_to_image, image_to_bytes
+from PIL import Image
 
 class Nsfw:
     def __init__(self, bot):
@@ -242,18 +246,20 @@ class Nsfw:
     @commands.cooldown(1, 10, commands.BucketType.user)
     async def _skk(self, ctx, *, tags: str):
         async with ctx.channel.typing():
-            array = await skkcomplex_request(tags)
+            print('yeet')
+            msg = await ctx.send('Requesting from sankakucomplex.com, this will take a while')
+
+            try:
+                array = await skkcomplex_request(tags)
+            except TypeError:
+                return await msg.edit(content = 'Im being ratelimited by sankaku, if you know how the fuck to work the api, do tell me')
+
             try:
                 choice = 'https:' + random.choice(array)
+                await msg.edit(content = 'Found an image')
+                await ctx.send(choice)
             except IndexError:
-                return await ctx.send(f'Nothing found with the tags ``{tags}``')
-            embed = quick_embed(
-                ctx,
-                'Random image from sankakucomplex.chan',
-                description = f'with the tags ``{tags}``'
-            )
-            embed.add_field(name = 'Link (isnt embedable)', value = await tinyurl(choice))
-            await ctx.send(embed = embed)
+                return await msg.edit(content = f'Nothing found with the tags ``{tags}``')
 
 def setup(bot):
     bot.add_cog(Nsfw(bot))

@@ -9,6 +9,7 @@ import discord
 from discord.ext import commands
 
 from cogs.utils.shortcuts import quick_embed
+from cogs.utils.networking import hastebin_error
 
 logs = open('cogs/store/claymore.log', 'a')
 
@@ -111,7 +112,7 @@ if __name__ == '__main__':
         elif isinstance(exception, commands.errors.CommandOnCooldown):
             return await ctx.send(exception)
 
-        await ctx.send('OwO we did a fucky wucky, send this to the author```py' + '\n'.join(traceback.format_exception(type(exception), exception, exception.__traceback__)) + '```')
+        await ctx.send(embed = await hastebin_error(ctx, content = '\n'.join(traceback.format_exception(type(exception), exception, exception.__traceback__))), content = 'OwO we did a fucky wucky, send this to the author')
 
         traceback.print_exception(type(exception), exception, exception.__traceback__, file=sys.stderr)
 
