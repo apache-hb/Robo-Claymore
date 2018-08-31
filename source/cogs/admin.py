@@ -6,11 +6,13 @@ from discord.ext import commands
 from .utils import checks
 from .utils.checks import can_override
 from .utils.shortcuts import quick_embed, try_file
+from .utils.saved_dict import SavedDict
 
 class Admin:
     def __init__(self, bot):
         self.bot = bot
-        self.server_blacklists = json.load(try_file('cogs/store/server_blacklist.json', content = '{}'))
+        self.server_blacklists = SavedDict('cogs/store/server_blacklist.json', content = '{}')
+        #self.server_blacklists = json.load(try_file('cogs/store/server_blacklist.json', content = '{}'))
         self.autorole_list = json.load(try_file('cogs/store/autorole.json', content = '{}'))
         self.leave_channels = json.load(try_file('cogs/store/leave.json', content = '{}'))
         self.command_blacklist = json.load(try_file('cogs/store/command_blacklist.json', content = '{}'))
@@ -242,7 +244,7 @@ class Admin:
 
     async def __global_check(self, ctx):
         try:#TODO make this pretty
-            for (server, users) in self.server_blacklists.items():
+            for (server, users) in self.server_blacklists.data.items():
                 if int(server) == ctx.guild.id:
                     if ctx.author.id in users:
                         await ctx.send('an admin has stopped you from using commands')
@@ -255,7 +257,7 @@ class Admin:
     @commands.group(invoke_without_command = True)
     @commands.guild_only()
     async def blacklist(self, ctx):
-        for (server, users) in self.server_blacklists.items():
+        for (server, users) in self.server_blacklists.data.items():
             if int(server) == ctx.guild.id:
                 if not users:
                     return await ctx.send('this server has no blacklisted users')
@@ -277,7 +279,7 @@ class Admin:
     @commands.guild_only()
     @checks.is_admin()
     async def _blacklist_add(self, ctx, user: discord.Member):
-        for (server, users) in self.server_blacklists.items():
+        for (server, users) in self.server_blacklists.data.items():
             if int(server) == ctx.guild.id:
                 if user.id in users:
                     return await ctx.send('that user is already in the blacklist')
@@ -292,7 +294,7 @@ class Admin:
     @commands.guild_only()
     @checks.is_admin()
     async def _blacklist_remove(self, ctx, user: discord.Member):
-        for (server, users) in self.server_blacklists.items():
+        for (server, users) in self.server_blacklists.data.items():
             if int(server) == ctx.guild.id:
                 if user.id not in users:
                     return await ctx.send(f'``{user.name}`` isnt blacklisted')
@@ -301,14 +303,15 @@ class Admin:
 
     @blacklist.before_invoke
     async def _blacklist_before(self, ctx):
-        for server in self.server_blacklists:
-            if int(server) == ctx.guild.id:
-                return
-        self.server_blacklists[str(ctx.guild.id)] = []
+        if str(ctx.guild.id) in self.server_blacklists.data.keys():
+            return
+        self.server_blacklists.data[str(ctx.guild.id)] = []
 
     @blacklist.after_invoke
+    @_blacklist_add.after_invoke
+    @_blacklist_remove.after_invoke
     async def _blacklist_after(self, _):
-        json.dump(self.server_blacklists, open('cogs/store/server_blacklist.json', 'w'), indent = 4)
+        self.server_blacklists.save()
 
     @commands.group(invoke_without_command = True)
     async def command(self, ctx):
@@ -338,6 +341,7 @@ class Admin:
         if ctx.invoked_with.lower() in self.command_blacklist.get(str(ctx.guild.id), []):
             await ctx.send('That command has been locked on this server')
             return False
+        return True
 
     @command.before_invoke
     @_command_lock.before_invoke

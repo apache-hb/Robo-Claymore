@@ -28,3 +28,4 @@ from .images import (
 	do_retard, do_shout, do_tweet,
 	do_villan_image, do_rtx, do_wack
 )
+from .saved_dict import SavedDict
