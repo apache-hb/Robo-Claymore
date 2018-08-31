@@ -13,6 +13,7 @@ class Admin:
         self.server_blacklists = json.load(try_file('cogs/store/server_blacklist.json', content = '{}'))
         self.autorole_list = json.load(try_file('cogs/store/autorole.json', content = '{}'))
         self.leave_channels = json.load(try_file('cogs/store/leave.json', content = '{}'))
+        self.command_blacklist = json.load(try_file('cogs/store/command_blacklist.json', content = '{}'))
         print(f'cog {self.__class__.__name__} loaded')
 
     async def will_manage(self, ctx, user: discord.Member, kind: str):
@@ -308,6 +309,49 @@ class Admin:
     @blacklist.after_invoke
     async def _blacklist_after(self, _):
         json.dump(self.server_blacklists, open('cogs/store/server_blacklist.json', 'w'), indent = 4)
+
+    @commands.group(invoke_without_command = True)
+    async def command(self, ctx):
+        pass
+
+    @command.command(name = "lock")
+    @checks.is_admin()
+    async def _command_lock(self, ctx, name: str):
+        if name.lower() not in self.command_blacklist[str(ctx.guild.id)]:
+            self.command_blacklist[str(ctx.guild.id)].append(name.lower())
+            await ctx.send(f'locked the command {name}')
+        else:
+            await ctx.send(f'the command {name} is already locked')
+
+    @command.command(name = "unlock")
+    @checks.is_admin()
+    async def _command_unlock(self, ctx, name: str):
+        try:
+            self.command_blacklist[str(ctx.guild.id)].remove(name.lower())
+            await ctx.send(f'unlocked the command {name}')
+        except KeyError:
+            await ctx.send(f'the command {name} was never locked')
+
+    async def __global_check(self, ctx):
+        if await can_override(ctx):
+            return True
+        if ctx.invoked_with.lower() in self.command_blacklist.get(str(ctx.guild.id), []):
+            await ctx.send('That command has been locked on this server')
+            return False
+
+    @command.before_invoke
+    @_command_lock.before_invoke
+    @_command_unlock.before_invoke
+    async def _command_before(self, ctx):
+        try:
+            self.command_blacklist[str(ctx.guild.id)]
+        except KeyError:
+            self.command_blacklist[str(ctx.guild.id)] = []
+
+    @_command_lock.after_invoke
+    @_command_unlock.after_invoke
+    async def _command_after(self, _):
+        json.dump(self.command_blacklist, open('cogs/store/command_blacklist.json', 'w'), indent = 4)
 
 def setup(bot):
     bot.add_cog(Admin(bot))
