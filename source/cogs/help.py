@@ -51,10 +51,10 @@ class Help:
 
         await ctx.author.send(embed = embed)
 
-        for cog in ctx.bot.cogs:
-            emb = quick_embed(ctx, title = ctx.bot.get_cog(cog).__class__.__name__)
+        for name, cog in ctx.bot.cogs.items():
+            emb = quick_embed(ctx, title = name)
             ret = ''
-            for command in ctx.bot.get_cog_commands(cog):
+            for command in cog:
                 if getattr(ctx.bot.get_cog(cog), 'hidden', False):
                     continue
 
@@ -67,19 +67,12 @@ class Help:
                 await ctx.author.send(embed = emb)
 
     def __all(self, ctx):
-        ret = ''
-        for cog in self.bot.cogs:
-            cmd = self.bot.get_cog(cog)
-            try:
-                if not cmd.hidden:
-                    ret += cog + '\n'
-            except AttributeError:
-                ret += cog + '\n'
+        ret = '\n'.join([name for name, cog in self.bot.cogs.items() if not getattr(cog, 'hidden', False)])
 
-        embed = quick_embed(ctx, title = f'All commands for {ctx.bot.user.name}')
-        embed.add_field(name = 'All cogs', value = ret)
-
-        return embed
+        return quick_embed(
+            ctx,
+            title = f'All commands for {ctx.bot.user.name}'
+        ).add_field(name = 'All cogs', value = ret)
 
     def __cog(self, ctx, name: str):
         cog = self.__get_cog(name)
@@ -158,6 +151,10 @@ Aliases: {command.aliases}'''
         embed.add_field(name = 'Brief', value = brief)
 
         embed.add_field(name = 'Usage', value = command.signature)
+
+        detailed_usage = command.callback.__doc__
+
+        embed.add_field(name = 'Detailed usage', value = detailed_usage)
 
         return embed
 

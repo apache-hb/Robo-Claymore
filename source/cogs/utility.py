@@ -101,6 +101,11 @@ WIKIPEDIA_API_URL = 'http://en.wikipedia.org/w/api.php'
 USER_AGENT = '{} (https://github.com/Apache-HB/Robo-Claymore)'
 
 class Utility:
+    """
+    The utility cog
+    This cog contains commands that are either considered
+    Useful or do not fit into another cog thematically
+    """
     def __init__(self, bot):
         self.bot = bot
         self.dir_path = os.path.dirname(os.path.realpath(__file__))
@@ -117,6 +122,14 @@ class Utility:
         brief = "convert commands to bytecode"
     )
     async def _byte(self, ctx, name: str):
+        """
+        Extract bytecode from a command
+        using pythons builtin `dis` module
+        then print out the command as python mnemonics in chat
+
+        name: [:class:`str`]
+            The name of the command to dissasemble
+        """
         command = self.bot.get_command(name)
         if command is None:
             return await ctx.send('That command does not exist')
@@ -309,9 +322,7 @@ https://discord.gg/y3uSzCK'''
     )
     async def _square(self, ctx, *, text: str):
 
-        ret = text + '\n'
-        for letter in text[1:]:
-            ret += letter + '\n'
+        ret = text + '\n' + '\n'.join(letter for letter in text[1:])
 
         if not len(ret) <= 1800:
             return await ctx.send(embed = await hastebin_error(ctx, ret))
@@ -447,19 +458,26 @@ https://discord.gg/y3uSzCK'''
         brief = "what about wall-e?"
     )
     async def _botinfo(self, ctx):
-        embed = quick_embed(ctx, title = f'Info about me, {self.bot.user.name}')
-        embed.add_field(name = 'Working directory', value = self.dir_path)
-        embed.set_thumbnail(url = self.bot.user.avatar_url)
-        embed.add_field(name = 'discord.py version', value = discord.__version__)
-        embed.add_field(name = 'Robo-Claymore version', value = self.bot.__version__)
-        embed.add_field(
+        embed = quick_embed(
+            ctx, title = f'Info about me, {self.bot.user.name}'
+        ).add_field(
+            name = 'Working directory', value = self.dir_path
+        ).set_thumbnail(url = self.bot.user.avatar_url).add_field(
+            name = 'discord.py version', value = discord.__version__
+        ).add_field(
+            name = 'Robo-Claymore version', value = self.bot.__version__
+        ).add_field(
             name = 'bot name and id',
-            value=f'Name: {self.bot.user.id}, ID: {self.bot.user.name}'
+            value=f'Name: {self.bot.user.name}, ID: {self.bot.user.id}'
+        ).add_field(
+            name = 'Architecture', value = platform.machine() or 'Nothing'
+        ).add_field(
+            name = 'Version', value = platform.version() or 'Nothing'
+        ).add_field(
+            name = 'Platform', value = platform.platform() or 'Nothing'
+        ).add_field(
+            name = 'Processor', value = platform.processor() or 'Nothing'
         )
-        embed.add_field(name = 'Architecture', value = platform.machine() or 'Nothing')
-        embed.add_field(name = 'Version', value = platform.version() or 'Nothing')
-        embed.add_field(name = 'Platform', value = platform.platform() or 'Nothing')
-        embed.add_field(name = 'Processor', value = platform.processor() or 'Nothing')
         await ctx.send(embed = embed)
 
     @commands.command(
@@ -488,8 +506,8 @@ https://discord.gg/y3uSzCK'''
         description = "search reddit for a subreddit and post from it",
         brief = "leddit"
     )
-    async def _reddit(self, ctx, target: str = 'all', search: str = 'new', index: int = 1):
-        if not 0 <= index <= 25:
+    async def _reddit(self, ctx, target: str = 'all', search: str = 'new', index: int = None):
+        if index is not None and 0 <= index <= 25:
             return await ctx.send('Index must be between 0 and 25')
 
         # so i dont have to lower the search each time
@@ -507,42 +525,50 @@ https://discord.gg/y3uSzCK'''
 
         j = json.loads(await url_request(url = to_get))
 
+        if j.get('error', 200) != 200:
+            return await ctx.send('that subreddit is private')
+
         if not j['data']['children']:
             return await ctx.send('No subreddit found')
 
-        try:
-            post = j['data']['children'][index]
-        except IndexError:
-            return await ctx.send('There is no post with that index')
+        if index is None:
+            post = random.choice(j['data']['children'])
+        else:
+            try:
+                post = j['data']['children'][index]
+            except IndexError:
+                return await ctx.send('There is no post with that index')
 
         #this check only applies to non whitelisted
         if not await can_override(ctx):#if the post is nsfw and the channel isn't, stop
             if post['data']['over_18'] and not ctx.channel.is_nsfw():
                 return await ctx.send('That post is nsfw, and must be requested in an nsfw channel')
 
+        data = post['data']
+
         embed = quick_embed(
             ctx,
             title = f'Post from {target}',
-            description = f'Posted by {post["data"]["author"]}'
+            description = f'Posted by {data["author"]}'
         )
 
-        embed.add_field(name = 'Link', value = await tinyurl(post['data']['url']))
+        embed.add_field(name = 'Link', value = await tinyurl(data['url']))
 
-        embed.add_field(name = 'Title', value = post['data']['title'])
+        embed.add_field(name = 'Title', value = data['title'])
         embed.add_field(
             name = 'Votes',
-            value = f'{post["data"]["ups"]} Upvotes & {post["data"]["downs"]} Downvotes'
+            value = f'{data["ups"]} Upvotes & {data["downs"]} Downvotes'
         )
 
-        if post['data']['selftext']:
+        if data['selftext']:
             embed.add_field(
                 name = 'Selftext',#if there is no selftext skip this
-                value = post['data']['selftext'][:250] + (post['data']['selftext'][250:] and '...')
+                value = data['selftext'][:250] + (data['selftext'][250:] and '...')
             )
             #if there are more than 250 chars in the selftext, this takes the first 250 and then adds '...' to it
 
-        if embedable(post['data']['url']):
-            embed.set_image(url = post['data']['url'])
+        if embedable(data['url']):
+            embed.set_image(url = data['url'])
 
         return await ctx.send(embed = embed)
 
@@ -558,7 +584,11 @@ https://discord.gg/y3uSzCK'''
 
     @commands.group(invoke_without_command = True)
     async def prettyprint(self, ctx):
-        embed = quick_embed(ctx, title = 'All the things I can prettyprint', description = 'Not that xml will ever be pretty anyway')
+        embed = quick_embed(
+            ctx,
+            title = 'All the things I can prettyprint',
+            description = 'Not that xml will ever be pretty anyway'
+        )
         b = []
         for a in self.prettyprint.walk_commands():
             if a.name not in b:
@@ -572,6 +602,12 @@ https://discord.gg/y3uSzCK'''
         brief = "xml can't really be pretty"
     )
     async def _prettyprint_xml(self, ctx, *, text: str):
+        """
+        Prettyprint XML using pythons builtin xml package
+
+        text: [class:'str']
+            The XML you want to parse and prettyprint
+        """
         try:
             ret = parseString(text)
         except Exception:
@@ -585,6 +621,13 @@ https://discord.gg/y3uSzCK'''
         brief = "json can be pretty"
     )
     async def _prettyprint_json(self, ctx, *, text: str):
+        """
+        Prettyprint JSON using pythons builtin json package
+        The data is printed with a 4 space indent and the default formatting
+
+        text: [class:`str`]
+            The JSON you want to parse and prettyprint
+        """
         try:
             ret = json.loads(text)
         except json.JSONDecodeError:
@@ -598,6 +641,13 @@ https://discord.gg/y3uSzCK'''
         brief = "my favourite programming language"
     )
     async def _prettyprint_html(self, ctx, *, text: str):
+        """
+        Prettyprint HTML using beautifulsoup4 from PyPi
+        Because of bs4 the html does not need to fully parse to be prettyprinted
+
+        text: [class:`str`]
+            The HTML you want to parse and prettyprint
+        """
         try:
             ret = bs(text, 'html.parser').prettify()
         except Exception:
@@ -605,13 +655,21 @@ https://discord.gg/y3uSzCK'''
 
         await ctx.send('```html\n' + ret.replace('`', '\`') + '```')
 
-
     def get_server_tag(self, server: int):
         return self.tags.get(str(server), None)
 
     @commands.group(invoke_without_command = True)
     @commands.guild_only()
     async def tag(self, ctx, name: str = None):
+        """
+        Either send a tag by name or a random tag
+        the tag will be sent to the current chat
+
+        tag: [class:`str`]
+            The name of the tag to send to the chat
+            if no tag is specified a random tag is chosen
+            Searches case-insensitively
+        """
         tags = self.get_server_tag(ctx.guild.id)
         if not tags:
             return await ctx.send('this server has no tags')
@@ -628,6 +686,16 @@ https://discord.gg/y3uSzCK'''
     @tag.command(name = "add")
     @commands.guild_only()
     async def _tag_add(self, ctx, name: str, *, content: str):
+        """
+        Add a tag to the current servers tags
+
+        name: [class:`str`]
+            The name of the tag to add or change
+            Case doesn't matter
+
+        content: [class:`str`]
+            The content to give to the tag
+        """
         for (server, tags) in self.tags.items():
             if int(server) == ctx.guild.id:
                 tags[name.lower()] = content
@@ -636,6 +704,12 @@ https://discord.gg/y3uSzCK'''
     @tag.command(name = "remove")
     @commands.guild_only()
     async def _tag_remove(self, ctx, name: str):
+        """
+        Remove a tag from the current servers tags
+
+        name: [class:`str`]
+            The name of the tag to remove from the current servers tags
+        """
         for (server, tags) in self.tags.items():
             if int(server) == ctx.guild.id:
                 try:
@@ -647,6 +721,9 @@ https://discord.gg/y3uSzCK'''
     @tag.command(name = "list")
     @commands.guild_only()
     async def _tag_list(self, ctx):
+        """
+        Send the servers current tags to your inbox
+        """
         for (server, tags) in self.tags.items():
             if int(server) == ctx.guild.id:
                 if not tags:
@@ -673,11 +750,18 @@ https://discord.gg/y3uSzCK'''
 
 
     def get_server_quotes(self, server: int):
-        return self.quotes.get(str(ctx.guild.id), None)
+        return self.quotes.get(str(server), None)
 
     @commands.group(invoke_without_command = True)
     @commands.guild_only()
     async def quote(self, ctx, index: int = None):
+        """
+        Send a quote from the current server to chat
+
+        index: [class:`int`]
+            if specified a quote with this index will be fetched
+            if not specified a random quote will be fetched
+        """
         quotes = self.get_server_quotes(ctx.guild.id)
         if not quotes:
             return await ctx.send('no öätś')
@@ -692,6 +776,12 @@ https://discord.gg/y3uSzCK'''
     @quote.command(name = "add")
     @commands.guild_only()
     async def _quote_add(self, ctx, *, content: str):
+        """
+        Add a quote to the servers current quote list
+
+        content: [class:`str`]
+            The content for the quote to add
+        """
         for (server, quotes) in self.quotes.items():
             if int(server) == ctx.guild.id:
                 quotes.append(content)
@@ -700,6 +790,12 @@ https://discord.gg/y3uSzCK'''
     @quote.command(name = "remove")
     @commands.guild_only()
     async def _quote_remove(self, ctx, index: int):
+        """
+        Remove a quote from the servers current quote list
+
+        index: [class:`int`]
+            the index of the quote to remove
+        """
         for (server, quotes) in self.quotes.items():
             if int(server) == ctx.guild.id:
                 try:
@@ -711,6 +807,9 @@ https://discord.gg/y3uSzCK'''
     @quote.command(name = "list")
     @commands.guild_only()
     async def _quote_list(self, ctx):
+        """
+        Send a list of all quotes to your inbox
+        """
         for (server, quotes) in self.quotes.items():
             if int(server) == ctx.guild.id:
                 if not quotes:

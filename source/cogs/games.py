@@ -351,6 +351,7 @@ Current price: {first["salePrice"]}'''
         brief = "early lunch for konzu"
     )
     async def _warframe_cetustime(self, ctx):
+        """Put the current time on cetus into chat, this information is for PC only"""
         ret = json.loads(await url_request(url = 'https://api.warframestat.us/pc/cetusCycle'))
 
         embed = quick_embed(

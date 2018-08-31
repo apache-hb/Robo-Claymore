@@ -48,7 +48,6 @@ class Owner:
 
     @commands.group(name = "test")
     async def _test(self, ctx):
-        raise Exception
         return await ctx.message.add_reaction('🇧')
 
     @commands.command(name = "eval")

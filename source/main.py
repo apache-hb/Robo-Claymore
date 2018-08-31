@@ -4,7 +4,6 @@ import sys
 import traceback
 from glob import glob
 from shutil import copyfile
-import logging
 
 import discord
 from discord.ext import commands
@@ -40,7 +39,7 @@ def make_bot(config) -> commands.Bot:
         owner_id = int(config['discord']['owner'])
     )
 
-__version__ = '0.3.8'
+__version__ = '0.4.8'
 
 async def on_ready():
     print('''
@@ -63,7 +62,6 @@ async def after_any_command(ctx):
 
 def load_cogs(bot) -> None:
     for cog in glob('cogs/*.py'): #skip __init__ as its not a cog
-
         if cog in ['cogs/__init__.py']:
             continue
 
@@ -116,7 +114,6 @@ if __name__ == '__main__':
         await ctx.send('OwO we did a fucky wucky, send this to the author```py' + '\n'.join(traceback.format_exception(type(exception), exception, exception.__traceback__)) + '```')
 
         traceback.print_exception(type(exception), exception, exception.__traceback__, file=sys.stderr)
-
 
     bot.after_invoke(after_any_command)
 

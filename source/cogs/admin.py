@@ -10,17 +10,13 @@ from .utils.shortcuts import quick_embed, try_file
 class Admin:
     def __init__(self, bot):
         self.bot = bot
-
         self.server_blacklists = json.load(try_file('cogs/store/server_blacklist.json', content = '{}'))
-
         self.autorole_list = json.load(try_file('cogs/store/autorole.json', content = '{}'))
-
         self.leave_channels = json.load(try_file('cogs/store/leave.json', content = '{}'))
-
         print(f'cog {self.__class__.__name__} loaded')
 
     async def will_manage(self, ctx, user: discord.Member, kind: str):
-        if not await can_override(ctx, user):
+        if await can_override(ctx, user):
             await ctx.send(f'I dont want to {kind} them')
             return False
         elif user.id == self.bot.user.id:
@@ -30,7 +26,7 @@ class Admin:
             await ctx.send(f'I wont let you {kind} yourself')
             return False
         if user.permissions_in(ctx.channel).administrator:
-            await ctx.send(f'I wont {kind} admins')
+            await ctx.send(f'I cant {kind} admins')
             return False
         else:
             return True

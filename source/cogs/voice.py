@@ -4,6 +4,7 @@ import json
 from discord.ext import commands
 import youtube_dl
 from .utils.shortcuts import try_file
+from typing import Union, List
 #TODO redo all the stuff here as well
 youtube_dl.utils.bug_reports_message = lambda: ''
 
@@ -56,7 +57,7 @@ ytdl = youtube_dl.YoutubeDL(yt_format)
 #https://github.com/Rapptz/discord.py/blob/rewrite/examples/basic_voice.py
 #from there
 class YTDLSource(discord.PCMVolumeTransformer):
-    def __init__(self, source, *, data, volume = 0.5):
+    def __init__(self, source, *, data, volume: int = 0.5):
         super().__init__(source, volume)
 
         self.data = data
@@ -86,10 +87,11 @@ class Song:
 #make a song by searching for a url
 #raises LookupError if no song is found
 async def search_url(url: str) -> Song:
+    print(url)
     raise NotImplementedError()
 
 class Playlist:
-    def __init__(self, song):
+    def __init__(self, song: Union[Song, List[Song]]):
         self.volume = 50
         if isinstance(song, list):
             self.songs = song
@@ -107,7 +109,7 @@ class Playlist:
     def skip(self):
         self.songs.pop()
 
-    def remove(self, index):
+    def remove(self, index: int):
         self.songs.remove(index)
 
     def add_song(self, song: Song):
@@ -125,12 +127,7 @@ class Playlist:
         return self.songs[0]
 
     def serialize(self):
-        r = []
-        for each in self.songs:
-            r.append({
-                'requester': each.requester.name,
-                'url': each.url
-            })
+        r = [{'requester': each.requester.name, 'url': each.url} for each in self.songs]
         return json.dumps(r)
 
 #TODO all of this
@@ -171,7 +168,7 @@ class Voice:
 
     @commands.command(name = "join")
     async def _join(self, ctx):
-        channel = ctx.author.voice.channel
+        channel: discord.TextChannel = ctx.author.voice.channel
 
         if channel is None:
             return await ctx.send('You need to be in a voice channel')
@@ -185,14 +182,14 @@ class Voice:
     async def _play(self, ctx, *, url: str):
         async with ctx.typing():
             player = await YTDLSource.from_url(url, loop = self.bot.loop, stream = True)
-            ctx.voice_client.play(player, after=lambda e: print('Player error: %s' % e) if e else None)
+            ctx.voice_client.play(player, after=lambda e: print(f'Player error: {e}') if e else None)
 
-        await ctx.send('now playing {}'.format(player.title))
+        await ctx.send(f'now playing {player.title}')
 
     @commands.command(name = "volume")
     async def _volume(self, ctx, new_volume: int):
         ctx.voice_client.source.volume = new_volume
-        await ctx.send('changed volume to {}'.format(new_volume))
+        await ctx.send(f'changed volume to {new_volume}')
 
     @commands.command(name = "stop")
     async def _stop(self, ctx):

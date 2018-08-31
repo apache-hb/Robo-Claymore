@@ -28,7 +28,8 @@ ball_awnsers = [
     'Not a chance',
     'Outlook good',
     'Of course',
-    'Not a doubt about it'
+    'Not a doubt about it',
+    'eat dick'
 ]
 
 random_rigging = {
@@ -159,6 +160,12 @@ class Fun:
         brief = "Frothy slowman"
     )
     async def _frothy(self, ctx, index: int = None):
+        """
+        Get a random image of the man himself, frothyomen
+
+        index: [:class:`int`]
+            the image to get, default outputs a random image
+        """
         if index is None:
             image = random.choice(self.frothy_images)
         else:
@@ -176,6 +183,7 @@ class Fun:
         brief = "despacito"
     )
     async def _despacito(self, ctx):
+        """Despacito 2 may actually happen"""
         for line in despacito:
             await ctx.send(line)
 
@@ -185,6 +193,12 @@ class Fun:
         brief = "rate a thing"
     )
     async def _rate(self, ctx, *, thing: str):
+        """
+        Ask the bot to rate something on a scale of 1 to 10
+
+        thing: [:class:`str`]
+            the thing you want to compare
+        """
         thing = thing.lower()
         ret = 0
 
@@ -203,14 +217,17 @@ class Fun:
         brief = "50/50"
     )
     async def _coinflip(self, ctx):
+        """Flip a coin for a 50/50 chance at heads or tails"""
         await ctx.send(random.choice(['Heads', 'Tails']))
 
     @commands.command(
         name = "8ball",
+        aliases = ['8b'],
         description = "ask the magic 8ball a question",
         brief = "probably"
     )
     async def _8ball(self, ctx):
+        """Ask the magic 8ball any question"""
         await ctx.send(random.choice(ball_awnsers))
 
     @commands.command(
@@ -220,6 +237,13 @@ class Fun:
         brief = "comapre two items"
     )
     async def _compare(self, ctx, *, items: str):
+        """
+        Compare two things to see which is better
+
+        items: [:class:`str`]
+            the items to compare
+            must be split with `and`
+        """
         ret = items.split('and')
 
         try:
@@ -267,6 +291,9 @@ class Fun:
         brief = "its a duck, it is perfect"
     )
     async def _duck(self, ctx):
+        """
+        Get a random image of a duck from api.random-d
+        """
         r = await json_request('https://api.random-d.uk/random')
         embed = quick_embed(ctx, 'ducks are the best animals')
         embed.set_image(url = r['url'])
@@ -278,6 +305,9 @@ class Fun:
         brief = "REEEEEEEE"
     )
     async def _normie(self, ctx):
+        """
+        Get a really shit meme
+        """
         j = await json_request('https://api.imgflip.com/get_memes')
         url = random.choice(j['data']['memes'])['url']
         await ctx.send(url)
@@ -291,6 +321,12 @@ class Fun:
         brief = "get wood"
     )
     async def _minecraft(self, ctx, *, text: str):
+        """
+        Generate a minecraft achivement from text
+
+        text: [:class:`str`]
+            the Text to use for generating the achivement
+        """
         async with aiohttp.ClientSession() as session:
             url = self.minecraft_api.format(ctx.author.name, text)
             async with session.get(url) as resp:
@@ -304,6 +340,15 @@ class Fun:
         brief = "rip"
     )
     async def _tombstone(self, ctx, user: discord.User, *, text: str):
+        """
+        Generate a tombstone for someone using tombstonebuilder.com
+
+        user: [:class:`discord.User`]
+            the user to generate the tombstone for
+
+        text: [:class:`str`]
+            the text to put on the tombstone
+        """
         if len(text) > 22:
             first = text[:22]
             second = text[22:]
@@ -324,6 +369,12 @@ class Fun:
     )
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def _crime(self, ctx, *, text: str):
+        """
+        Generate an arrested meme using text
+
+        text: [:class:`str`]
+            the text to arrest someone for
+        """
         #make sure not to edit the original version
         base = copy.deepcopy(self.youtube_crime)
 
@@ -342,6 +393,14 @@ class Fun:
     )
     @commands.cooldown(1, 10, commands.BucketType.user)
     async def _brain(self, ctx, *, text: str):
+        """
+        Make an expanding brain meme using your words
+
+        text: [:class:`str`]
+            the text to use for the meme
+            must be split using ``|``
+            can be between 2 and 6 blocks to make a meme
+        """
         txt = text.split('|')
 
         async with ctx.channel.typing():
@@ -360,6 +419,17 @@ class Fun:
     )
     @commands.cooldown(1, 10, commands.BucketType.user)
     async def _retro(self, ctx, *, text: str):
+        """
+        Make a "retro" image using a webapi that was in no way ripped out of notsobot
+
+        text: [:class:`str`]
+            The text to make retro
+            if any ``|`` are found in the text they will be used to split it
+            if the string is longer chan 15 characters it
+            will split into 15 character segments.
+            and if the text is shorter than 15 characters and contains no ``|``
+            the text will be split by space
+        """
         try:
             ret = await make_retro(text, random.choice(['2', '5', '4']))
         except TimeoutError:
@@ -379,6 +449,14 @@ class Fun:
     )
     @commands.cooldown(1, 10, commands.BucketType.user)
     async def _eyes(self, ctx, eye: str = None):
+        """
+        Use poorly made facial detection algorithms to overlay
+        other eyes over existing images
+
+        eye: [:class:`str`]
+            The name of the eye to overlay onto the image
+            if the eye doesnt exist a random one will be used
+        """
         try:
             image = await get_bytes(await get_image(ctx))
         except TypeError:
@@ -387,10 +465,7 @@ class Fun:
         if eye is None:
             to_overlay = self.eye_dict.random_value()
         else:
-            try:
-                to_overlay = self.eye_dict[eye.lower()]
-            except KeyError:
-                return await ctx.send(f'``{eye}`` is not a valid eye')
+            to_overlay = self.eye_dict.get(eye.lower(), self.eye_dict.random_value())
 
         try:
             face = await replace_eyes(image, to_overlay)
@@ -410,6 +485,13 @@ class Fun:
     )
     @commands.cooldown(1, 10, commands.BucketType.user)
     async def _van(self, ctx, user: discord.Member = None):
+        """
+        Put someones profile picture into dans van
+
+        user: [:class:`discord.Member`]
+            The user to put into the van
+            defaults to the user of the command
+        """
         if user is None:
             user = ctx.message.author
 
@@ -428,6 +510,17 @@ class Fun:
     )
     @commands.cooldown(1, 10, commands.BucketType.user)
     async def _memegen(self, ctx, *, text: str = None):
+        """
+        Generate a meme from an image and text
+
+        text: [:class:`str`]
+            The text to use for generating the meme
+            split the text with ``|`` to get upper and lower
+
+        image: [:class:`BytesIO`]
+            the image to use to make the meme
+            will be the most recent image put in char
+        """
         img = await get_bytes(await get_image(ctx))
 
         lst = text.split(' ')
@@ -458,6 +551,9 @@ class Fun:
         brief = "cats are nice"
     )
     async def _cat(self, ctx):
+        """
+        Get a random image of a cat
+        """
         img = await get_bytes('https://cataas.com/cat')
         ret = discord.File(img, filename = 'cat.png')
         await ctx.send(file = ret)
@@ -465,6 +561,9 @@ class Fun:
     @commands.group(invoke_without_command = True)
     @commands.guild_only()
     async def autoreact(self, ctx):
+        """
+        Send all autoreacts to your inbox for the current server
+        """
         for (server, reacts) in self.autoreact_list.items():
             if int(server) == ctx.guild.id:
                 if len(reacts) > 25:
@@ -498,6 +597,12 @@ class Fun:
     )
     @commands.guild_only()
     async def autoreact_add(self, ctx, *, text: str):
+        """
+        Add an autoreact to the current server
+
+        you can add a phrase and then an emoji on the end
+        this means autoreact can react to multiple word phrases
+        """
         text = text.split(' ')
         react = text[-1]
         phrase = ' '.join(text[:-1])
@@ -522,6 +627,12 @@ class Fun:
     )
     @commands.guild_only()
     async def autoreact_remove(self, ctx, react: str):
+        """
+        Remove an autoreact from the current server
+
+        react: [:class:`str`]
+            the emoji to remove the autoreacts from
+        """
         for (server, reacts) in self.autoreact_list.items():
             if int(server) == ctx.guild.id:
                 try:
