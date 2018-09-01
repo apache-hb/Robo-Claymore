@@ -80,13 +80,12 @@ class Help:
         if cog is None:
             return quick_embed(ctx, f'No command called {name} found')
 
-        try:
-            description = cog.description
-        except AttributeError:
-            description = 'No description'
 
-        embed = quick_embed(ctx, title = f'All subcommands in {name}',
-        description = description)
+        embed = quick_embed(
+            ctx,
+            title = f'All subcommands in {name}',
+            description = getattr(cog, 'description', 'No description')
+        )
 
         for command in ctx.bot.get_cog_commands(cog.__class__.__name__):
             if not command.hidden:
@@ -120,44 +119,15 @@ Aliases: {command.aliases}'''
             return self.group_embed(ctx, name)
 
         embed = quick_embed(ctx, title = command.name, description = f'Inside cog {command.cog_name}')
-
-        try:
-            description = command.description
-        except AttributeError:
-            description = 'None'
-
-        if not description:
-            description = 'None'
-
-        embed.add_field(name = 'Description', value = description)
-
-        try:
-            aliases = ', '.join(command.aliases)
-        except AttributeError:
-            aliases = 'None'
-
-        if not aliases:
-            aliases = 'None'
-
-        embed.add_field(name = 'Aliases', value = aliases)
-
-        try:
-            brief = command.brief
-        except AttributeError:
-            brief = 'None'
-        if not brief:
-            brief = 'None'
-
-        embed.add_field(name = 'Brief', value = brief)
-
+        embed.add_field(name = 'Description', value = getattr(command, 'description', 'None') or 'None')
+        embed.add_field(name = 'Aliases', value = ', '.join(getattr(command, 'aliases', ['None'])) or 'None')
+        embed.add_field(name = 'Brief', value = getattr(command, 'brief', 'None') or 'None')
         embed.add_field(name = 'Usage', value = command.signature)
-
-        detailed_usage = command.callback.__doc__
-
-        embed.add_field(name = 'Detailed usage', value = detailed_usage)
+        embed.add_field(name = 'Detailed usage', value = command.callback.__doc__)
 
         return embed
 
 def setup(bot):
     bot.remove_command('help')
+    print('Removed the default help command')
     bot.add_cog(Help(bot))

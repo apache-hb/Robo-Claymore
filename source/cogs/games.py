@@ -79,11 +79,11 @@ class Games:
     def __init__(self, bot):
         self.bot = bot
         self.frames = None#used for warframe cache
-        self.config = json.load(open('cogs/store/config.json'))
+        #self.config = json.load(open('cogs/store/config.json'))
         try:
-            self.count = self.config['count']
+            bot.config['count']
         except KeyError:
-            self.config['count'] = 0
+            bot.config['count'] = 0
         print(f'cog {self.__class__.__name__} loaded')
 
     @classmethod
@@ -102,9 +102,9 @@ class Games:
         brief = "count"
     )
     async def _count(self, ctx):
-        self.config['count'] += 1
-        await ctx.send(self.config['count'])
-        json.dump(self.config, open('cogs/store/config.json', 'w'), indent = 4)
+        self.bot.config['count'] += 1
+        await ctx.send(self.bot.config['count'])
+        json.dump(self.bot.config, open('cogs/store/config.json', 'w'), indent = 4)
 
     @commands.group(invoke_without_command = True)
     async def warframe(self, ctx):

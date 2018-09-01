@@ -11,8 +11,8 @@ from .utils.saved_dict import SavedDict
 class Admin:
     def __init__(self, bot):
         self.bot = bot
+        #FIXME replace all dicts with savedDict
         self.server_blacklists = SavedDict('cogs/store/server_blacklist.json', content = '{}')
-        #self.server_blacklists = json.load(try_file('cogs/store/server_blacklist.json', content = '{}'))
         self.autorole_list = json.load(try_file('cogs/store/autorole.json', content = '{}'))
         self.leave_channels = json.load(try_file('cogs/store/leave.json', content = '{}'))
         self.command_blacklist = json.load(try_file('cogs/store/command_blacklist.json', content = '{}'))

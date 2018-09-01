@@ -33,11 +33,18 @@ def load_config() -> dict:
         json.dump(config, open('cogs/store/config.json', 'w'), indent = 4)
         return config
 
-def make_bot(config) -> commands.Bot:
-    return commands.Bot(
+class ClayBot(commands.Bot):
+    def __init__(self, command_prefix: str, activity: discord.Game, owner_id: int, config: dict):
+        super(commands.Bot, self).__init__(command_prefix = command_prefix, activity = activity, owner_id = owner_id)
+        self.config = config
+        self.__version__ = __version__
+
+def make_bot(config) -> ClayBot:
+    return ClayBot(
         command_prefix = commands.when_mentioned_or(config['discord']['prefix']),
         activity = discord.Game(name = config['discord']['activity']),
-        owner_id = int(config['discord']['owner'])
+        owner_id = int(config['discord']['owner']),
+        config = config
     )
 
 __version__ = '0.4.8'
@@ -84,8 +91,6 @@ if __name__ == '__main__':
     bot = make_bot(config)
     load_cogs(bot)
     backup_files()
-    #look, i dont want to subclass the entire fucking thing just to add this
-    setattr(bot, '__version__', __version__)
 
     bot.add_listener(on_ready)
 

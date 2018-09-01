@@ -11,7 +11,7 @@ from .utils.shortcuts import quick_embed, try_file
 class Owner:
     def __init__(self, bot):
         self.bot = bot
-        self.config = json.load(try_file('cogs/store/config.json'))
+        #self.config = json.load(try_file('cogs/store/config.json'))
 
         self.blocklist = json.load(try_file('cogs/store/blacklist.json'))
 
