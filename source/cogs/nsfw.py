@@ -246,7 +246,6 @@ class Nsfw:
     @commands.cooldown(1, 10, commands.BucketType.user)
     async def _skk(self, ctx, *, tags: str):
         async with ctx.channel.typing():
-            print('yeet')
             msg = await ctx.send('Requesting from sankakucomplex.com, this will take a while')
 
             try:

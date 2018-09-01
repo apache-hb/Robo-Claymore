@@ -112,6 +112,9 @@ if __name__ == '__main__':
         elif isinstance(exception, commands.errors.CommandOnCooldown):
             return await ctx.send(exception)
 
+        elif isinstance(exception.original, TimeoutError):
+            return await ctx.send(f'Command {ctx.invoked_with} timed out')
+
         await ctx.send(embed = await hastebin_error(ctx, content = '\n'.join(traceback.format_exception(type(exception), exception, exception.__traceback__))), content = 'OwO we did a fucky wucky, send this to the author')
 
         traceback.print_exception(type(exception), exception, exception.__traceback__, file=sys.stderr)
