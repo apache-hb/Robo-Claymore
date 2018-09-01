@@ -5,10 +5,12 @@ from discord.ext import commands
 from fuzzywuzzy import process
 
 from .utils.shortcuts import quick_embed
+from .utils.saved_dict import SavedDict
 
 class Help:
     def __init__(self, bot):
         self.bot = bot
+        self.complaints = SavedDict('cogs/store/complaints.json', content = '[]')
         print(f'cog {self.__class__.__name__} loaded')
 
     def __get_cog(self, name: str):
@@ -126,6 +128,16 @@ Aliases: {command.aliases}'''
         embed.add_field(name = 'Detailed usage', value = command.callback.__doc__)
 
         return embed
+
+    @commands.command(name = "complain")
+    async def _complain(self, ctx, *, msg: str):
+        self.complaints.data.append({
+            'name': ctx.author.name,
+            'id': ctx.author.id,
+            'message': msg
+        })
+        self.complaints.save()
+        await ctx.send('your complaint has been submitted')
 
 def setup(bot):
     bot.remove_command('help')
