@@ -121,3 +121,10 @@ async def do_wack(image: Image) -> BytesIO:
     ret.paste(image, (0, 0), image)
     ret.paste(img, (0, h), img)
     return image_to_bytes(ret)
+
+async def do_crusade(image: Image) -> BytesIO:
+    """we need another crusade"""
+    img = copy(IMAGES['crusade'])
+    image.thumbnail((225, 225), Image.ANTIALIAS)
+    img.paste(image, (0, 0), image)
+    return image_to_bytes(img)

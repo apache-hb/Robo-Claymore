@@ -8,7 +8,7 @@ from .utils.images import (
     do_kick, do_note, do_retard,
     do_villan_image, do_words,
     do_prison, do_shout, do_tweet,
-    do_rtx, do_wack
+    do_rtx, do_wack, do_crusade
 )
 from .utils.networking import get_bytes
 
@@ -161,6 +161,20 @@ class Images:
             img = await get_bytes(user.avatar_url)
             r = await do_wack(bytes_to_image(img))
             ret = discord.File(r.getvalue(), filename = 'wack.png')
+            await ctx.send(file = ret)
+
+    @commands.command(name = "crusade")
+    async def _crusade(self, ctx, first: str):
+        async with ctx.typing():
+            if ctx.message.mentions:
+                img = await get_bytes(ctx.message.mentions[0].avatar_url)
+            else:
+                try:
+                    img = await get_bytes(first)
+                except InvalidURL:
+                    return await ctx.send('Invalid URL')
+            r = await do_crusade(bytes_to_image(img))
+            ret = discord.File(r.getvalue(), filename = 'crusade.png')
             await ctx.send(file = ret)
 
 def setup(bot):
