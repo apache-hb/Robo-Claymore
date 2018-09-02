@@ -524,7 +524,7 @@ https://discord.gg/y3uSzCK'''
 
         j = json.loads(await url_request(url = to_get))
 
-        if j.get('error', 200) != 200:
+        if j.get('error', False):
             return await ctx.send('that subreddit is private')
 
         if not j['data']['children']:
@@ -747,7 +747,6 @@ https://discord.gg/y3uSzCK'''
     async def _tag_after(self, _):
         json.dump(self.tags, open('cogs/store/tags.json', 'w'), indent = 4)
 
-
     def get_server_quotes(self, server: int):
         return self.quotes.get(str(server), None)
 
@@ -806,9 +805,7 @@ https://discord.gg/y3uSzCK'''
     @quote.command(name = "list")
     @commands.guild_only()
     async def _quote_list(self, ctx):
-        """
-        Send a list of all quotes to your inbox
-        """
+        """Send a list of all quotes to your inbox"""
         for (server, quotes) in self.quotes.items():
             if int(server) == ctx.guild.id:
                 if not quotes:

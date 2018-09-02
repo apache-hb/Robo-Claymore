@@ -39,7 +39,7 @@ class ClayBot(commands.Bot):
         self.config = config
         self.__version__ = __version__
 
-def make_bot(config) -> ClayBot:
+def make_bot(config: dict) -> ClayBot:
     return ClayBot(
         command_prefix = commands.when_mentioned_or(config['discord']['prefix']),
         activity = discord.Game(name = config['discord']['activity']),
@@ -68,7 +68,7 @@ async def after_any_command(ctx):
     logs.write('{0.author.name}#{0.author.id} invoked command {0.invoked_with}\n'.format(ctx))
     logs.flush()
 
-def load_cogs(bot) -> None:
+def load_cogs(bot: ClayBot) -> None:
     for cog in glob('cogs/*.py'): #skip __init__ as its not a cog
         if cog in ['cogs/__init__.py']:
             continue
@@ -83,12 +83,12 @@ def backup_files() -> None:
 
     #backup all the config files
     for storefile in glob('cogs/store/*.json'):
-        copyfile(storefile, 'cogs/store/backup/' + os.path.basename(storefile))
+        copyfile(storefile, f'cogs/store/backup/{os.path.basename(storefile)}')
         print(f'Backed up {storefile}')
 
 if __name__ == '__main__':
-    config = load_config()
-    bot = make_bot(config)
+    config: dict = load_config()
+    bot: ClayBot = make_bot(config)
     load_cogs(bot)
     backup_files()
 
@@ -105,7 +105,10 @@ if __name__ == '__main__':
         if any(isinstance(exception, err) for err in ignored_errors):
             return
 
-        if isinstance(exception, commands.errors.MissingRequiredArgument):
+        if (
+            isinstance(exception, commands.errors.MissingRequiredArgument) or
+            isinstance(exception, commands.errors.BadArgument)
+        ):
             embed = quick_embed(ctx, title = 'Incorrect command usage', description = f'When using command {ctx.command.name}')
             embed.add_field(name = 'The correct usage is', value = ctx.command.signature)
             return await ctx.send(embed = embed)
@@ -120,7 +123,16 @@ if __name__ == '__main__':
         elif isinstance(exception.original, TimeoutError):
             return await ctx.send(f'Command {ctx.invoked_with} timed out')
 
-        await ctx.send(embed = await hastebin_error(ctx, content = '\n'.join(traceback.format_exception(type(exception), exception, exception.__traceback__))), content = 'OwO we did a fucky wucky, send this to the author')
+        #hastebin went pop and broke, so this doesnt work anymore
+        '''await ctx.send(
+            embed = await hastebin_error(
+                ctx,
+                content = '\n'.join(
+                    traceback.format_exception(type(exception), exception, exception.__traceback__)
+                )
+            ),
+            content = 'OwO we did a fucky wucky, send this to the author'
+        )'''
 
         traceback.print_exception(type(exception), exception, exception.__traceback__, file=sys.stderr)
 

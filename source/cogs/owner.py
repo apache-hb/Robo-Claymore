@@ -23,7 +23,7 @@ class Owner:
         print(f'cog {self.__class__.__name__} loaded')
 
     async def __local_check(self, ctx):
-        print('{0.author.name} tried to use {0.invoked_with}'.format(ctx))
+        print(f'{ctx.author.name} tried to use {ctx.invoked_with}')
 
         if await can_override(ctx):
             return True
@@ -219,14 +219,12 @@ class Owner:
 
     @remote.command(name = "userlist")
     async def _remote_userlist(self, ctx, guild: int):
-        ret = ''
         server = ctx.bot.get_guild(guild)
 
         if server is None:
             return await ctx.send(f'I am not in a server with an id of {guild}')
 
-        for user in server.members:
-            ret += ' '+user.mention
+        ret = ' '.join([user.mention for user in server.members])
         await ctx.send(await hastebin(content = ret))
 
     @remote.command(name = "userinfo")
@@ -250,10 +248,11 @@ class Owner:
         if guild is None:
             return await ctx.send(f'No server with an id of {server} found')
 
-        ret = f'```\n{guild.name}\n'
-        for channel in guild.text_channels[:25]:#only send the first 25 channels in the server
-            ret += f'{channel.name}#{channel.id}\n'#TODO class them under categorys if there are any
-        ret += '```'
+        content = '\n'.join(
+            [f'{channel.name}#{channel.id}' for channel in guild.text_channels[:25]]
+        )
+
+        ret = f'```{guild.name}\n{content}```'
 
         await ctx.send(ret)
 
@@ -264,10 +263,8 @@ class Owner:
         if guild_channel is None:
             return await ctx.send(f'No channel with an id of {channel} found')
 
-        embed = quick_embed(ctx, "bot permissions")
-
+        embed: discord.Embed = quick_embed(ctx, "bot permissions")
         bot_relation = discord.utils.get(guild_channel.guild.members, id = ctx.bot.user.id)
-
         perms = guild_channel.permissions_for(bot_relation)
 
         for perm in dir(perms):

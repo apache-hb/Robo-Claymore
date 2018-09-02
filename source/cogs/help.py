@@ -82,7 +82,6 @@ class Help:
         if cog is None:
             return quick_embed(ctx, f'No command called {name} found')
 
-
         embed = quick_embed(
             ctx,
             title = f'All subcommands in {name}',
@@ -91,10 +90,7 @@ class Help:
 
         for command in ctx.bot.get_cog_commands(cog.__class__.__name__):
             if not command.hidden:
-                try:
-                    embed.add_field(name=command.name, value=command.brief, inline = False)
-                except AttributeError:
-                    embed.add_field(name=command.name, value='No description', inline = False)
+                embed.add_field(name = command.name, value = getattr(command, 'brief', 'No description'), inline = False)
 
         return embed
 

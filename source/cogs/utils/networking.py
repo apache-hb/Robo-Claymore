@@ -19,14 +19,15 @@ async def tinyurl(url: str) -> str:
         async with session.get(TINYURL_URL + url, timeout=10) as resp:
             return await resp.text()
 
-HASTEBIN_URL = 'https://hastebin.com/documents'
+HASTEBIN_URL = 'https://pastebin.com/api/api_post.php'
 
 async def hastebin(content: str) -> str:
     """upload content to hastebin.com"""
     async with aiohttp.ClientSession() as session:
         async with session.post(HASTEBIN_URL, data = content.encode('utf-8')) as post:
+            print(await post.text())
             post = await post.json()
-            return 'https://hastebin.com/' + post['key']
+            return post['key']
 
 async def hastebin_error(ctx, content: str) -> Embed:
     """upload something to hastebin and return an embed to send to chat"""

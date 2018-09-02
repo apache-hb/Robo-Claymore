@@ -18,9 +18,9 @@ for each in FILES:
     name = basename(each)
     IMAGES[name[:-4]] = Image.open(each).convert('RGBA')
 
-FONT = ImageFont.truetype('cogs/fonts/comic_sans.ttf', size = 35)
-SMALL_FONT = ImageFont.truetype('cogs/fonts/comic_sans.ttf', size = 25)
-BIG_FONT = ImageFont.truetype('cogs/fonts/comic_sans.ttf', size = 55)
+font = ImageFont.truetype('cogs/fonts/comic_sans.ttf', size = 35)
+small_font = ImageFont.truetype('cogs/fonts/comic_sans.ttf', size = 25)
+big_font = ImageFont.truetype('cogs/fonts/comic_sans.ttf', size = 55)
 
 async def do_choice(first: str, second: str) -> BytesIO:
     """make a choice meme"""

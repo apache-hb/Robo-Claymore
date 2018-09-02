@@ -12,14 +12,15 @@ from .utils.images import (
 )
 from .utils.networking import get_bytes
 
-
 class Images:
     def __init__(self, bot):
         self.bot = bot
         print(f'Cog {self.__class__.__name__} loaded')
 
     @commands.command(
-        name = "button"
+        name = "button",
+        description = "press a button with some text on it",
+        brief = "its a blue button"
     )
     @commands.cooldown(1, 10, commands.BucketType.user)
     async def _button(self, ctx, *, text: str):
@@ -59,7 +60,7 @@ class Images:
     @commands.cooldown(1, 10, commands.BucketType.user)
     async def _doorkick(self, ctx, image):
         async with ctx.channel.typing():
-            if len(ctx.message.mentions) == 0:
+            if not ctx.message.mentions:
                 try:
                     img = await get_bytes(image)
                 except InvalidURL:
