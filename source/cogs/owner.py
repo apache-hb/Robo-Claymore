@@ -221,7 +221,7 @@ class Owner:
     async def _remote_serverlist(self, ctx):
         embed = quick_embed(ctx, 'first 25 servers')
         for server in self.bot.guilds[:25]:
-            embed.add_field(name = server.name, value = len(server.members))
+            embed.add_field(name = server.name, value = f'{len(server.members)} members')
         await ctx.send(embed = embed)
 
     @remote.command(name = "userlist")
