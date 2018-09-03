@@ -142,7 +142,7 @@ class Admin:
             return
         for each in member.guild.channels:
             if each.id == channelid:
-                await each.send(f'{member.mention} just left')
+                await each.send(f'{member.mention} ({member.name}#{member.discriminator}) just left')
 
     @commands.command(name = "setleave")
     @commands.guild_only()
