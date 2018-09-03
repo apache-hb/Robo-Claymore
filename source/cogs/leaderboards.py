@@ -45,7 +45,7 @@ class LeaderBoard:
         self.user_boards.data[str(ctx.author.id)]['commands'] += 1
         self.user_boards.save()
 
-    async def on_command_error(self, ctx, err):
+    async def on_command_error(self, ctx, _):
         self.user_boards.data[str(ctx.author.id)]['errors'] += 1
         self.user_boards.save()
 

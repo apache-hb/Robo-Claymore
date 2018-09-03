@@ -217,6 +217,10 @@ class Owner:
     async def remote(self, ctx):
         pass
 
+    @remote.command(name = "serverlist")
+    async def _remote_serverlist(self, ctx):
+        embed = quick_embed(ctx, 'first 25 servers')
+
     @remote.command(name = "userlist")
     async def _remote_userlist(self, ctx, guild: int):
         server = ctx.bot.get_guild(guild)
