@@ -12,11 +12,18 @@ from .utils.images import (
     do_violation
 )
 from .utils.networking import get_bytes
+from io import BytesIO
 
 class Images:
     def __init__(self, bot):
         self.bot = bot
+        shad = BytesIO(open('cogs/images/shadman.png', 'rb').read())
+        self.shadman = discord.File(shad.getvalue(), 'shadman.png')
         print(f'Cog {self.__class__.__name__} loaded')
+
+    async def on_message(self, ctx):
+        if ctx.content == '>shadman':
+            await ctx.channel.send(file = self.shadman)
 
     @commands.command(
         name = "button",

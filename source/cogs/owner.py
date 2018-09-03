@@ -220,6 +220,9 @@ class Owner:
     @remote.command(name = "serverlist")
     async def _remote_serverlist(self, ctx):
         embed = quick_embed(ctx, 'first 25 servers')
+        for server in self.bot.guilds[:25]:
+            embed.add_field(name = server.name, value = len(server.members))
+        await ctx.send(embed = embed)
 
     @remote.command(name = "userlist")
     async def _remote_userlist(self, ctx, guild: int):

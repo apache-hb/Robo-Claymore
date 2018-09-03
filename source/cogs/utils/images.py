@@ -129,11 +129,11 @@ async def do_crusade(image: Image) -> BytesIO:
     img.paste(image, (0, 0), image)
     return image_to_bytes(img)
 
-PAPERS_PLEASE = ImageFont.truetype('cogs/fonts/papers_please.ttf', size = 20)
+PAPERS_PLEASE = ImageFont.truetype('cogs/fonts/papers_please.ttf', size = 18)
 
 async def do_violation(text: str) -> BytesIO:
     """Protocol violation: unfunny meme"""
     img = copy(IMAGES['unfunnymeme'])
     ret = ImageDraw.Draw(img)
-    ret.text((25, 55), text, (101, 85, 95), font = PAPERS_PLEASE)
+    ret.text((25, 55), text, (101, 95, 85), font = PAPERS_PLEASE)
     return image_to_bytes(img)
