@@ -213,6 +213,8 @@ class Admin:
         self.autorole_list[str(ctx.guild.id)] = []
 
     @autorole.after_invoke
+    @_autorole_add.after_invoke
+    @_autorole_remove.after_invoke
     async def _autorole_after(self, _):
         json.dump(self.autorole_list, open('cogs/store/autorole.json', 'w'), indent = 4)
 
