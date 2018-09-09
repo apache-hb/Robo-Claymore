@@ -11,8 +11,6 @@ from discord.ext import commands
 from cogs.utils.shortcuts import quick_embed
 from cogs.utils.networking import hastebin_error
 
-logs = open('cogs/store/claymore.log', 'a')
-
 def load_config() -> dict:
     try:
         return json.load(open('cogs/store/config.json'))
@@ -47,7 +45,7 @@ def make_bot(config: dict) -> ClayBot:
         config = config
     )
 
-__version__ = '0.4.8'
+__version__ = '0.4.9'
 
 async def on_ready():
     print('''
@@ -87,6 +85,14 @@ def backup_files() -> None:
         print(f'Backed up {storefile}')
 
 if __name__ == '__main__':
+    if not os.path.isdir('cogs/store'):
+        os.mkdir('cogs/store')
+
+    try:
+        logs = open('cogs/store/claymore.log', 'a')
+    except FileNotFoundError:
+        logs = open('cogs/store/claymore.log', 'w')
+
     config: dict = load_config()
     bot: ClayBot = make_bot(config)
     load_cogs(bot)
@@ -122,17 +128,6 @@ if __name__ == '__main__':
 
         elif isinstance(exception.original, TimeoutError):
             return await ctx.send(f'Command {ctx.invoked_with} timed out')
-
-        #hastebin went pop and broke, so this doesnt work anymore
-        '''await ctx.send(
-            embed = await hastebin_error(
-                ctx,
-                content = '\n'.join(
-                    traceback.format_exception(type(exception), exception, exception.__traceback__)
-                )
-            ),
-            content = 'OwO we did a fucky wucky, send this to the author'
-        )'''
 
         traceback.print_exception(type(exception), exception, exception.__traceback__, file=sys.stderr)
 
