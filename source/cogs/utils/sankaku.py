@@ -9,7 +9,6 @@ Can be used externally
 from typing import List
 import aiohttp
 import bs4
-from .networking import json_request
 
 HEADERS = {
     'User-agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:29.0) Gecko/20100101 Firefox/29.0'

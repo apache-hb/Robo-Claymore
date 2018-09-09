@@ -9,7 +9,6 @@ import discord
 from discord.ext import commands
 
 from cogs.utils.shortcuts import quick_embed
-from cogs.utils.networking import hastebin_error
 
 def load_config() -> dict:
     try:
@@ -45,7 +44,7 @@ def make_bot(config: dict) -> ClayBot:
         config = config
     )
 
-__version__ = '0.4.9'
+__version__ = '0.4.10'
 
 async def on_ready():
     print('''

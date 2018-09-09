@@ -12,6 +12,7 @@ from .utils.images import (
     do_violation
 )
 from .utils.networking import get_bytes
+from .utils.filters import do_deepfry, jpegify, do_sharpen, emboss
 from io import BytesIO
 
 class Images:
@@ -24,6 +25,64 @@ class Images:
     async def on_message(self, ctx):
         if ctx.content == '>shadman':
             await ctx.channel.send(file = self.shadman)
+
+    @commands.command(
+        name = "emboss"
+    )
+    @commands.cooldown(1, 10, commands.BucketType.user)
+    async def _emboss(self, ctx, text: str):
+        async with ctx.channel.typing():
+            try:
+                ret = await get_bytes(text)
+            except InvalidURL:
+                return await ctx.send('Invalid URL')
+            ret = await emboss(bytes_to_image(ret))
+            f = discord.File(ret.getvalue(), filename = 'emboss.png')
+            return await ctx.send(file = f)
+
+    @commands.command(
+        name = "sharpen"
+    )
+    @commands.cooldown(1, 10, commands.BucketType.user)
+    async def _sharpen(self, ctx, text: str):
+        async with ctx.channel.typing():
+            try:
+                img = await get_bytes(text)
+            except InvalidURL:
+                return await ctx.send('Invalid URL')
+
+            ret = await do_sharpen(bytes_to_image(img))
+            f = discord.File(ret.getvalue(), filename = 'sharpen.png')
+            await ctx.send(file = f)
+
+    @commands.command(
+        name = "jpeg",
+        aliases = ['needsmorejpeg', 'jpegify']
+    )
+    @commands.cooldown(1, 10, commands.BucketType.user)
+    async def _jpeg(self, ctx, text: str):
+        async with ctx.channel.typing():
+            try:
+                img = await get_bytes(text)
+            except InvalidURL:
+                return await ctx.send('Invalid URL')
+            ret = await jpegify(bytes_to_image(img))
+            f = discord.File(ret.getvalue(), filename = 'jpegified.jpeg')
+            await ctx.send(file = f)
+
+    @commands.command(
+        name = "deepfry"
+    )
+    @commands.cooldown(1, 10, commands.BucketType.user)
+    async def _deepfry(self, ctx, text: str):
+        async with ctx.channel.typing():
+            try:
+                img = await get_bytes(text)
+            except InvalidURL:
+                return await ctx.send('Invalid URL')
+            ret = await do_deepfry(bytes_to_image(img))
+            f = discord.File(ret.getvalue(), filename = 'deepfry.png')
+            await ctx.send(file = f)
 
     @commands.command(
         name = "button",

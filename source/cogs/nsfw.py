@@ -1,16 +1,13 @@
 import json
 import random
-import discord
 
 from defusedxml.ElementTree import fromstring
 from discord.ext import commands
-from io import BytesIO
 
 from .utils import skkcomplex_request
-from .utils.networking import json_request, tinyurl, url_request, get_bytes
+from .utils.networking import json_request, tinyurl, url_request
 from .utils.shortcuts import embedable, quick_embed
-from .utils.converters import bytes_to_image, image_to_bytes
-from PIL import Image
+from .utils.converters import image_to_bytes
 
 class Nsfw:
     def __init__(self, bot):

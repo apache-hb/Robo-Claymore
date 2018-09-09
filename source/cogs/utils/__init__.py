@@ -30,3 +30,4 @@ from .images import (
     do_crusade, do_violation
 )
 from .saved_dict import SavedDict
+from .filters import do_deepfry, jpegify, do_sharpen, emboss
