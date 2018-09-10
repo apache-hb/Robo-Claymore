@@ -54,19 +54,16 @@ class Help:
         await ctx.author.send(embed = embed)
 
         for name, cog in ctx.bot.cogs.items():
-            emb = quick_embed(ctx, title = name)
-            ret = ''
-            for command in cog:
-                if getattr(ctx.bot.get_cog(cog), 'hidden', False):
-                    continue
+            if getattr(cog, 'hidden', False):
+                continue #skip all hidden cogs
+            
+            content = '\n'.join([command.name for command 
+                in self.bot.get_cog_commands(name) 
+                    if not getattr(command, 'hidden', False)])
 
-                if not getattr(command, 'hidden', False):
-                    ret += command.name + '\n'
-
-            emb.add_field(name = cog, value = ret, inline = False)
-
-            if not getattr(ctx.bot.get_cog(cog), 'hidden', False):
-                await ctx.author.send(embed = emb)
+            ret = quick_embed(ctx, f'all commands in {name}')
+            ret.add_field(name = 'all commands', value = content)
+            await ctx.send(embed = ret)
 
     def __all(self, ctx):
         ret = '\n'.join([name for name, cog in self.bot.cogs.items() if not getattr(cog, 'hidden', False)])

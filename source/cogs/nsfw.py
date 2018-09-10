@@ -30,20 +30,21 @@ class Nsfw:
             'User-Agent': 'RoboClaymore (by ApacheActual#6945 on discord)'
         }
 
-        ret = json.loads(await url_request(url = url, headers = headers))
+        async with ctx.channel.typing():
+            ret = json.loads(await url_request(url = url, headers = headers))
 
-        if not ret:
-            return await ctx.send(f'Nothing with tags ``{tags}`` found')
+            if not ret:
+                return await ctx.send(f'Nothing with tags ``{tags}`` found')
 
-        post = random.choice(ret)
+            post = random.choice(ret)
 
-        embed = quick_embed(ctx, title = 'A post from e621')
-        embed.add_field(name = 'Image source', value = await tinyurl(post['file_url']))
+            embed = quick_embed(ctx, title = 'A post from e621')
+            embed.add_field(name = 'Image source', value = await tinyurl(post['file_url']))
 
-        if embedable(post['file_url']):
-            embed.set_image(url = post['file_url'])
+            if embedable(post['file_url']):
+                embed.set_image(url = post['file_url'])
 
-        await ctx.send(embed = embed)
+            await ctx.send(embed = embed)
 
     rule34_api = 'https://rule34.xxx/index.php?page=dapi&s=post&q=index&tags={}'
 
@@ -54,23 +55,24 @@ class Nsfw:
         brief = "pip install aiorule34"
     )
     async def _rule34(self, ctx, *, tags: str):
-        root = fromstring(await url_request(url = self.rule34_api.format(tags)))
+        async with ctx.channel.typing():
+            root = fromstring(await url_request(url = self.rule34_api.format(tags)))
 
-        if not root:
-            return await ctx.send(f'Nothing with tags ``{tags}`` found')
+            if not root:
+                return await ctx.send(f'Nothing with tags ``{tags}`` found')
 
-        info = random.choice(root).attrib
+            info = random.choice(root).attrib
 
-        tags = info['tags']
-        file_url = info['file_url']
+            tags = info['tags']
+            file_url = info['file_url']
 
-        embed = quick_embed(ctx, title = 'A post from rule34.xxx')
-        embed.add_field(name = 'Image source', value = await tinyurl(file_url))
+            embed = quick_embed(ctx, title = 'A post from rule34.xxx')
+            embed.add_field(name = 'Image source', value = await tinyurl(file_url))
 
-        if embedable(file_url):
-            embed.set_image(url = file_url)
+            if embedable(file_url):
+                embed.set_image(url = file_url)
 
-        await ctx.send(embed = embed)
+            await ctx.send(embed = embed)
 
     gelbooru_api = 'https://gelbooru.com/index.php?page=dapi&s=post&q=index&json=1&tags={}'
 
@@ -81,20 +83,21 @@ class Nsfw:
         brief = "the only nice booru api out there"
     )
     async def _gelbooru(self, ctx, *, tags: str):
-        try:
-            ret = json.loads(await url_request(url = self.gelbooru_api.format(tags)))
-        except ValueError:
-            return await ctx.send(f'Nothing with tags ``{tags}`` found')
+        async with ctx.channel.typing():
+            try:
+                ret = json.loads(await url_request(url = self.gelbooru_api.format(tags)))
+            except ValueError:
+                return await ctx.send(f'Nothing with tags ``{tags}`` found')
 
-        post = random.choice(ret)
+            post = random.choice(ret)
 
-        embed = quick_embed(ctx, title = 'A post from gelbooru.com')
-        embed.add_field(name = 'Image source', value = await tinyurl(post['file_url']))
+            embed = quick_embed(ctx, title = 'A post from gelbooru.com')
+            embed.add_field(name = 'Image source', value = await tinyurl(post['file_url']))
 
-        if embedable(post['file_url']):
-            embed.set_image(url = post['file_url'])
+            if embedable(post['file_url']):
+                embed.set_image(url = post['file_url'])
 
-        return await ctx.send(embed = embed)
+            return await ctx.send(embed = embed)
 
     @commands.command(
         name = "danbooru",
@@ -108,21 +111,21 @@ class Nsfw:
 
         else:
             url = f'https://danbooru.donmai.us/posts.json?limit=50?tags=\"{tags.split(" ")}\"'
+        async with ctx.channel.typing():
+            ret = json.loads(await url_request(url = url))
 
-        ret = json.loads(await url_request(url = url))
+            if not ret:
+                return await ctx.send('Nothing found')
 
-        if not ret:
-            return await ctx.send('Nothing found')
+            post = random.choice(ret)
 
-        post = random.choice(ret)
+            embed = quick_embed(ctx, title = 'An image from danbooru')
+            embed.add_field(name = 'Image source', value = await tinyurl(post['large_file_url']))
 
-        embed = quick_embed(ctx, title = 'An image from danbooru')
-        embed.add_field(name = 'Image source', value = await tinyurl(post['large_file_url']))
+            if embedable(post['large_file_url']):
+                embed.set_image(url = post['large_file_url'])
 
-        if embedable(post['large_file_url']):
-            embed.set_image(url = post['large_file_url'])
-
-        return await ctx.send(embed = embed)
+            return await ctx.send(embed = embed)
 
     @commands.command(
         name = "gif",

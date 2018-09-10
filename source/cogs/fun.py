@@ -144,11 +144,11 @@ class Fun:
                                 for image in glob('cogs/images/frothy/*.png')]
 
         #gather all the images of eyes for the `eyes` command
-        self.eyes = rdict()
+        self.eye_dict = rdict()
         for eye_path in glob('cogs/images/eyes/*.png'):
             name = basename(eye_path)
             #do [:-4] to trim off the `.png` ending
-            self.eyes[name[:-4]] = Image.open(eye_path).convert('RGBA')
+            self.eye_dict[name[:-4]] = Image.open(eye_path).convert('RGBA')
 
         self.youtube_crime = Image.open('cogs/images/crime.png', mode = 'r').convert('RGBA')
 

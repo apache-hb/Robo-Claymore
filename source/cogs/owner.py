@@ -326,5 +326,17 @@ class Owner:
 
         await ctx.send('message sent')
 
+    @commands.group(
+        invoke_without_command = False,
+        name = "bot"
+    )
+    async def _bot(self, ctx):
+        pass
+
+    @_bot.command(name = "setgame")
+    async def _setgame(self, ctx, *, name: str):
+        await self.bot.change_presence(activity = discord.Game(name = name))
+        await ctx.send('presence set')
+
 def setup(bot):
     bot.add_cog(Owner(bot))

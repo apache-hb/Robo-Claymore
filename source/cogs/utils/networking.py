@@ -8,6 +8,7 @@ from mimetypes import MimeTypes
 import aiohttp
 from discord import Embed
 from .shortcuts import quick_embed
+from urllib import urlencode
 
 MIME = MimeTypes()
 
@@ -19,12 +20,16 @@ async def tinyurl(url: str) -> str:
         async with session.get(TINYURL_URL + url, timeout=10) as resp:
             return await resp.text()
 
-HASTEBIN_URL = 'https://pastebin.com/api/api_post.php'
+HASTEBIN_URL = 'http://pastebin.com/api/api_post.php'
 
 async def hastebin(content: str) -> str:
     """upload content to hastebin.com"""
     async with aiohttp.ClientSession() as session:
-        async with session.post(HASTEBIN_URL, data = content.encode('utf-8')) as post:
+        data = urlencode({'api_option': 'paste', 'paste': content})
+        async with session.post(
+                HASTEBIN_URL,
+                data = data
+            ) as post:
             print(await post.text())
             post = await post.json()
             return post['key']

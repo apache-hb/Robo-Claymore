@@ -18,13 +18,19 @@ from io import BytesIO
 class Images:
     def __init__(self, bot):
         self.bot = bot
+
         shad = BytesIO(open('cogs/images/shadman.png', 'rb').read())
         self.shadman = discord.File(shad.getvalue(), 'shadman.png')
+
+        hammer = BytesIO(open('cogs/images/banhammer.jpg', 'rb').read())
+        self.banhammer = discord.File(hammer.getvalue(), 'banhammer.jpg')
         print(f'Cog {self.__class__.__name__} loaded')
 
     async def on_message(self, ctx):
         if ctx.content == '>shadman':
             await ctx.channel.send(file = self.shadman)
+        elif ctx.content == 'b&':
+            await ctx.channel.send(file = self.banhammer)
 
     @commands.command(
         name = "emboss"
