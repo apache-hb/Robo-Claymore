@@ -8,7 +8,7 @@ from mimetypes import MimeTypes
 import aiohttp
 from discord import Embed
 from .shortcuts import quick_embed
-from urllib import urlencode
+#from urllib import urlencode
 
 MIME = MimeTypes()
 

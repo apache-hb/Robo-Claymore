@@ -60,7 +60,11 @@ class Owner:
         await ctx.send(text)
 
     #TODO make this nicer to use and easier to read/write
-    @commands.group(invoke_without_command = False, name = "bully")
+    @commands.group(
+        invoke_without_command = False, 
+        name = "bully",
+        case_insensitive = True
+    )
     async def _bully(self, ctx):
         pass
 
@@ -153,7 +157,10 @@ class Owner:
             return False
         return True
 
-    @commands.group(invoke_without_command = True)
+    @commands.group(
+        invoke_without_command = True,
+        case_insensitive = True
+    )
     async def block(self, ctx):
         if not self.blocklist:
             return await ctx.send('no one is blocked')
@@ -178,7 +185,11 @@ class Owner:
             return await ctx.send(f'removed ``{user.name}`` from the blocklist')
         await ctx.send(f'``{user.name}`` isnt blocked')
 
-    @commands.group(name = "cogs", invoke_without_command = True)
+    @commands.group(
+        name = "cogs", 
+        invoke_without_command = True,
+        case_insensitive = True
+    )
     async def cogs(self, ctx):
         ret = '\n'.join(cog for cog in ctx.bot.cogs)
 
@@ -213,7 +224,10 @@ class Owner:
             return await ctx.send(e)
         return await ctx.send(f'Cog {name} reloaded correctly')
 
-    @commands.group(invoke_without_command = True)
+    @commands.group(
+        invoke_without_command = True,
+        case_insensitive = True
+    )
     async def remote(self, ctx):
         pass
 
@@ -328,7 +342,8 @@ class Owner:
 
     @commands.group(
         invoke_without_command = False,
-        name = "bot"
+        name = "bot",
+        case_insensitive = True
     )
     async def _bot(self, ctx):
         pass

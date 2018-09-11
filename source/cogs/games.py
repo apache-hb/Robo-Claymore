@@ -106,7 +106,10 @@ class Games:
         await ctx.send(self.bot.config['count'])
         json.dump(self.bot.config, open('cogs/store/config.json', 'w'), indent = 4)
 
-    @commands.group(invoke_without_command = True)
+    @commands.group(
+        invoke_without_command = True,
+        case_insensitive = True
+    )
     async def warframe(self, ctx):
         embed = quick_embed(ctx, title = 'All the subcommands for warframe')
         b = []
@@ -367,7 +370,10 @@ Current price: {first["salePrice"]}'''
 
         await ctx.send(embed = embed)
 
-    @commands.group(invoke_without_command = True)
+    @commands.group(
+        invoke_without_command = True,
+        case_insensitive = True
+    )
     async def titanfall(self, ctx):
         embed = quick_embed(ctx, title = 'All the subcommands for titanfall')
         b = []

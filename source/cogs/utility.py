@@ -581,7 +581,10 @@ https://discord.gg/y3uSzCK'''
             user = ctx.author
         await ctx.send(user.avatar_url)
 
-    @commands.group(invoke_without_command = True)
+    @commands.group(
+        invoke_without_command = True,
+        case_insensitive = True
+    )
     async def prettyprint(self, ctx):
         embed = quick_embed(
             ctx,
@@ -657,7 +660,10 @@ https://discord.gg/y3uSzCK'''
     def get_server_tag(self, server: int):
         return self.tags.get(str(server), None)
 
-    @commands.group(invoke_without_command = True)
+    @commands.group(
+        invoke_without_command = True,
+        case_insensitive = True
+    )
     @commands.guild_only()
     async def tag(self, ctx, name: str = None):
         """
@@ -750,7 +756,10 @@ https://discord.gg/y3uSzCK'''
     def get_server_quotes(self, server: int):
         return self.quotes.get(str(server), None)
 
-    @commands.group(invoke_without_command = True)
+    @commands.group(
+        invoke_without_command = True,
+        case_insensitive = True
+    )
     @commands.guild_only()
     async def quote(self, ctx, index: int = None):
         """

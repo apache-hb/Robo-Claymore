@@ -157,7 +157,10 @@ class Admin:
     async def _after_leave(self, _):
         json.dump(self.leave_channels, open('cogs/store/leave.json', 'w'), indent = 4)
 
-    @commands.group(invoke_without_command = True)
+    @commands.group(
+        invoke_without_command = True,
+        case_insensitive = True
+    )
     @commands.guild_only()
     @checks.is_admin()
     async def autorole(self, ctx):
@@ -256,7 +259,10 @@ class Admin:
         except AttributeError:
             return True
 
-    @commands.group(invoke_without_command = True)
+    @commands.group(
+        invoke_without_command = True,
+        case_insensitive = True
+    )
     @commands.guild_only()
     async def blacklist(self, ctx):
         for (server, users) in self.server_blacklists.data.items():
@@ -315,7 +321,10 @@ class Admin:
     async def _blacklist_after(self, _):
         self.server_blacklists.save()
 
-    @commands.group(invoke_without_command = True)
+    @commands.group(
+        invoke_without_command = True,
+        case_insensitive = True
+    )
     async def command(self, ctx):
         pass
 

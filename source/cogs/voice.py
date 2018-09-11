@@ -138,7 +138,10 @@ class Voice:
         self.user_playlists = json.load(try_file('cogs/store/playlist.json'))
         print(f'cog {self.__class__.__name__} loaded')
 
-    @commands.group(invoke_without_command = True)
+    @commands.group(
+        invoke_without_command = True,
+        case_insensitive = True
+    )
     async def playlist(self, ctx):
         pass
 

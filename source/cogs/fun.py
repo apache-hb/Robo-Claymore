@@ -558,7 +558,10 @@ class Fun:
         ret = discord.File(img, filename = 'cat.png')
         await ctx.send(file = ret)
 
-    @commands.group(invoke_without_command = True)
+    @commands.group(
+        invoke_without_command = True,
+        case_insensitive = True
+    )
     @commands.guild_only()
     async def autoreact(self, ctx):
         """

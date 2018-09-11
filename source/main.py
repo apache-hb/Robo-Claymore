@@ -32,7 +32,12 @@ def load_config() -> dict:
 
 class ClayBot(commands.Bot):
     def __init__(self, command_prefix: str, activity: discord.Game, owner_id: int, config: dict):
-        super(commands.Bot, self).__init__(command_prefix = command_prefix, activity = activity, owner_id = owner_id)
+        super(commands.Bot, self).__init__(
+            command_prefix = command_prefix, 
+            activity = activity, 
+            owner_id = owner_id,
+            case_insensitive = True
+        )
         self.config = config
         self.__version__ = __version__
 
@@ -44,7 +49,7 @@ def make_bot(config: dict) -> ClayBot:
         config = config
     )
 
-__version__ = '0.4.10'
+__version__ = '0.4.11'
 
 async def on_ready():
     print('''
