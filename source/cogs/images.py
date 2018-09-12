@@ -144,8 +144,10 @@ class Images:
                     img = await get_bytes(ctx.message.mentions[0].avatar_url)
                 except IndexError:
                     return await ctx.send('must either be url or a user mention')
-
-            r = await do_kick(bytes_to_image(img))
+            try:
+                r = await do_kick(bytes_to_image(img))
+            except OSError:
+                return await ctx.send('I dont know what that is, but it isnt an image i can use')
             ret = discord.File(r.getvalue(), filename = 'kick.png')
             await ctx.send(file = ret)
 
