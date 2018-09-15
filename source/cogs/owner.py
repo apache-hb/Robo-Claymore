@@ -5,8 +5,9 @@ import discord
 from discord.ext import commands
 
 from .utils.checks import can_override
-from .utils.networking import hastebin
+from .utils.networking import hastebin, gist, to_file
 from .utils.shortcuts import quick_embed, try_file
+import io
 
 class Owner:
     def __init__(self, bot):
@@ -149,7 +150,8 @@ class Owner:
     @commands.command(name = "userlist")
     async def _userlist(self, ctx):
         ret = ' '.join(user.mention for user in ctx.guild.members)
-        await ctx.send(await hastebin(content = ret))
+        f = discord.File(io.BytesIO(bytes(ret, 'ascii')).getvalue(), filename = 'userlist.txt')
+        await ctx.send(file = f)
 
     async def __global_check(self, ctx):
         if ctx.author.id in self.blocklist:
@@ -246,7 +248,7 @@ class Owner:
             return await ctx.send(f'I am not in a server with an id of {guild}')
 
         ret = ' '.join([user.mention for user in server.members])
-        await ctx.send(await hastebin(content = ret))
+        await ctx.send(file = await to_file(ret, 'userlist'))
 
     @remote.command(name = "userinfo")
     async def _remote_userinfo(self, ctx, user: int):
@@ -324,7 +326,7 @@ class Owner:
         async for message in target.history():
             ret += f'{message.author.name}: {message.content}\n'
 
-        await ctx.send(await hastebin(ret))
+        await ctx.send(file = await to_file(ret, 'history.txt'))
 
     @remote.command(name = "sendmessage")
     async def _remote_sendmessage(self, ctx, channel: int, *, message: str):

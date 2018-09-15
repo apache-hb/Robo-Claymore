@@ -25,6 +25,9 @@ def load_config() -> dict:
             'wolfram': {
                 'key': input('Enter wolfram-alpha key (optional)')
             },
+            'github': {
+                'key': input('Enter a github token to enable some commands that send large messages (optional)')
+            },
             'count': 0
         }
         json.dump(config, open('cogs/store/config.json', 'w'), indent = 4)

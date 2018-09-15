@@ -15,7 +15,7 @@ from pyfiglet import figlet_format
 
 from .utils import zalgo
 from .utils.checks import can_override
-from .utils.networking import hastebin, hastebin_error, tinyurl, url_request
+from .utils.networking import hastebin, hastebin_error, tinyurl, url_request, gist, to_file
 from .utils.shortcuts import embedable, quick_embed, try_file
 
 # stolen from appuselfbot
@@ -137,7 +137,7 @@ class Utility:
         try:
             await ctx.send(ret)
         except discord.errors.HTTPException:
-            await ctx.send(embed = await hastebin_error(ctx, ret))
+            await ctx.send(file = await to_file(ret, name))
 
     @commands.command(
         name = "zalgo",
@@ -164,7 +164,7 @@ ZALGO!""",
         try:
             await ctx.send(ret)
         except Exception:
-            await ctx.send(embed = await hastebin_error(ctx, content = ret))
+            await ctx.send(file = await to_file(ret, 'zalgo'))
 
     @commands.command(
         name = "flip",
@@ -195,14 +195,6 @@ ZALGO!""",
     )
     async def _tinyurl(self, ctx, *, url: str):
         await ctx.send(await tinyurl(url))
-
-    @commands.command(
-        name = "hastebin",
-        description = "upload content to hastebin to display it nicely",
-        brief = "use hastebin"
-    )
-    async def _hastebin(self, ctx, *, content: str):
-        await ctx.send(await hastebin(content))
 
     @commands.command(
         name = "hash",
@@ -267,7 +259,7 @@ https://discord.gg/y3uSzCK'''
         )
 
         if not len(ret) <= 1800:
-            return await ctx.send(embed = await hastebin_error(ctx, ret))
+            return await ctx.send(file = await to_file(ret, 'expand'))
 
         await ctx.send('```' + ret + '```')
 
@@ -282,7 +274,7 @@ https://discord.gg/y3uSzCK'''
         ret = ''.join(emoji_dict.get(char, char)[0] for char in text)
 
         if not len(ret) <= 1800:
-            return await ctx.send(embed = await hastebin_error(ctx, ret))
+            return await ctx.send(file = await to_file(ret, 'emoji')
 
         await ctx.send(ret)
 
@@ -296,7 +288,7 @@ https://discord.gg/y3uSzCK'''
         ret = ' '.join(format(ord(x), 'b') for x in text)
 
         if not len(ret) <= 1800:
-            return await ctx.send(embed = await hastebin_error(ctx, ret))
+            return await ctx.send(file = await to_file(ret, 'binary')
 
         await ctx.send(ret)
 
@@ -310,7 +302,7 @@ https://discord.gg/y3uSzCK'''
         ret = ''.join(str([ord(c) for c in text]))
 
         if not len(ret) <= 1800:
-            return await ctx.send(embed = await hastebin_error(ctx, ret))
+            return await ctx.send(file = await to_file(ret, 'ascii')
 
         await ctx.send(ret)
 
@@ -324,7 +316,7 @@ https://discord.gg/y3uSzCK'''
         ret = text + '\n' + '\n'.join(letter for letter in text[1:])
 
         if not len(ret) <= 1800:
-            return await ctx.send(embed = await hastebin_error(ctx, ret))
+            return await ctx.send(file = await to_file(ret, 'square')
 
         await ctx.send(ret)
 
@@ -348,7 +340,7 @@ https://discord.gg/y3uSzCK'''
         ret = getsource(func.callback)
 
         if not len(ret) <= 1800:
-            return await ctx.send(embed = await hastebin_error(ctx, ret))
+            return await ctx.send(file = await to_file(ret, 'source')
 
         await ctx.send('```py\n' + ret.replace('`', '\`') + '```')
 

@@ -13,7 +13,8 @@ from .van import overlay_van
 from .networking import (
 	tinyurl, hastebin, hastebin_error,
 	exists, url_request, json_request,
-	request_async, get_bytes, get_image
+	request_async, get_bytes, get_image,
+	gist
 )
 from .shortcuts import (
 	try_file, quick_embed, embedable,
