@@ -93,13 +93,13 @@ class Admin:
             await ctx.send('their gone now, But i have reinvited them')
 
     @commands.command(
-        name = "clean",
+        name = "prune",
         description = "delete the last x messages from the current chat",
         brief = "just brush it under the rug"
     )
     @commands.guild_only()
     @checks.manage_messages()
-    async def _clean(self, ctx, amount: int = 5):
+    async def _prune(self, ctx, amount: int = 5):
         if not 5 <= amount <= 100:
             return await ctx.send('Amount must be between 5 and 100')
 
@@ -109,6 +109,22 @@ class Admin:
             await ctx.send('I dont have the permissions to delete messages')
         else:
             await ctx.send(f'{amount} messages have been purged')
+
+    @commands.command(
+        name = "clean"
+    )
+    @commands.guild_only()
+    @checks.manage_messages()
+    async def _clean(self, ctx, usr: discord.Member, amount: int = 25):
+        if amount not in range(5, 100):
+            return await ctx.send('can only clean between 5 and 100 messages at a time')
+        
+        try:
+            await ctx.channel.purge(limit = amount, check = lambda msg: msg.author == usr)
+        except discord.errors.Forbidden:
+            await ctx.send('I dont have permissions to delete messages')
+        else:
+            await ctx.send(f'{amount} of messages from {usr} have been removed')
 
     @commands.command(
         name = "massnick",
