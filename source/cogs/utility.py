@@ -274,7 +274,7 @@ https://discord.gg/y3uSzCK'''
         ret = ''.join(emoji_dict.get(char, char)[0] for char in text)
 
         if not len(ret) <= 1800:
-            return await ctx.send(file = await to_file(ret, 'emoji')
+            return await ctx.send(file = await to_file(ret, 'emoji'))
 
         await ctx.send(ret)
 
@@ -288,7 +288,7 @@ https://discord.gg/y3uSzCK'''
         ret = ' '.join(format(ord(x), 'b') for x in text)
 
         if not len(ret) <= 1800:
-            return await ctx.send(file = await to_file(ret, 'binary')
+            return await ctx.send(file = await to_file(ret, 'binary'))
 
         await ctx.send(ret)
 
@@ -302,7 +302,7 @@ https://discord.gg/y3uSzCK'''
         ret = ''.join(str([ord(c) for c in text]))
 
         if not len(ret) <= 1800:
-            return await ctx.send(file = await to_file(ret, 'ascii')
+            return await ctx.send(file = await to_file(ret, 'ascii'))
 
         await ctx.send(ret)
 
@@ -316,7 +316,7 @@ https://discord.gg/y3uSzCK'''
         ret = text + '\n' + '\n'.join(letter for letter in text[1:])
 
         if not len(ret) <= 1800:
-            return await ctx.send(file = await to_file(ret, 'square')
+            return await ctx.send(file = await to_file(ret, 'square'))
 
         await ctx.send(ret)
 
@@ -340,7 +340,7 @@ https://discord.gg/y3uSzCK'''
         ret = getsource(func.callback)
 
         if not len(ret) <= 1800:
-            return await ctx.send(file = await to_file(ret, 'source')
+            return await ctx.send(file = await to_file(ret, 'source'))
 
         await ctx.send('```py\n' + ret.replace('`', '\`') + '```')
 

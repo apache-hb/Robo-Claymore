@@ -193,7 +193,7 @@ class Owner:
         case_insensitive = True
     )
     async def cogs(self, ctx):
-        ret = '\n'.join(cog for cog in ctx.bot.cogs)
+        ret = '\n'.join(ctx.bot.cogs)
 
         embed = quick_embed(ctx, title = 'All cogs currently registered',
         description = 'Disable and enable them with subcommands')

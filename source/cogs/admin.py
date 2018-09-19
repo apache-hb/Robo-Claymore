@@ -262,18 +262,15 @@ class Admin:
                     return await user.edit(roles = to_add, reason = 'autorole')
                 except discord.errors.Forbidden:
                     return
-
+    
     async def __global_check(self, ctx):
-        try:#TODO make this pretty
-            for (server, users) in self.server_blacklists.data.items():
-                if int(server) == ctx.guild.id:
-                    if ctx.author.id in users:
-                        await ctx.send('an admin has stopped you from using commands')
-                        return False
-                    return True
-            return True
-        except AttributeError:
-            return True
+        for (server, users) in self.server_blacklists.data.items():
+            if int(server) == ctx.guild.id or -1:
+                if ctx.author.id in users:
+                    await ctx.send('an admin has stopped you from using commands')
+                    return False
+                return True
+        return True
 
     @commands.group(
         invoke_without_command = True,
