@@ -471,8 +471,8 @@ class Fun:
             face = await replace_eyes(image, to_overlay)
         except LookupError:
             return await ctx.send('No eyes were found')
-        except TypeError:
-            return await ctx.send('That image is too big to proccess')
+        #except TypeError:
+        #    return await ctx.send('That image is too big to proccess')
 
         ret = discord.File(face.getvalue(), filename = 'eye.png')
         await ctx.send(file = ret)
