@@ -7,7 +7,6 @@ import cv2
 import numpy as np
 from PIL import Image
 
-
 def bytes_to_image(image: io.BytesIO) -> Image:
     image.seek(0)
     return Image.open(image).convert('RGBA')

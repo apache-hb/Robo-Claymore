@@ -115,6 +115,24 @@ class Utility:
         print(f'cog {self.__class__.__name__} loaded')
 
     @commands.command(
+        name = "youtubemp3",
+        aliases = ['downloadmp3'],
+        description = "download a youtube video to mp3",
+        breif = "youtube-dl"
+    )
+    async def _youtubemp3(self, ctx, link: str):
+        pass
+
+    @commands.command(
+        name = "youtubemp4",
+        aliases = ['downloadmp4'],
+        description = "donwload a youtube video to mp4",
+        breif = "youtube-dl"
+    )
+    async def _youtubemp4(self, ctx, link: str):
+        pass
+
+    @commands.command(
         name = "bytecode",
         aliases = ['byte'],
         description = "extract the bytecode from a command and transform it into python Mnemonics",

@@ -63,7 +63,7 @@ class Help:
 
             ret = quick_embed(ctx, f'all commands in {name}')
             ret.add_field(name = 'all commands', value = content)
-            await ctx.send(embed = ret)
+            await ctx.author.send(embed = ret)
 
     def __all(self, ctx):
         ret = '\n'.join([name for name, cog in self.bot.cogs.items() if not getattr(cog, 'hidden', False)])

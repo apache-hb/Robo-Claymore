@@ -16,7 +16,15 @@ class Admin:
         self.autorole_list = json.load(try_file('cogs/store/autorole.json', content = '{}'))
         self.leave_channels = json.load(try_file('cogs/store/leave.json', content = '{}'))
         self.command_blacklist = json.load(try_file('cogs/store/command_blacklist.json', content = '{}'))
+        self.silenced_users = SavedDict('cogs/store/silenced.json', content = '{}')
         print(f'cog {self.__class__.__name__} loaded')
+
+    async def on_message(self, ctx):
+        if ctx.channel.id in self.silenced_users.data.get(ctx.user.id):
+            try:
+                ctx.message.delete()
+            except discord.errors.DiscordException:
+                pass
 
     async def will_manage(self, ctx, user: discord.Member, kind: str):
         if await can_override(ctx, user):
@@ -53,6 +61,26 @@ class Admin:
             await ctx.send('So long sucker')
 
     @commands.command(
+        name = "silence",
+        description = "make somebody shut the fuck up",
+        brief = "good enough"
+    )
+    @commands.guild_only()
+    @checks.manage_messages()
+    async def _silence(self, ctx, user: discord.Member):
+        if not await will_manage(ctx, user, 'silence'):
+            return
+
+        if user.id not in self.silenced_users.data:
+            self.silenced_users[user.id] = [ctx.channel.id]
+        else if user.id not in self.silenced_users[user.id]:
+            self.silenced_users[user.id].append(ctx.channel.id)
+        else:
+            return await ctx.send('They\'re already blocked')
+        await ctx.send(f'{user.name} has been silenced in {ctx.channel.name}')
+        self.silenced_users.save()
+
+    @commands.command(
         name = "ban",
         aliases = ['yeet'],
         description = "permentantly ban a user from the current server",
@@ -65,7 +93,7 @@ class Admin:
             return
 
         try:
-            await user.ban(delete_message_days = 7, reason = f'ban by {ctx.author}')
+            await user.ban(delete_message_days = 0, reason = f'ban by {ctx.author.name}')
         except discord.errors.Forbidden:
             await ctx.send('I dont have the correct permissions to ban that user')
         else:

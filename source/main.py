@@ -22,13 +22,16 @@ def load_config() -> dict:
                 'activity': input('Enter default bot activity'),
                 'owner': input('Enter the owners id')
             },
+
             'wolfram': {
                 'key': input('Enter wolfram-alpha key (optional)')
             },
+
             'github': {
                 'key': input('Enter a github token to enable some commands that send large messages (optional)')
             },
-            'count': 0
+
+            'count': 0,
         }
         json.dump(config, open('cogs/store/config.json', 'w'), indent = 4)
         return config
@@ -55,13 +58,23 @@ def make_bot(config: dict) -> ClayBot:
 __version__ = '0.4.11'
 
 async def on_ready():
+
+    #dump some data for the website part
+    json.dump({
+        'id': bot.user.id,
+        'dis': bot.user.discriminator,
+        'name': bot.user.name,
+        'avatar': bot.user.avatar_url
+    },
+    open('website/botinfo.json', 'w'), indent = 4)
+    
     print('''
-name: {0.user.name}#{0.user.discriminator}
-id: {0.user.id}
-invite: https://discordapp.com/oauth2/authorize?client_id={0.user.id}&scope=bot&permissions=66321471
+name: {0.name}#{0.discriminator}
+id: {0.id}
+invite: https://discordapp.com/oauth2/authorize?client_id={0.id}&scope=bot&permissions=66321471
 discord.py version: {1.__version__}
 bot version: {2}
-bot ready'''.format(bot, discord, __version__))
+bot ready'''.format(bot.user, discord, __version__))
 
 
 ignored_errors = [
