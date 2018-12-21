@@ -14,6 +14,7 @@ class SkyNet:
         if ctx.author.bot:
             return
 
+        #ignore obvious bot commands
         if ctx.content.startswith(('!', '&', '/', '*', '$', '#')):
             return
 

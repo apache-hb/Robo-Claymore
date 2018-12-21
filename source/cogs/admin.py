@@ -20,7 +20,7 @@ class Admin:
         print(f'cog {self.__class__.__name__} loaded')
 
     async def on_message(self, ctx):
-        if ctx.channel.id in self.silenced_users.data.get(ctx.user.id):
+        if ctx.channel.id in self.silenced_users.data.get(ctx.author.id, []):
             try:
                 ctx.message.delete()
             except discord.errors.DiscordException:
@@ -73,7 +73,7 @@ class Admin:
 
         if user.id not in self.silenced_users.data:
             self.silenced_users[user.id] = [ctx.channel.id]
-        else if user.id not in self.silenced_users[user.id]:
+        elif user.id not in self.silenced_users[user.id]:
             self.silenced_users[user.id].append(ctx.channel.id)
         else:
             return await ctx.send('They\'re already blocked')
@@ -234,8 +234,9 @@ class Admin:
             if int(server) == ctx.guild.id:
                 if role.id in roles:
                     return await ctx.send('that role has already been added')
-                roles.append(role.id)
-                return await ctx.send(f'added ``{role.name}`` to the autorole list')
+                else:
+                    self.autorole_list[str(server)].append(role.id)
+                    return await ctx.send(f'added ``{role.name}`` to the autorole list')
 
     @autorole.command(
         name = "remove",
@@ -249,7 +250,7 @@ class Admin:
             if int(server) == ctx.guild.id:
                 if role.id not in roles:
                     return await ctx.send('that role is not an autorole')
-                roles.remove(role.id)
+                self.autorole_list[str(server)].remove(role.id)
                 return await ctx.send(f'removed ``{role.name}`` from the autorole list')
 
     @autorole.before_invoke

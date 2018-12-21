@@ -11,6 +11,9 @@ __pycache__/
 *.json
 *.log
 
+#ignore the stuff generate by the Code module
+*.temp.*
+
 #ignore cython
 *.c
 *.so

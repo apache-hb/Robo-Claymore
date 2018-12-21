@@ -58,16 +58,6 @@ def make_bot(config: dict) -> ClayBot:
 __version__ = '0.4.11'
 
 async def on_ready():
-
-    #dump some data for the website part
-    json.dump({
-        'id': bot.user.id,
-        'dis': bot.user.discriminator,
-        'name': bot.user.name,
-        'avatar': bot.user.avatar_url
-    },
-    open('website/botinfo.json', 'w'), indent = 4)
-    
     print('''
 name: {0.name}#{0.discriminator}
 id: {0.id}
@@ -155,3 +145,4 @@ if __name__ == '__main__':
 
     #no point catching exceptions here
     bot.run(config['discord']['token'])
+
