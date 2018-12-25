@@ -40,10 +40,11 @@ def ensure_installs():
     else:
         print('js-beatify detected')
 
-    if which('ktlint') is None:
-        subprocess.check_call(['brew', 'install', 'shyiko/ktlint/ktlint'])
-    else:
-        print('ktlint detected')
+    #TODO ktlint is a real bitch to install on linux
+    #if which('ktlint') is None: 
+    #    subprocess.check_call(['brew', 'install', 'shyiko/ktlint/ktlint'])
+    #else:
+    #    print('ktlint detected')
 
 class Code:
     def __init__(self, bot):
@@ -83,7 +84,7 @@ class Code:
 
         return ret
 
-    @commands.command(name = "kt-format")
+    '''@commands.command(name = "kt-format")
     async def _kt_format(self, ctx, *, data: str):
         data = self.trim_code(data, 'kotlin')
 
@@ -95,7 +96,8 @@ class Code:
             return await ctx.send(f'ktlint failed with error code {e.returncode}')
 
         await ctx.send(f'```js\n{self.read_file(f"{ctx.author.id}.temp.kt")}```')
-
+    '''
+    
     @commands.command(name = "js-format")
     async def _js_beautify(self, ctx, *, data: str):
         data = self.trim_code(data, 'js')
