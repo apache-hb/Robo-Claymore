@@ -210,7 +210,7 @@ class Admin:
         file = discord.File(ret.getvalue(), filename = 'welcome.png')
         await ctx.send(file = file)
 
-    async def on_member_join(self, member):
+    async def do_welcome(self, member):
         channel = self.welcome_channels.get(str(member.guild.id), None)
         
         if channel is None:
@@ -314,7 +314,7 @@ class Admin:
     async def _autorole_after(self, _):
         self.autorole_list.save()
 
-    async def on_member_join(self, user):
+    async def do_autorole(self, user):
         for (server, roles) in self.autorole_list.items():
             if int(server) == user.guild.id:
                 if not roles:
@@ -457,6 +457,10 @@ class Admin:
     @_command_unlock.after_invoke
     async def _command_after(self, _):
         self.command_blacklist.save()
+
+    async def on_member_join(self, member):
+        do_autorole(member)
+        do_welcome(member)
 
 def setup(bot):
     bot.add_cog(Admin(bot))
