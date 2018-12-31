@@ -85,7 +85,7 @@ class Nsfw:
     async def _gelbooru(self, ctx, *, tags: str):
         async with ctx.channel.typing():
             try:
-                ret = json.loads(await url_request(url = self.gelbooru_api.format(tags)))
+                ret = await json_request(self.gelbooru_api.format(tags))
             except ValueError:
                 return await ctx.send(f'Nothing with tags ``{tags}`` found')
 
@@ -108,11 +108,11 @@ class Nsfw:
     async def _danbooru(self, ctx, *, tags: str = None):
         if tags is None:
             url = 'https://danbooru.donmai.us/posts.json?random=true'
-
         else:
             url = f'https://danbooru.donmai.us/posts.json?limit=50?tags=\"{tags.split(" ")}\"'
+        
         async with ctx.channel.typing():
-            ret = json.loads(await url_request(url = url))
+            ret = await json_request(url)
 
             if not ret:
                 return await ctx.send('Nothing found')

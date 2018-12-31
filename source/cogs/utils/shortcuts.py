@@ -11,7 +11,7 @@ from _io import TextIOWrapper
 
 MIME = MimeTypes()
 
-def try_file(name, content='[]') -> TextIOWrapper:
+def try_file(name, content = '[]') -> TextIOWrapper:
     """Check if a file exists and create it with default content if it doesnt"""
     try:
         return open(name)

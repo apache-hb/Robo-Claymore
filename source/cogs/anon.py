@@ -1,7 +1,9 @@
 import discord
 from discord.ext import commands
 
+import random
 from .utils.saved_dict import SavedDict
+from .utils.shortcuts import quick_embed
 
 class Anon:
     def __init__(self, bot):
@@ -15,11 +17,30 @@ class Anon:
 
     @commands.command(name = "randacc")
     async def _randacc(self, ctx, platform: str):
-        pass
+        person = random.choice(self.names.data)
+
+        embed = quick_embed(ctx, title = 'random user account')
+
+        for account in person:
+            embed.add_field(name = account['platform'], value = account['name'])
+
+        await ctx.send(embed = embed)
 
     @commands.command(name = "addacc")
     async def _addacc(self, ctx, platform: str, *, name: str):
-        pass
+        if str(ctx.author.id) not in self.names.data:
+            self.names[str(ctx.author.id)] = {}
+        
+        self.names[str(ctx.author.id)][platform.lower()] = name
+
+        await ctx.send('added account')
+        
+
+    @_global.after_invoke
+    @_randacc.after_invoke
+    @_addacc.after_invoke
+    async def _after(self, _):
+        self.names.save()
 
 def setup(bot):
     bot.add_cog(Anon(bot))

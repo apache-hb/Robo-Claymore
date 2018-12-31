@@ -4,7 +4,7 @@ import time
 
 from discord.ext import commands
 
-from .utils.networking import url_request
+from .utils.networking import url_request, json_request
 from .utils.shortcuts import quick_embed
 
 titanfall_pilot_variables = {
@@ -79,7 +79,6 @@ class Games:
     def __init__(self, bot):
         self.bot = bot
         self.frames = None#used for warframe cache
-        #self.config = json.load(open('cogs/store/config.json'))
         try:
             bot.config['count']
         except KeyError:
@@ -87,7 +86,7 @@ class Games:
         print(f'cog {self.__class__.__name__} loaded')
 
     @classmethod
-    def polarity_converter(self, text: str):
+    def polarity_converter(cls, text: str):
         return text.replace(
             '<:madurai:319586146499690496>', 'Maduri'
         ).replace(
@@ -125,7 +124,7 @@ class Games:
         brief = "get weapon info"
     )
     async def _warframe_weaponinfo(self, ctx, *, name: str):
-        ret = await url_request(url = f'https://api.warframestat.us/weapons/search/{name.lower()}')
+        ret = await json_request(f'https://api.warframestat.us/weapons/search/{name.lower()}')
 
         if not ret:
             return await ctx.send(f'{name} was not found in the warframe database')
@@ -192,7 +191,7 @@ class Games:
         brief = "get an items drop info"
     )
     async def _warframe_dropinfo(self, ctx, *, name: str):
-        ret = json.loads(await url_request(url = f'https://api.warframestat.us/drops/search/{name.lower()}'))
+        ret = await json_request(f'https://api.warframestat.us/drops/search/{name.lower()}')
         if not ret:
             return await ctx.send(f'{name} was not found in the warframe database')
 
@@ -213,20 +212,20 @@ class Games:
     )
     async def _warframe_frameinfo(self, ctx, *, name: str):
         if self.frames is None:
-            self.frames = json.loads(await url_request(url = 'https://api.warframestat.us/warframes'))
+            self.frames = await json_request('https://api.warframestat.us/warframes')
 
         for frame in self.frames:
-            if name.lower() in frame['regex']:
+            if name.lower() in frame['name'].lower():
 
                 colour = frame.get('color',  0x023cfc)
 
-                embed = quick_embed(ctx, title = frame['name'], description = frame['url'], colour = colour)
+                embed = quick_embed(ctx, title = frame['name'], description = frame['description'], colour = colour)
 
                 embed.add_field(name = 'min/max health', value = frame['health'])
                 embed.add_field(name = 'min/max shields', value = frame['shield'])
                 embed.add_field(name = 'Base armor', value = frame['armor'])
                 embed.add_field(name = 'min/max power', value = frame['power'])
-                embed.add_field(name = 'sprint speed', value = frame['speed'])
+                embed.add_field(name = 'sprint speed', value = frame['sprint'])
 
                 try: embed.add_field(name = 'More info', value = frame['info'])
                 except KeyError: pass
@@ -255,7 +254,7 @@ class Games:
         brief = "get current sortie info"
     )
     async def _warframe_sortie(self, ctx):
-        ret = json.loads(await url_request(url = 'https://api.warframestat.us/pc/sortie'))
+        ret = await json_request('https://api.warframestat.us/pc/sortie')
 
         embed = quick_embed(ctx, title = 'Todays sortie', description = 'From the official warframe database')
 
@@ -280,7 +279,7 @@ Location: {value["node"]}''',
         brief = "current alerts"
     )
     async def _warframe_alert(self, ctx):
-        ret = json.loads(await url_request(url = 'https://api.warframestat.us/pc/alerts'))
+        ret = await json_request('https://api.warframestat.us/pc/alerts')
 
         embed = quick_embed(ctx, title = 'Currently running sorties', description = 'Taken from the warframe web api')
 
@@ -305,7 +304,7 @@ Expires in: {alert["eta"]}''',
         brief = "void trader stock"
     )
     async def _warframe_baro(self, ctx):
-        ret = json.loads(await url_request(url = 'https://api.warframestat.us/pc/voidTrader'))
+        ret = await json_request('https://api.warframestat.us/pc/voidTrader')
 
         embed = quick_embed(ctx, title = 'BaroKi\'teer')
 
@@ -328,7 +327,7 @@ Expires in: {alert["eta"]}''',
         brief = "can i interest you in some half price life support?"
     )
     async def _warframe_darvo(self, ctx):
-        ret = json.laods(await url_request(url = 'https://api.warframestat.us/pc/dailyDeals'))
+        ret = await json_request('https://api.warframestat.us/pc/dailyDeals')
 
         embed = quick_embed(ctx, title = 'Current Darvo deal',
         description = 'Could I interest you in some half price life support')
@@ -355,7 +354,7 @@ Current price: {first["salePrice"]}'''
     )
     async def _warframe_cetustime(self, ctx):
         """Put the current time on cetus into chat, this information is for PC only"""
-        ret = json.loads(await url_request(url = 'https://api.warframestat.us/pc/cetusCycle'))
+        ret = await json_request('https://api.warframestat.us/pc/cetusCycle')
 
         embed = quick_embed(
             ctx,
@@ -408,266 +407,6 @@ Current price: {first["salePrice"]}'''
     @titanfall.command(name = "randomloadout", brief = "soon™")
     async def _titanfall_randomloadout(self, ctx):
         await ctx.send('soon™')
-
-
-    #TODO: make tic tac toe work properly and not be shit
-    #probably never going to happen is it
-#     tttreacts = {
-#         'accept': '✅',
-#         '1': '1⃣',
-#         '2': '2⃣',
-#         '3': '3⃣',
-#         '4': '4⃣',
-#         '5': '5⃣',
-#         '6': '6⃣',
-#         '7': '7⃣',
-#         '8': '8⃣',
-#         '9': '9⃣'
-#     }
-
-#     tttgames = []
-
-#     tttxomap = {
-#         0: None,
-#         1: 'X',
-#         2: 'O'
-#     }
-
-#     ttttemplate = '''```
-# {host} Is playing against {opp}
-# Current board
-# +---+---+---+
-# | {a} | {b} | {c} |
-# +---+---+---+
-# | {d} | {e} | {f} |
-# +---+---+---+
-# | {g} | {h} | {i} |
-# +---+---+---+
-# It is currently {current}'s turn```
-#     '''
-
-#     def tttmessage(self, match, first, second, current):
-#         board = match['status']
-#         return self.ttttemplate.format(
-#             host = first,
-#             opp = second,
-#             current = str(current) + (' (host)' if match['current'] == 1 else ' (opponent)'),
-#             a = self.tttxomap[board[0][0]] if self.tttxomap[board[0][0]] else 1,
-#             b = self.tttxomap[board[0][1]] if self.tttxomap[board[0][1]] else 2,
-#             c = self.tttxomap[board[0][2]] if self.tttxomap[board[0][2]] else 3,
-#             d = self.tttxomap[board[1][0]] if self.tttxomap[board[1][0]] else 4,
-#             e = self.tttxomap[board[1][1]] if self.tttxomap[board[1][1]] else 5,
-#             f = self.tttxomap[board[1][2]] if self.tttxomap[board[1][2]] else 6,
-#             g = self.tttxomap[board[2][0]] if self.tttxomap[board[2][0]] else 7,
-#             h = self.tttxomap[board[2][1]] if self.tttxomap[board[2][1]] else 8,
-#             i = self.tttxomap[board[2][2]] if self.tttxomap[board[2][2]] else 9
-#         )
-
-#     @classmethod
-#     def check_winner(self, game):
-#         for player in range(1, 3):
-
-#             for row in range(3):
-#                 if all(a == player for a in game['status'][row]):
-#                     return player #horisontal checking
-
-#             for col in range(3):
-#                 if all(a[col] == player for a in game['status']):
-#                     return player #vertical checking
-
-#             if game['status'][0][0] == player and game['status'][1][1] == player and game['status'][2][2] == player:
-#                 return player
-
-#             if game['status'][0][2] == player and game['status'][1][1] == player and game['status'][2][0] == player:
-#                 return player
-#             #lazy way of checking diagonals
-
-#         if game['turns'] > 10:
-#             return 0
-
-#         return 3
-
-#     async def on_raw_reaction_add(self, payload):
-#         if payload.user_id == self.bot.user.id:
-#             return
-
-#         guild = discord.utils.get(self.bot.guilds, id = payload.guild_id)
-#         channel = discord.utils.get(guild.channels, id = payload.channel_id)
-
-#         react = payload.emoji
-#         idx = 0
-#         if str(react) == self.tttreacts['accept']:
-#             for index, each in enumerate(self.tttgames):
-#                 idx = index
-#                 if each['id'] == payload.message_id:
-#                     if each['opp'] is None:
-#                         continue
-#                     elif each['opp'] != payload.user_id:
-#                         return
-#                     elif each['accepted']:
-#                         return
-#                     elif each['host'] == payload.user_id:
-#                         return
-
-#             self.tttgames[idx]['opp'] = payload.user_id
-#             self.tttgames[idx]['accepted'] = True
-#             message = await channel.get_message(self.tttgames[idx]['id'])
-
-#             for key, val in self.tttreacts.items():
-#                 if key == 'accept':
-#                     continue
-#                 await message.add_reaction(val)
-
-
-#         for match in self.tttgames:
-#             if payload.user_id in [match['opp'], match['host']]:
-#                 game = match
-#                 break
-#             game = None
-
-#         if not self.tttgames:
-#             return
-
-#         if game is None:
-#             return
-
-#         if game['current'] == 1 and payload.user_id not in  game['host']:
-#             return
-#         elif game['current'] == 2 and payload.user_id != game['opp']:
-#             return
-
-#         for key, val in self.tttreacts.items():
-#             if key == 'accept':#HACK remove this and find a nice pythonic way to skip first pair
-#                 continue
-
-#             if str(react) == val:
-#                 a = int(key)
-
-#                 key_table = {
-#                     1: [0,0],
-#                     2: [0,1],
-#                     3: [0,2],
-#                     4: [1,0],
-#                     5: [1,1],
-#                     6: [1,2],
-#                     7: [2,0],
-#                     8: [2,1],
-#                     9: [2,2]
-#                 }
-
-#                 if game['status'][key_table[a][0]][key_table[a][1]] == 0:
-#                     game['status'][key_table[a][0]][key_table[a][1]] = game['current']
-#                 else:
-#                     return
-
-#         message = await channel.get_message(game['id'])
-
-#         host = discord.utils.get(guild.members, id = game['host'])
-#         opp = discord.utils.get(guild.members, id = game['opp'])
-
-#         #flip turns from host to opp
-#         game['current'] = 1 if game['current'] == 2 else 2
-#         game['turns'] += 1
-
-#         victor = self.check_winner(game)
-#         #if 1 then host wins
-#         #if 2 then opp wins
-#         #if 0 then draw
-#         #if 3 then continue playing
-
-#         if victor == 1:
-#             await message.edit(content = 'host wins')
-#             self.tttgames.remove(game)
-#         elif victor == 2:
-#             await message.edit(content = 'opponent wins')
-#             self.tttgames.remove(game)
-#         elif victor == 0:
-#             await message.edit(content = 'draw')
-#             self.tttgames.remove(game)
-#         else:
-#             await message.edit(content = self.tttmessage(game, host, opp, host if payload.user_id == game['host'] else opp))
-
-#     @commands.command(name = "tictactoe", aliases = ['ttt'])
-#     async def _tictactoe(self, ctx, opponent: discord.Member = None):
-#         for each in self.tttgames:
-#             if each['host'] == ctx.author.id:
-#                 return await ctx.send('you already have an outstanding match')
-
-#         if opponent is None:
-#             message = await ctx.send('{} would like to play tic tac toe with someone\n react to accept'.format(ctx.author.mention))
-
-#         else:
-#             message = await ctx.send('{} would like to face {} in a game of tictactoe\nreact to accept'.format(
-#                 ctx.author.mention,
-#                 opponent.mention))
-
-#         self.tttgames.append({
-#             'id': message.id,
-#             'host': ctx.author.id,
-#             'opp': opponent,
-#             'accepted': False,
-#             'turns': 0,
-#             'current': 1, #1 is host 2 is opp
-#             'status': [
-#                 [0,0,0],
-#                 [0,0,0],
-#                 [0,0,0]
-#             ]
-#         })
-
-#         await message.add_reaction(self.tttreacts['accept'])
-
-#     cfgames = []
-
-#     cfmap = {
-#         0: ':black_circle:',
-#         1: ':red_circle:',
-#         2: ':large_blue_circle:'
-#     }
-
-#     cfreacts = {
-#         'accept': '✅',
-#         '1': '🇦',
-#         '2': '🇧',
-#         '3': '🇨',
-#         '4': '🇩',
-#         '5': '🇪',
-#         '6': '🇫',
-#         '7': '🇬'
-#     }
-
-#     @commands.command(name = "connect4")
-#     async def _connectfour(self, ctx, opponent: discord.Member = None):
-#         for each in self.cfgames:
-#             if each['host'] == ctx.author.id:
-#                 return await ctx.send('You already have an outstanding match')
-
-#         if opponent is None:
-#             message = await ctx.send('{} would like to play a game of connect 4\nreact to accept'.format(
-#                 ctx.author.mention
-#             ))
-#         else:
-#             message = await ctx.send('{} would like to play challenge {} in a game of connect 4\nreact to accept'.format(
-#                 ctx.author.mention,
-#                 opponent.mention
-#             ))
-
-#         self.cfgames.append({
-#                 'id': message.id,
-#                 'host': ctx.author.id,
-#                 'opp': opponent.id if opponent else None,
-#                 'accepted': False,
-#                 'turns': 0,
-#                 'current': 1,
-#                 'status': [
-#                     [],
-#                     [],
-#                     [],
-#                     [],
-#                     [],
-#                     [],
-#                 ]
-#             })
 
 def setup(bot):
     bot.add_cog(Games(bot))

@@ -1,5 +1,4 @@
 import copy
-import json
 import random
 from ntpath import basename
 from glob import glob
@@ -13,9 +12,10 @@ from randomdict import RandomDict as rdict
 
 from .utils import make_meme, make_retro, overlay_van, replace_eyes
 from .utils.facial_detection import image_to_bytes
-from .utils.networking import get_bytes, get_image, json_request
+from .utils.networking import get_bytes, get_image, json_request, url_request
 from .utils.shortcuts import emoji, quick_embed, try_file
 from .utils.expanding_brain import make_expanding_brain
+from .utils.saved_dict import SavedDict
 
 ball_awnsers = [
     'Definetly',
@@ -126,7 +126,7 @@ Despacito'''
 class Fun:
     def __init__(self, bot):
         self.bot = bot
-        self.autoreact_list = json.load(try_file('cogs/store/autoreact.json', '{}'))
+        self.autoreact_list = SavedDict('cogs/store/autoreact.json')
 
         #gather all the fonts into big and small versions
         self.small_fonts = rdict()
@@ -169,7 +169,6 @@ class Fun:
         if index is None:
             image = random.choice(self.frothy_images)
         else:
-            image = self.frothy_images.get()
             try:
                 image = self.frothy_images[index]
             except IndexError:
@@ -273,7 +272,7 @@ class Fun:
         if ctx.guild is None:
             return
 
-        for (server, reacts) in self.autoreact_list.items():
+        for (server, reacts) in self.autoreact_list.data.items():
             if server == str(ctx.guild.id):
                 for (react, phrases) in reacts.items():
                     for each in phrases:
@@ -294,7 +293,11 @@ class Fun:
         """
         Get a random image of a duck from api.random-d
         """
-        r = await json_request('https://api.random-d.uk/random')
+        try:
+            r = await json_request('https://api.random-d.uk/random')
+        except aiohttp.client_exceptions.ContentTypeError:
+            return await ctx.send('This api is currently unavaialable')
+
         embed = quick_embed(ctx, 'ducks are the best animals')
         embed.set_image(url = r['url'])
         await ctx.send(embed = embed)
@@ -655,7 +658,7 @@ class Fun:
     @autoreact_add.after_invoke
     @autoreact_remove.after_invoke
     async def autoreact_after(self, _):
-        json.dump(self.autoreact_list, open('cogs/store/autoreact.json', 'w'), indent = 4)
+        self.autoreact_list.save()
 
 def setup(bot):
     bot.add_cog(Fun(bot))

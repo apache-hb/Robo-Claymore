@@ -1,5 +1,3 @@
-import json
-
 import discord
 from discord.ext import commands
 
@@ -7,16 +5,18 @@ from .utils import checks
 from .utils.checks import can_override
 from .utils.shortcuts import quick_embed, try_file
 from .utils.saved_dict import SavedDict
+from .utils.welcomecard import make_card, card_choices
 
 class Admin:
     def __init__(self, bot):
         self.bot = bot
         #FIXME replace all dicts with savedDict
-        self.server_blacklists = SavedDict('cogs/store/server_blacklist.json', content = '{}')
-        self.autorole_list = json.load(try_file('cogs/store/autorole.json', content = '{}'))
-        self.leave_channels = json.load(try_file('cogs/store/leave.json', content = '{}'))
-        self.command_blacklist = json.load(try_file('cogs/store/command_blacklist.json', content = '{}'))
-        self.silenced_users = SavedDict('cogs/store/silenced.json', content = '{}')
+        self.server_blacklists = SavedDict('cogs/store/server_blacklist.json')
+        self.autorole_list = SavedDict('cogs/store/autorole.json')
+        self.leave_channels = SavedDict('cogs/store/leave.json')
+        self.wlecome_channels = SavedDict('cogs/store/welcome.json')
+        self.command_blacklist = SavedDict('cogs/store/command_blacklist.json')
+        self.silenced_users = SavedDict('cogs/store/silenced.json')
         print(f'cog {self.__class__.__name__} loaded')
 
     async def on_message(self, ctx):
@@ -180,6 +180,8 @@ class Admin:
 
         await ctx.send(f'massnicked {a} users')
 
+
+
     async def on_member_remove(self, member):
         channelid = self.leave_channels.get(str(member.guild.id), None)
         if channelid is None:
@@ -199,7 +201,53 @@ class Admin:
 
     @_setleave.after_invoke
     async def _after_leave(self, _):
-        json.dump(self.leave_channels, open('cogs/store/leave.json', 'w'), indent = 4)
+        self.leave_channels.save()
+
+
+    @commands.command(name = "testwelcome")
+    async def _testwelcome(self, ctx, card: str, user: discord.Member):
+        ret = await make_card(card, user)
+        file = discord.File(ret.getvalue(), filename = 'welcome.png')
+        await ctx.send(file = file)
+
+    async def on_member_join(self, member):
+        channel = self.welcome_channels.get(str(member.guild.id), None)
+        
+        if channel is None:
+            return 
+        
+        for each in member.guild.channels:
+            if each.id == channel['channel']:
+                ret = await make_card(channel['image'], member)
+                return await each.send(file = discord.File(ret.getvalue(), filename = 'welcome.png'))
+
+    async def check_channel(self, guildid: str):
+        if guildid not in self.welcome_channels.data:
+            self.welcome_channels[guildid] = { 'image': 'gradient' }
+
+    @commands.command(name = "setwelcomechannel")
+    @commands.guild_only()
+    @checks.is_admin()
+    async def _setwelcome(self, ctx, channel: discord.TextChannel = None):
+        check_channel(str(ctx.guild.id))
+
+        self.welcome_channels[str(ctx.guild.id)]['channel'] = getattr(channel, 'id', None)
+
+        if channel is None:
+            return await ctx.send('cleared the welcome channel')
+
+        await ctx.send(f'set welcome channel to ``{channel.name}``')
+
+    @commands.command(name = "setwelcomecard")
+    @commands.guild_only()
+    @checks.is_admin()
+    async def _welcomecard(self, ctx, name: str):
+        pass
+
+    @_setwelcome.after_invoke
+    @_welcomecard.after_invoke
+    async def _welcome_after_invoke(self, _):
+        self.welcome_channels.save()
 
     @commands.group(
         invoke_without_command = True,
@@ -264,7 +312,7 @@ class Admin:
     @_autorole_add.after_invoke
     @_autorole_remove.after_invoke
     async def _autorole_after(self, _):
-        json.dump(self.autorole_list, open('cogs/store/autorole.json', 'w'), indent = 4)
+        self.autorole_list.save()
 
     async def on_member_join(self, user):
         for (server, roles) in self.autorole_list.items():
@@ -408,7 +456,7 @@ class Admin:
     @_command_lock.after_invoke
     @_command_unlock.after_invoke
     async def _command_after(self, _):
-        json.dump(self.command_blacklist, open('cogs/store/command_blacklist.json', 'w'), indent = 4)
+        self.command_blacklist.save()
 
 def setup(bot):
     bot.add_cog(Admin(bot))
