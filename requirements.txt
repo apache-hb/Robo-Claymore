@@ -13,3 +13,6 @@ python-Levenshtein
 randomdict
 numpy
 opencv-python
+cython
+uvloop
+quart

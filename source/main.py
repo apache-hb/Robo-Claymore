@@ -7,7 +7,7 @@ from shutil import copyfile
 
 import discord
 from discord.ext import commands
-
+import uvloop
 from cogs.utils.shortcuts import quick_embed
 
 def load_config() -> dict:
@@ -37,22 +37,32 @@ def load_config() -> dict:
         return config
 
 class ClayBot(commands.Bot):
-    def __init__(self, command_prefix: str, activity: discord.Game, owner_id: int, config: dict):
+    def __init__(
+        self, 
+        command_prefix: str, 
+        activity: discord.Game, 
+        owner_id: int, 
+        config: dict,
+        event_loop
+    ):
         super(commands.Bot, self).__init__(
             command_prefix = command_prefix, 
             activity = activity, 
             owner_id = owner_id,
-            case_insensitive = True
+            case_insensitive = True,
+            loop = event_loop
         )
+        self.event_loop = event_loop
         self.config = config
         self.__version__ = __version__
 
-def make_bot(config: dict) -> ClayBot:
+def make_bot(config: dict, loop) -> ClayBot:
     return ClayBot(
         command_prefix = commands.when_mentioned_or(config['discord']['prefix']),
         activity = discord.Game(name = config['discord']['activity']),
         owner_id = int(config['discord']['owner']),
-        config = config
+        config = config,
+        event_loop = loop
     )
 
 __version__ = '0.4.11'
@@ -104,7 +114,7 @@ if __name__ == '__main__':
         logs = open('cogs/store/claymore.log', 'w')
 
     config: dict = load_config()
-    bot: ClayBot = make_bot(config)
+    bot: ClayBot = make_bot(config, uvloop.Loop())
     load_cogs(bot)
     backup_files()
 

@@ -29,11 +29,13 @@ async def replace_eyes(face_image: io.BytesIO, eye_image):
     output = bytes_to_image(face_image)
 
     w, h = output.size()
+    #TODO: try and stop people uploading massive images and lagging the bot
     #if w > 3000 or h > 3000:
     #    raise TypeError()
     #eye_image is alread a PIL.Image
 
     for (x, y, w, h) in eye_locs:
+        #TODO: maybe dont hardcode these numbers
         wsize = (w * 2) // 1.25 #corectly size the eyes
         hsize = (h * 2) // 1.25
         simage = eye_image.resize((int(wsize), int(hsize)))

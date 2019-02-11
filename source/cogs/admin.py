@@ -206,7 +206,7 @@ class Admin:
 
     @commands.command(name = "testwelcome")
     async def _testwelcome(self, ctx, card: str, user: discord.Member):
-        ret = await make_card(card, user)
+        ret = await make_card(card, user, 'name', 'jeff')
         file = discord.File(ret.getvalue(), filename = 'welcome.png')
         await ctx.send(file = file)
 

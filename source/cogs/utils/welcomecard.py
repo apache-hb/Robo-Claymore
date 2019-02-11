@@ -34,11 +34,12 @@ async def make_card(card: str, usr: discord.Member, side_text: str, bottom_text:
 
     avatar = avatar.resize((512, 512), Image.ANTIALIAS)
 
-    img.paste(avatar, (256, 256), avatar)
+    img.paste(avatar, (0, 256), avatar)
 
     draw = ImageDraw.Draw(img)
 
-    draw.text((0, 0), 'name jeff', (0, 0, 0), font = font)
+    draw.text((0, 0), 'name jeff', (255, 255, 255), font = font)
+    draw.text((0, 512 + 256), bottom_text, (255, 255, 255), font = font)
 
     return image_to_bytes(img)
     
