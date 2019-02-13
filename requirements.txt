@@ -1,18 +1,5 @@
+#main discord library
 discord.py[voice]
-imageio
-beautifulsoup4
-aiohttp
-aiowolfram
-mathutils
-defusedxml
-emoji
-pyfiglet
-youtube_dl
-fuzzywuzzy
-python-Levenshtein
-randomdict
-numpy
-opencv-python
-cython
-uvloop
-quart
+
+#speeds up the event loop
+uvloop == 0.12.0
