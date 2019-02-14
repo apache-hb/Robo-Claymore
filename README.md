@@ -5,8 +5,11 @@
 beep boop
 
 # bot setup
+
+setup an empty mysql database with a username and password.
+these will be asked for in the setup
+
 ```
 python3 -m pip install -r requirements.txt
-cd source/
 python3 main.py
 ```

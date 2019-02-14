@@ -1,8 +1,15 @@
 
+from ..__utils import Cog, Ranks
+
 from discord.ext.commands import command
 import subprocess
+import os
+import sys
 
-class Owner:
+class Owner(Cog):
+    def visibility() -> int:
+        return Ranks.privillige | Ranks.owner
+
     def __init__(self, bot):
         self.bot = bot
         print(f'cog {self.__class__.__name__} loaded')
@@ -27,9 +34,22 @@ class Owner:
         brief = 'Have you tried turning it off and on again?'
     )
     async def _restart(self, ctx):
+
+        #pull from source
         proc = subprocess.Popen(['git', 'pull'], stdout = subprocess.PIPE)
         
         output = proc.communicate()[0]
+        await ctx.send('```diff\n' + output.decode('utf-8') + '```')
+
+        await ctx.send('Restarting...')
+
+        #restart the python executable
+        python = sys.executable
+        os.execl(python, python, *sys.argv)
+
+    @command(
+
+    )
 
     async def on_ready(self):
         print(f'Bot loaded: {self.bot.user.name}#{self.bot.user.discriminator}')
