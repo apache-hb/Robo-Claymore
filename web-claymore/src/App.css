@@ -1,0 +1,48 @@
+/* these colours are actually the same as visual studio code */
+:root {
+  --background-colour: rgb(23, 23, 23);
+  --light-background: rgb(34, 34, 34);
+  --button-colour: rgb(112, 112, 112);
+  --button-highlight-colour: rgb(184, 184, 184);
+}
+
+.App {
+  text-align: center;
+}
+
+.App-header {
+  background-color: var(--background-colour);
+  min-height: 100vh;
+  font-size: calc(10px + 2vmin);
+  color: white;
+  font-family: 'Fira Code'
+}
+
+.App-title-bar {
+  vertical-align: middle;
+  background-color: var(--light-background);
+  overflow: hidden;
+}
+
+.App-title-image {
+  height: 64px;
+  object-fit: contain;
+}
+
+.App-header-button {
+  float: left;
+  border: none;
+  text-align: center;
+  padding: 2vh;
+  transition: ease-in-out;
+  transition-duration: 0.1s;
+  background-color: var(--button-colour);
+  height: 64px;
+  width: auto;
+  font-size: 30px;
+  text-align: center;
+}
+
+.App-header-button:hover {
+  background-color: var(--button-highlight-colour)
+}

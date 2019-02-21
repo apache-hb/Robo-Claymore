@@ -1,0 +1,58 @@
+group 'com.brown'
+version '0.0.1'
+
+buildscript {
+	ext.kotlin_version = '1.3.20'
+	ext.ktor_version = '1.1.2'
+	
+	repositories {
+		mavenCentral()
+		jcenter()
+	}
+
+	dependencies {
+		classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath "org.jetbrains.kotlin:kotlin-serialization:$kotlin_version"
+		classpath 'com.github.jengelman.gradle.plugins:shadow:4.0.4'
+	}
+}
+
+apply plugin: 'com.github.johnrengelman.shadow'
+apply plugin: 'java'
+apply plugin: 'kotlin'
+apply plugin: 'kotlinx-serialization'
+
+sourceCompatibility = 1.8
+
+compileKotlin {
+	kotlinOptions.jvmTarget = "1.8"
+}
+
+compileTestKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+}
+
+repositories {
+	jcenter()
+	
+	maven { url "https://kotlin.bintray.com/kotlinx" }
+}
+
+dependencies {
+	compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+	compile "io.ktor:ktor-server-core:$ktor_version"
+	compile "io.ktor:ktor-server-netty:$ktor_version"
+    compile "org.jetbrains.kotlinx:kotlinx-serialization-runtime:0.10.0"
+	compile 'org.jetbrains.exposed:exposed:0.12.2'
+	compile 'org.slf4j:slf4j-nop:1.7.25'
+}
+
+shadowJar {
+	baseName = 'shadow'
+	classifier = null
+	version = null
+
+    manifest {
+        attributes 'Main-Class': 'com.brown.backend_claymore.MainKt'
+    }
+}

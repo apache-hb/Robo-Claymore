@@ -1,8 +1,0 @@
-#main discord library
-discord.py[voice]
-
-#speeds up the event loop
-uvloop == 0.12.0
-
-#connect to the backend database
-mysql-connector
