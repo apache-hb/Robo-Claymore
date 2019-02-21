@@ -28,3 +28,13 @@ __pycache__/
 *.code-workspace
 .DS_Store
 *.exe
+
+#ignore all the junk gradle generates
+*.jar
+.gradle/
+bin/
+build/
+gradle/
+
+#ignore the node modules 
+node_modules/

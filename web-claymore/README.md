@@ -1,3 +1,11 @@
+
+### web claymore
+this the web facing web client for the discord bot, this relies on the server backend to function
+this allows users to manage the bot from a pretty web interface as opposed to in chat menus that can become messy
+
+
+
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts
