@@ -4,6 +4,7 @@ import uvloop
 
 from core import ClayBot
 from glob import glob
+import os
 
 def get_config():
     try:
@@ -25,6 +26,12 @@ def get_config():
 def main():
     #install uvloop to speed up the event loop
     uvloop.install()
+
+    #make sure store directory exists
+    try:
+        os.mkdir('store')
+    except (IOError, NotImplementedError):
+        pass
 
     config: dict = get_config()
 
