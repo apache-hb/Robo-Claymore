@@ -12,7 +12,7 @@ from cogs.utils.shortcuts import quick_embed
 
 def load_config() -> dict:
     try:
-        return json.load(open('cogs/store/config.json'))
+        return json.load(os.path.join('cogs', 'store', 'config.json'))
     except FileNotFoundError:
         print('The config file was not found, let me run the setup')
         config = {
@@ -33,7 +33,7 @@ def load_config() -> dict:
 
             'count': 0,
         }
-        json.dump(config, open('cogs/store/config.json', 'w'), indent = 4)
+        json.dump(config, open(os.path.join('cogs', 'store', 'config.json'), 'w'), indent = 4)
         return config
 
 class ClayBot(commands.Bot):
@@ -77,31 +77,31 @@ async def after_any_command(ctx):
     logs.flush()
 
 def load_cogs(bot: ClayBot) -> None:
-    for cog in glob('cogs/*.py'): #skip __init__ as its not a cog
-        if cog in ['cogs/__init__.py']:
+    for cog in glob(os.path.join('cogs', '*.py')): #skip __init__ as its not a cog
+        if cog in [os.path.join('cogs', '__init__.py')]:
             continue
 
         try:
-            bot.load_extension(cog.replace('/', '.')[:-3])#turn cogs/file.py info cogs.file
+            bot.load_extension(cog.replace(os.sep, '.')[:-3])#turn cogs/file.py info cogs.file
         except Exception as e:
             print(f'{cog} failed to load becuase: {e}')
 
 def backup_files() -> None:
-    os.makedirs('cogs/store/backup/', exist_ok = True)
+    os.makedirs(os.path.join('cogs', 'store', 'backup'), exist_ok = True)
 
     #backup all the config files
-    for storefile in glob('cogs/store/*.json'):
-        copyfile(storefile, f'cogs/store/backup/{os.path.basename(storefile)}')
+    for storefile in glob(os.path.join('cogs', 'store', '*.json')):
+        copyfile(storefile, os.path.join('cogs', 'store', 'backup', os.path.basename(storefile)))
         print(f'Backed up {storefile}')
 
 if __name__ == '__main__':
-    if not os.path.isdir('cogs/store'):
-        os.mkdir('cogs/store')
+    if not os.path.isdir(os.path.join('cogs', 'store')):
+        os.mkdir(os.path.join('cogs', 'store'))
 
     try:
-        logs = open('cogs/store/claymore.log', 'a')
+        logs = open(os.path.join('cogs', 'store', 'claymore.log'), 'a')
     except FileNotFoundError:
-        logs = open('cogs/store/claymore.log', 'w')
+        logs = open(os.path.join('cogs', 'store', 'claymore.log'), 'w')
 
     config: dict = load_config()
     bot: ClayBot = make_bot(config)

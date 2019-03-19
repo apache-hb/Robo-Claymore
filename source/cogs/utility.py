@@ -216,7 +216,7 @@ ZALGO!""",
 
     @commands.command(
         name = "hash",
-        description = "generate a hascode from some text",
+        description = "generate a hashcode from some text",
         brief = "-670075742651522359"
     )
     async def _hash(self, ctx, *, text: str):
