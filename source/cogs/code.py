@@ -13,17 +13,19 @@ def install_command(name: str):
     if operating == 'Darwin':
         cmd = subprocess.check_call(['brew', 'install', name])
     elif operating == 'Windows':
-        print('this bot doesnt really work on windows')
-        exit(5)
+        print('this cog doesnt really work on windows')
+        return False
     elif operating == 'Linux':
         cmd = subprocess.check_call(['sudo', 'apt-get', 'install', name])
     else:
         print(f'{operating} is not a supported OS')
-        exit(5)
+        return False
+    return True
 
 def ensure_installs():
     if which('clang-format') is None:
-        install_command('clang-format')
+        if not install_command('clang-format'):
+            return False
     else:
         print('clang-format detected')
 
@@ -33,12 +35,15 @@ def ensure_installs():
         print('yapf detected')
 
     if which('npm') is None:
-        install_command('npm')
+        if not install_command('npm'):
+            return False
 
     if which('js-beautify') is None:
         subprocess.check_call(['npm', 'install', '-g', 'js-beautify'])
     else:
         print('js-beatify detected')
+
+    return True
 
     #TODO ktlint is a real bitch to install on linux
     #if which('ktlint') is None: 
@@ -46,10 +51,9 @@ def ensure_installs():
     #else:
     #    print('ktlint detected')
 
-class Code:
+class Code(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        ensure_installs()
 
         if which('rustfmt') is None:
             print('rustfmt not detected, install this manually as it cannot be done in a script')
@@ -164,4 +168,7 @@ class Code:
         await ctx.send(f'```py\n{self.read_file(f"{ctx.author.id}.temp.py")}```')
 
 def setup(bot):
-    bot.add_cog(Code(bot))
+    if ensure_installs():
+        pass #bot.add_cog(Code(bot))
+    else:
+        print("Skipping Code cog as installs are not fullfilled")

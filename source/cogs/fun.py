@@ -123,7 +123,7 @@ Y que olvides tu apellido (DY)
 Despacito'''
 ]
 
-class Fun:
+class Fun(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.autoreact_list = SavedDict('cogs/store/autoreact.json')

@@ -1,10 +1,11 @@
 import json
 import os
 import time
+from discord.ext import commands
 
 from .utils.shortcuts import try_file
 
-class SkyNet:
+class SkyNet(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.hidden = True

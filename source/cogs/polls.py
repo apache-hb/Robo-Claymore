@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands
 import random
 
-class Polls:
+class Polls(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         print(f'cog {self.__class__.__name__} loaded')

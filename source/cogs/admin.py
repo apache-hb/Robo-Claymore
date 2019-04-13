@@ -7,12 +7,13 @@ from .utils.shortcuts import quick_embed, try_file
 from .utils.saved_dict import SavedDict
 from .utils.welcomecard import make_card, card_choices
 
-class Admin:
+class Admin(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.server_blacklists = SavedDict('cogs/store/server_blacklist.json')
         self.autorole_list = SavedDict('cogs/store/autorole.json')
         self.leave_channels = SavedDict('cogs/store/leave.json')
+        self.join_messages = SavedDict('cogs/store/join.json')
         self.wlecome_channels = SavedDict('cogs/store/welcome.json')
         self.command_blacklist = SavedDict('cogs/store/command_blacklist.json')
         self.silenced_users = SavedDict('cogs/store/silenced.json')
@@ -179,8 +180,6 @@ class Admin:
 
         await ctx.send(f'massnicked {a} users')
 
-
-
     async def on_member_remove(self, member):
         channelid = self.leave_channels.get(str(member.guild.id), None)
         if channelid is None:
@@ -202,6 +201,26 @@ class Admin:
     async def _after_leave(self, _):
         self.leave_channels.save()
 
+
+    @commands.command(name = "setjoin")
+    @commands.guild_only()
+    @checks.is_admin()
+    async def _setjoin(self, ctx, *, message: str):
+        self.join_messages[str(ctx.guild.id)] = { "channel": ctx.channel.id, "message": message }
+        await ctx.send(f"set join message to {message.replace('[user]', ctx.author.mention)}")
+
+    async def on_member_join(self, member):
+        dat = self.join_messages.get(str(member.guild.id), None)
+        if dat is None:
+            return
+        
+        for channel in member.guild.channels:
+            if channel.id == dat["channel"]:
+                return await channel.send(dat["message"].replace('[user]', member.mention))
+
+    @_setjoin.after_invoke
+    async def _after_join(self, _):
+        self.join_messages.save()
 
     @commands.command(name = "testwelcome")
     async def _testwelcome(self, ctx, card: str, user: discord.Member):

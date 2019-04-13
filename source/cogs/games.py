@@ -75,7 +75,7 @@ titanfall_pilot_variables = {
     ]
 }
 
-class Games:
+class Games(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.frames = None#used for warframe cache

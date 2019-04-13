@@ -9,7 +9,7 @@ from .utils.networking import hastebin, gist, to_file
 from .utils.shortcuts import quick_embed, try_file
 import io
 
-class Owner:
+class Owner(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.blocklist = json.load(try_file('cogs/store/blacklist.json'))

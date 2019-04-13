@@ -100,7 +100,7 @@ WIKIPEDIA_API_URL = 'http://en.wikipedia.org/w/api.php'
 
 USER_AGENT = '{} (https://github.com/Apache-HB/Robo-Claymore)'
 
-class Utility:
+class Utility(commands.Cog):
     """
     The utility cog
     This cog contains commands that are either considered

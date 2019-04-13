@@ -131,7 +131,7 @@ class Playlist:
         return json.dumps(r)
 
 #TODO all of this
-class Voice:
+class Voice(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.queues = []

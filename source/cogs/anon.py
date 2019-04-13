@@ -5,7 +5,7 @@ import random
 from .utils.saved_dict import SavedDict
 from .utils.shortcuts import quick_embed
 
-class Anon:
+class Anon(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.names = SavedDict('cogs/store/anon_list.json', content = '{}')

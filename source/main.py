@@ -12,7 +12,7 @@ from cogs.utils.shortcuts import quick_embed
 
 def load_config() -> dict:
     try:
-        return json.load(os.path.join('cogs', 'store', 'config.json'))
+        return json.load(open(os.path.join('cogs', 'store', 'config.json')))
     except FileNotFoundError:
         print('The config file was not found, let me run the setup')
         config = {

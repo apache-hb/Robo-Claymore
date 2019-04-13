@@ -15,7 +15,7 @@ from .utils.networking import get_bytes
 from .utils.filters import do_deepfry, jpegify, do_sharpen, emboss
 from io import BytesIO
 
-class Images:
+class Images(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 

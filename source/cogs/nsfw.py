@@ -9,7 +9,7 @@ from .utils.networking import json_request, tinyurl, url_request
 from .utils.shortcuts import embedable, quick_embed
 from .utils.converters import image_to_bytes
 
-class Nsfw:
+class Nsfw(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         print(f'cog {self.__class__.__name__} loaded')

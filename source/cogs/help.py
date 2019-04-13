@@ -7,7 +7,7 @@ from fuzzywuzzy import process
 from .utils.shortcuts import quick_embed
 from .utils.saved_dict import SavedDict
 
-class Help:
+class Help(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.complaints = SavedDict('cogs/store/complaints.json', content = '[]')

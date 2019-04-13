@@ -3,7 +3,7 @@ from discord.ext import commands
 from .utils.saved_dict import SavedDict
 from .utils.shortcuts import quick_embed
 
-class LeaderBoard:
+class LeaderBoard(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.hidden = False
