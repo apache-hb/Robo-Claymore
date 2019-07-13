@@ -274,19 +274,19 @@ class Admin(commands.Cog):
     @commands.guild_only()
     @checks.is_admin()
     async def autorole(self, ctx):
-        for (server, roles) in self.autorole_list.items():
-            if int(server) == ctx.guild.id:
-                if not roles:
-                    return await ctx.send('this server has no autoroles')
+        roles = self.autorole_list[str(ctx.guild.id)]
 
-                embed = quick_embed(ctx, title = 'all autoroles')
+        if not roles:
+            return await ctx.send('this server has no autoroles')
 
-                for role in roles:
-                    r = discord.utils.get(ctx.guild.roles, id = role)
-                    if r is not None:
-                        embed.add_field(name = r.name, value = r.id)
+        embed = quick_embed(ctx, title = 'all autoroles')
 
-                return await ctx.send(embed = embed)
+        for role in roles:
+            r = discord.utils.get(ctx.guild.roles, id = role)
+            if r is not None:
+                embed.add_field(name = r.name, value = r.id)
+
+        return await ctx.send(embed = embed)
 
     @autorole.command(
         name = "add",
@@ -321,9 +321,8 @@ class Admin(commands.Cog):
 
     @autorole.before_invoke
     async def _autorole_before(self, ctx):
-        for server in self.autorole_list:
-            if int(server) == ctx.guild.id:
-                return
+        if str(ctx.guild.id) in self.autorole_list:
+            return
         self.autorole_list[str(ctx.guild.id)] = []
 
     @autorole.after_invoke
@@ -477,8 +476,13 @@ class Admin(commands.Cog):
         self.command_blacklist.save()
 
     async def on_member_join(self, member):
-        do_autorole(member)
-        do_welcome(member)
+        await self.do_autorole(member)
+
+async def admin_member_join(user):
+    await ADMIN.on_member_join(user)
 
 def setup(bot):
+    global ADMIN 
+    ADMIN = Admin(bot)
+    bot.add_listener(admin_member_join, 'on_member_join')
     bot.add_cog(Admin(bot))

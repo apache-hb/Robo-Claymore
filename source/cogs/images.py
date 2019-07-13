@@ -15,22 +15,24 @@ from .utils.networking import get_bytes
 from .utils.filters import do_deepfry, jpegify, do_sharpen, emboss
 from io import BytesIO
 
+HAMMER = open('cogs/images/banhammer.jpg', 'rb')
+BANHAMMER = discord.File(HAMMER, 'banhammer.jpg')
+
+SHAD = open('cogs/images/shadman.png', 'rb')
+SHADMAN = discord.File(SHAD, 'shadman.png')
+
+
+async def message_check(ctx):
+    if '>shadman' in ctx.content:
+        await ctx.channel.send(file = SHADMAN)
+    elif 'b&' in ctx.content:
+        await ctx.channel.send(file = BANHAMMER)
+
 class Images(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-
-        shad = BytesIO(open('cogs/images/shadman.png', 'rb').read())
-        self.shadman = discord.File(shad.getvalue(), 'shadman.png')
-
-        hammer = BytesIO(open('cogs/images/banhammer.jpg', 'rb').read())
-        self.banhammer = discord.File(hammer.getvalue(), 'banhammer.jpg')
+        bot.add_listener(message_check, 'on_message')
         print(f'Cog {self.__class__.__name__} loaded')
-
-    async def on_message(self, ctx):
-        if ctx.content == '>shadman':
-            await ctx.channel.send(file = self.shadman)
-        elif ctx.content == 'b&':
-            await ctx.channel.send(file = self.banhammer)
 
     @commands.command(
         name = "emboss"

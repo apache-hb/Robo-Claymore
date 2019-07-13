@@ -9,8 +9,14 @@ class SavedDict:
     def save(self):
         json.dump(self.data, open(self.file, 'w'), indent = 4)
 
+    def __contains__(self, key):
+        return key in self.data
+
     def __getitem__(self, key):
         return self.data[key]
 
     def __setitem__(self, key, val):
         self.data[key] = val
+
+    def items(self):
+        return self.data.items()
