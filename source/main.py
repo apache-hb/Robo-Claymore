@@ -65,7 +65,11 @@ invite: https://discordapp.com/oauth2/authorize?client_id={0.id}&scope=bot&permi
 discord.py version: {1.__version__}
 bot version: {2}
 bot ready'''.format(bot.user, discord, __version__))
-
+    for arg in sys.argv:
+        if '--rcid' in arg:
+            i = int(arg.replace('--rcid=', ''))
+            ch = bot.get_channel(i)
+            await ch.send('Restart complete.')
 
 ignored_errors = [
     commands.errors.CheckFailure,
@@ -73,8 +77,11 @@ ignored_errors = [
 ]
 
 async def after_any_command(ctx):
-    logs.write('{0.author.name}#{0.author.id} invoked command {0.invoked_with}\n'.format(ctx))
-    logs.flush()
+    try:
+        logs.write('{0.author.name}#{0.author.id} invoked command {0.invoked_with}\n'.format(ctx))
+        logs.flush()
+    except OSError: #during a restart the log file is closed externally s it can error here
+        pass
 
 def load_cogs(bot: ClayBot) -> None:
     for cog in glob(os.path.join('cogs', '*.py')): #skip __init__ as its not a cog

@@ -3,7 +3,6 @@ imageio
 beautifulsoup4
 aiohttp
 aiowolfram
-#mathutils
 defusedxml
 emoji
 pyfiglet
@@ -13,3 +12,4 @@ python-Levenshtein
 randomdict
 numpy
 opencv-python
+psutil

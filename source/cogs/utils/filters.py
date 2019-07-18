@@ -9,9 +9,9 @@ async def do_deepfry(img: Image):
     return image_to_bytes(ret)
 
 async def jpegify(img: Image):
-    ret = io.BytesIO()
-    img.convert('RGB').save(ret, format = 'JPEG', quality = 1)
-    return ret
+    with io.BytesIO() as out:
+        img.convert('RGB').save(out, format = 'JPEG', quality = 1)
+        return io.BytesIO(out.getvalue())
 
 async def do_sharpen(img: Image):
     sharp = img.filter(ImageFilter.SHARPEN)

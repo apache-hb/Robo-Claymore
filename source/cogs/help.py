@@ -57,9 +57,7 @@ class Help(commands.Cog):
             if getattr(cog, 'hidden', False):
                 continue #skip all hidden cogs
             
-            content = '\n'.join([command.name for command 
-                in self.bot.get_cog_commands(name) 
-                    if not getattr(command, 'hidden', False)])
+            content = '\n'.join([command.name for command in cog.get_commands() if not getattr(command, 'hidden', False)])
 
             ret = quick_embed(ctx, f'all commands in {name}')
             ret.add_field(name = 'all commands', value = content)

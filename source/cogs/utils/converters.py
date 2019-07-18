@@ -12,9 +12,10 @@ def bytes_to_image(image: io.BytesIO) -> Image:
     return Image.open(image).convert('RGBA')
 
 def image_to_bytes(image: Image) -> io.BytesIO:
-    ret = io.BytesIO()
-    image.save(ret, format = 'PNG')
-    return ret
+    with io.BytesIO() as ret:
+        image.save(ret, format = 'PNG')
+        # return a duplicate of the array because this works for some reason
+        return io.BytesIO(ret.getvalue())
 
 def bytes_to_cv2(image: io.BytesIO):
     image.seek(0)

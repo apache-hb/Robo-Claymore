@@ -1,5 +1,8 @@
 import asyncio
 import json
+import sys
+import psutil
+import os
 
 import discord
 from discord.ext import commands
@@ -48,6 +51,25 @@ class Owner(commands.Cog):
     @commands.group(name = "test")
     async def _test(self, ctx):
         return await ctx.message.add_reaction('🇧')
+
+    @commands.command(name = 'restart')
+    async def _restart(self, ctx):
+        await ctx.send('Restarting...')
+        try:
+            p = psutil.Process(os.getpid())
+            for handle in p.open_files() + p.connections():
+                os.close(handle.fd)
+        except:
+            pass
+
+        python = sys.executable
+        args = [*filter(lambda arg: '--rcid' not in arg, sys.argv), f'--rcid={ctx.channel.id}']
+        os.execl(python, python, *args)
+
+    @commands.command(name = 'shutdown')
+    async def _shutdown(self, ctx):
+        await ctx.send('Shutting down')
+        quit(0)
 
     @commands.command(name = "eval")
     async def _eval(self, ctx, *, text: str):

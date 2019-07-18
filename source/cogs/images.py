@@ -45,7 +45,7 @@ class Images(commands.Cog):
             except InvalidURL:
                 return await ctx.send('Invalid URL')
             ret = await emboss(bytes_to_image(ret))
-            f = discord.File(ret.getvalue(), filename = 'emboss.png')
+            f = discord.File(ret, filename = 'emboss.png')
             return await ctx.send(file = f)
 
     @commands.command(
@@ -60,7 +60,7 @@ class Images(commands.Cog):
                 return await ctx.send('Invalid URL')
 
             ret = await do_sharpen(bytes_to_image(img))
-            f = discord.File(ret.getvalue(), filename = 'sharpen.png')
+            f = discord.File(ret, filename = 'sharpen.png')
             await ctx.send(file = f)
 
     @commands.command(
@@ -75,7 +75,7 @@ class Images(commands.Cog):
             except InvalidURL:
                 return await ctx.send('Invalid URL')
             ret = await jpegify(bytes_to_image(img))
-            f = discord.File(ret.getvalue(), filename = 'jpegified.jpeg')
+            f = discord.File(ret, filename = 'jpegified.jpeg')
             await ctx.send(file = f)
 
     @commands.command(
@@ -89,7 +89,7 @@ class Images(commands.Cog):
             except InvalidURL:
                 return await ctx.send('Invalid URL')
             ret = await do_deepfry(bytes_to_image(img))
-            f = discord.File(ret.getvalue(), filename = 'deepfry.png')
+            f = discord.File(ret, filename = 'deepfry.png')
             await ctx.send(file = f)
 
     @commands.command(
@@ -101,7 +101,7 @@ class Images(commands.Cog):
     async def _button(self, ctx, *, text: str):
         async with ctx.channel.typing():
             r = await do_button(text)
-            ret = discord.File(r.getvalue(), filename = 'button.png')
+            ret = discord.File(r, filename = 'button.png')
             await ctx.send(file = ret)
 
     @commands.command(
@@ -116,7 +116,7 @@ class Images(commands.Cog):
             except IndexError:
                 return await ctx.send('you need to provide two peices of text (split it with `|`)')
 
-            ret = discord.File(f.getvalue(), filename = 'choice.png')
+            ret = discord.File(f, filename = 'choice.png')
             await ctx.send(file = ret)
 
     @commands.command(
@@ -126,7 +126,7 @@ class Images(commands.Cog):
     async def _note(self, ctx, *, text: str):
         async with ctx.channel.typing():
             f = await do_note(text)
-            ret = discord.File(f.getvalue(), filename = 'note.png')
+            ret = discord.File(f, filename = 'note.png')
             await ctx.send(file = ret)
 
     @commands.command(
@@ -150,7 +150,7 @@ class Images(commands.Cog):
                 r = await do_kick(bytes_to_image(img))
             except OSError:
                 return await ctx.send('I dont know what that is, but it isnt an image i can use')
-            ret = discord.File(r.getvalue(), filename = 'kick.png')
+            ret = discord.File(r, filename = 'kick.png')
             await ctx.send(file = ret)
 
     @commands.command(name = "firstwords")
@@ -158,7 +158,7 @@ class Images(commands.Cog):
     async def _words(self, ctx, *, text: str):
         async with ctx.channel.typing():
             r = await do_words(text)
-            ret = discord.File(r.getvalue(), filename = 'words.png')
+            ret = discord.File(r, filename = 'words.png')
             await ctx.send(file = ret)
 
     @commands.command(name = "prison")
@@ -166,7 +166,7 @@ class Images(commands.Cog):
     async def _prison(self, ctx, *, text: str):
         async with ctx.channel.typing():
             r = await do_prison(text)
-            ret = discord.File(r.getvalue(), filename = 'prison.png')
+            ret = discord.File(r, filename = 'prison.png')
             await ctx.send(file = ret)
 
     @commands.command(name = "retard")
@@ -174,7 +174,7 @@ class Images(commands.Cog):
     async def _retard(self, ctx, *, text: str):
         async with ctx.channel.typing():
             r = await do_retard(text)
-            ret = discord.File(r.getvalue(), filename = 'retard.png')
+            ret = discord.File(r, filename = 'retard.png')
             await ctx.send(file = ret)
 
     @commands.command(name = "shout")
@@ -184,7 +184,7 @@ class Images(commands.Cog):
             f = await get_bytes(first.avatar_url)
             s = await get_bytes(second.avatar_url)
             r = await do_shout(bytes_to_image(f), bytes_to_image(s))
-            ret = discord.File(r.getvalue(), filename = 'shout.png')
+            ret = discord.File(r, filename = 'shout.png')
             await ctx.send(file = ret)
 
     @commands.command(name = "tweet")
@@ -192,7 +192,7 @@ class Images(commands.Cog):
     async def _tweet(self, ctx, *, text: str):
         async with ctx.channel.typing():
             r = await do_tweet(text)
-            ret = discord.File(r.getvalue(), filename = 'tweet.png')
+            ret = discord.File(r, filename = 'tweet.png')
             await ctx.send(file = ret)
 
     @commands.command(name = "villan")
@@ -213,7 +213,7 @@ class Images(commands.Cog):
                     return await ctx.send('one of those was not a valid url')
 
             r = await do_villan_image(bytes_to_image(first), bytes_to_image(second))
-            ret = discord.File(r.getvalue(), filename = 'villan.png')
+            ret = discord.File(r, filename = 'villan.png')
             await ctx.send(file = ret)
 
     @commands.command(name = "rtx")
@@ -229,7 +229,7 @@ class Images(commands.Cog):
                 except InvalidURL:
                     return await ctx.send('one of those urls was not valid')
             r = await do_rtx(bytes_to_image(f), bytes_to_image(s))
-            ret = discord.File(r.getvalue(), filename = 'rtx.png')
+            ret = discord.File(r, filename = 'rtx.png')
             await ctx.send(file = ret)
 
     @commands.command(name = "wack")
@@ -237,7 +237,7 @@ class Images(commands.Cog):
         async with ctx.channel.typing():
             img = await get_bytes(user.avatar_url)
             r = await do_wack(bytes_to_image(img))
-            ret = discord.File(r.getvalue(), filename = 'wack.png')
+            ret = discord.File(r, filename = 'wack.png')
             await ctx.send(file = ret)
 
     @commands.command(name = "crusade")
@@ -251,14 +251,14 @@ class Images(commands.Cog):
                 except InvalidURL:
                     return await ctx.send('Invalid URL')
             r = await do_crusade(bytes_to_image(img))
-            ret = discord.File(r.getvalue(), filename = 'crusade.png')
+            ret = discord.File(r, filename = 'crusade.png')
             await ctx.send(file = ret)
 
     @commands.command(name = "violation")
     async def _violation(self, ctx, *, text: str):
         async with ctx.channel.typing():
             r = await do_violation(text)
-            ret = discord.File(r.getvalue(), filename = 'violation.png')
+            ret = discord.File(r, filename = 'violation.png')
             await ctx.send(file = ret)
 
 def setup(bot):
