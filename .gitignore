@@ -4,37 +4,9 @@ __pycache__/
 *.py[mod]
 *.$py.class
 
-#ignore generated files
-*.cfg
-*.conf
-*.ini
+# ignore data files
 *.json
-*.log
+*.
 
-#ignore the stuff generate by the Code module
-*.temp.*
-
-#ignore cython
-*.c
-*.so
-*.o
-
-#ignore mac specific stuff
+# mac thing
 .DS_Store
-
-#ignore vscode generated files
-*.exe
-.vscode/
-*.code-workspace
-.DS_Store
-*.exe
-
-#ignore all the junk gradle generates
-*.jar
-.gradle/
-bin/
-build/
-gradle/
-
-#ignore the node modules 
-node_modules/
