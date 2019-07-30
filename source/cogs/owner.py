@@ -15,7 +15,7 @@ class Owner(Wheel):
 
     @commands.command(name = 'shutdown')
     async def _shutdown(self, ctx):
-        self.bot.cleanup()
+        await self.bot.cleanup()
 
     @commands.command(name = 'test')
     async def _test(self, ctx):

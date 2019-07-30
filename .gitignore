@@ -6,7 +6,9 @@ __pycache__/
 
 # ignore data files
 *.json
-*.
+*.db
 
 # mac thing
 .DS_Store
+*.bin
+*.db
