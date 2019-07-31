@@ -1,1 +1,5 @@
+# discord api (duh)
 discord.py[voice]
+# lovley database stuff
+pymongo
+dnspython
