@@ -15,18 +15,15 @@ class Owner(Wheel):
 
     @commands.command(name = 'shutdown')
     async def _shutdown(self, ctx):
-        await self.bot.cleanup()
+        await self.bot.close()
 
     @commands.command(name = 'test')
-    async def _test(self, ctx):
-        await ctx.send(embed = ctx.make_embed(title = 'A', description = 'B'))
+    async def _test(self, ctx, num: int):
+        self.db.test.insert_one({ 'name': 'test', 'val': num })
 
     @commands.command(name = 'query')
     async def _query(self, ctx, *, query: str):
-        try:
-            await ctx.send(ctx.bot.execute(query).fetchone())
-        except Exception as e:
-            await ctx.send(e)
+        pass
 
 def setup(bot):
     bot.add_cog(Owner(bot))
