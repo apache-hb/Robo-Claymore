@@ -1,4 +1,5 @@
 from discord.ext import commands
+import discord
 import sqlite3
 import json
 from .context import Context as ClayContext
@@ -14,6 +15,7 @@ def get_config():
             'discord': {
                 'token': input('Input discord bot token'),
                 'owner': int(input('Input owner id')),
+                'activity': input('Input default activity'),
                 'prefix': input('Input default prefix')
             }
         }
@@ -48,11 +50,13 @@ class Claymore(commands.Bot):
         return res
 
     def __init__(self):
+        self.config = get_config()
         super().__init__(
             command_prefix=self.get_prefix,
-            case_insensitive=True
+            case_insensitive=True,
+            owner_id = self.config['discord']['owner'],
+            activity = discord.Activity(name = self.config['discord']['activity'])
         )
-        self.config = get_config()
         self.owner = self.config['discord']['owner']
 
         # connect to the database, will be created if it doesnt exist

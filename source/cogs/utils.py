@@ -20,10 +20,12 @@ class Utils(Wheel):
         if user is None:
             user = ctx.author
 
-        embed = ctx.make_embed(title = f'User info for {user.name}#{user.descriminator}', description = f'User ID: {user.id}')
-        embed.add_field(name = 'Is a human (is not a bot)', value = 'Yes' if user.bot else 'No')
-        embed.add_field(name = f'Time spent in {ctx.guild.name}', value = '')
-        embed.add_field(name = 'Time spent on discord', value = f'{user.created_at.strftime("%d/%m/%Y UTC")} (created {str(datetime.utcnow() - user.created_at)} ago)')
+        embed = ctx.make_embed(title = f'User info for {user.name}#{user.discriminator}', description = f'User ID: {user.id}')
+        embed.set_thumbnail(url = user.avatar_url)
+        embed.add_field(name = 'Is a bot', value = 'Yes' if user.bot else 'No')
+        now = datetime.now()
+        embed.add_field(name = f'Time spent in {ctx.guild.name}', value = f'First joined at {user.created_at}, thats over {(now - user.joined_at).days} days ago')
+        embed.add_field(name = 'Time spent on discord', value = f'First joined at {user.created_at}, thats over {(now - user.created_at).days} days ago')
         embed.add_field(name = 'Roles', value = ', '.join([role.name for role in user.roles]))
 
         await ctx.send(embed = embed)
