@@ -13,6 +13,7 @@ from os.path import join, abspath, dirname, isfile
 from os import access, R_OK
 
 import pymongo
+import logging
 
 # get the config and create it if it doesnt exist
 def get_config():
@@ -22,6 +23,7 @@ def get_config():
         return json.load(open(path, 'r'))
     else:
         # otherwise create it
+        conn = input('Input connection string (leave blank if mongodb is hosted locally)')
         data = {
             'discord': {
                 'token': input('Input discord bot token'),
@@ -30,8 +32,8 @@ def get_config():
                 'prefix': input('Input default prefix')
             },
             'mongo': {
-                'conn': input('Input connection string (dont replace <password>)'),
-                'pass': input('Input password')
+                'conn': conn if conn else None,
+                'name': input('Input database name')
             }
         }
 
@@ -49,7 +51,22 @@ class Claymore(commands.Bot):
 
         return default
 
+    async def on_ready(self):
+        pass
+        #self.log.info(f'Bot logged in as: {self.user.name}#{self.user.discriminator}')
+        #self.log.info(f'Bot id: {self.user.id}')
+        #self.log.info(f'Bot invite: https://discordapp.com/oauth2/authorize?client_id={self.user.id}&scope=bot&permissions=66321471')
+        #self.log.info(f'discord.py version: {discord.__version__}')
+
     def __init__(self):
+        pass
+        #self.log = logging.getLogger('claymore')
+        #self.log.setLevel(logging.INFO)
+        #handler = logging.FileHandler(filename = join('logs', 'bot.log'), encoding = 'utf-8', mode = 'w')
+        #handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
+        #self.log.addHandler(handler)
+
+        
         self.config = get_config()
         super().__init__(
             command_prefix=self.get_prefix,
@@ -58,8 +75,13 @@ class Claymore(commands.Bot):
             activity = discord.Activity(name = self.config['discord']['activity'])
         )
         self.owner = self.config['discord']['owner']
-        self.conn = pymongo.MongoClient(self.config['mongo']['conn'].replace('<password>', self.config['mongo']['pass']))
-        self.db = self.conn.data
+        
+        if self.config['mongo']['conn'] is None:
+            self.conn = pymongo.MongoClient()
+        else:
+            self.conn = pymongo.MongoClient(self.config['mongo']['conn'])
+        
+        self.db = self.conn[self.config['mongo']['name']]
 
     async def close(self):
         self.conn.close()
