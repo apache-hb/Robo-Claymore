@@ -22,7 +22,7 @@ class Admin(Wheel):
 
     @_prefix.command('update')
     async def _prefix_update(self, ctx, prefix: str):
-        self.db.prefix.insert_one({ 'id': ctx.guild.id , 'prefix': prefix })
+        self.db.prefix.update({ 'id': ctx.guild.id }, { 'id': ctx.guild.id, 'prefix': prefix }, upsert = True)
         await ctx.send(f'New prefix is now `{prefix}`')
 
     @_prefix.command('reset')

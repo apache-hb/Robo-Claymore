@@ -1,5 +1,6 @@
 # discord extensions
 from discord.ext import commands
+import discord
 
 # my own stuff
 from .context import Context as ClayContext
