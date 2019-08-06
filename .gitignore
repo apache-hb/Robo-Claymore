@@ -9,6 +9,8 @@ __pycache__/
 *.json
 *.db
 
+!package*
+
 # mac thing
 .DS_Store
 *.bin
