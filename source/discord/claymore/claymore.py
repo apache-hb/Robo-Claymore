@@ -17,7 +17,7 @@ import logging
 
 # get the config and create it if it doesnt exist
 def get_config():
-    path = join('data', 'config.json')
+    path = join('..', 'data', 'config.json')
     # if the file exists then just load that in
     if isfile(path) and access(path, R_OK):
         return json.load(open(path, 'r'))
@@ -52,6 +52,15 @@ class Claymore(commands.Bot):
         return default
 
     async def on_ready(self):
+        info = {
+            'name': self.user.name,
+            'id': self.user.id,
+            'dis': self.user.discriminator,
+            'avatar': str(self.user.avatar_url)
+        }
+
+        json.dump(info, open(join('..', 'data', 'bot_info.json'), 'w'), indent = 4)
+
         self.log.info(f'Bot logged in as: {self.user.name}#{self.user.discriminator}')
         self.log.info(f'Bot id: {self.user.id}')
         self.log.info(f'Bot invite: https://discordapp.com/oauth2/authorize?client_id={self.user.id}&scope=bot&permissions=66321471')
@@ -60,7 +69,7 @@ class Claymore(commands.Bot):
     def __init__(self):
         self.log = logging.getLogger('claymore')
         self.log.setLevel(logging.INFO)
-        handler = logging.FileHandler(filename = join('logs', 'bot.log'), encoding = 'utf-8', mode = 'w')
+        handler = logging.FileHandler(filename = join('..', 'logs', 'bot.log'), encoding = 'utf-8', mode = 'w')
         handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
         self.log.addHandler(handler)
 
@@ -79,6 +88,7 @@ class Claymore(commands.Bot):
             self.conn = pymongo.MongoClient(self.config['mongo']['conn'])
 
         self.db = self.conn[self.config['mongo']['name']]
+        
 
     async def close(self):
         self.conn.close()

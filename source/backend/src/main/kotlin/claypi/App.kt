@@ -9,6 +9,26 @@ import org.litote.kmongo.coroutine.*
 import java.util.logging.Logger
 import java.util.logging.Level
 
+import kotlinx.serialization.*
+import kotlinx.serialization.json.Json
+
+import java.io.File
+
+import io.ktor.application.*
+import io.ktor.http.*
+import io.ktor.response.*
+import io.ktor.routing.*
+import io.ktor.server.engine.*
+import io.ktor.server.netty.*
+
+@Serializable
+data class BotInfo(
+    val name: String,
+    val id: Long,
+    val dis: String,
+    val avatar: String
+)
+
 fun kill(name: String) {
     val log = Logger.getLogger(name)
     log.setLevel(Level.SEVERE)
@@ -17,5 +37,26 @@ fun kill(name: String) {
 fun main(args: Array<String>) {
     // make java logging shut the fuck up
     kill("org.mongodb")
+
+    val text = File("../data/bot_info.json").inputStream().bufferedReader().use { it.readText() }
+
+    val config = Json.parse(BotInfo.serializer(), text)
+
     val client = KMongo.createClient().coroutine
+    val database = client.getDatabase(config.name)
+
+    embeddedServer(Netty, 8080) {
+        install(Routing) {
+            get("/bot_info") {
+                call.respondText(text, ContentType.Application.Json)
+            }
+            get("/prefix") {
+                call.request.queryParameters["guild"]?.let {
+                    println(it)
+                } ?: run {
+                    println("No")
+                }
+            }
+        }
+    }.start(wait = true)
 }
