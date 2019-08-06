@@ -11,8 +11,8 @@ import json
 def main(args: List[str]) -> None:
     bot = Claymore()
 
-    for path in glob(join('cogs', '*.py')):
-        bot.load_extension(path.replace(sep, '.').replace('.py', ''))
+    for path in glob(join('discord', 'cogs', '*.py')):
+        bot.load_extension(path.replace(sep, '.').replace('.py', '').replace('discord.', ''))
 
     bot.run()
 

@@ -1,7 +1,8 @@
+!*/
+
 #compiled python files
 *.pyc
 __pycache__/
-*.py[mod]
 *.$py.class
 
 # ignore data files
@@ -13,3 +14,7 @@ __pycache__/
 *.bin
 *.db
 *.log
+
+build/
+node_modules/
+.gradle

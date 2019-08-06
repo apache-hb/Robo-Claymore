@@ -52,21 +52,18 @@ class Claymore(commands.Bot):
         return default
 
     async def on_ready(self):
-        pass
-        #self.log.info(f'Bot logged in as: {self.user.name}#{self.user.discriminator}')
-        #self.log.info(f'Bot id: {self.user.id}')
-        #self.log.info(f'Bot invite: https://discordapp.com/oauth2/authorize?client_id={self.user.id}&scope=bot&permissions=66321471')
-        #self.log.info(f'discord.py version: {discord.__version__}')
+        self.log.info(f'Bot logged in as: {self.user.name}#{self.user.discriminator}')
+        self.log.info(f'Bot id: {self.user.id}')
+        self.log.info(f'Bot invite: https://discordapp.com/oauth2/authorize?client_id={self.user.id}&scope=bot&permissions=66321471')
+        self.log.info(f'discord.py version: {discord.__version__}')
 
     def __init__(self):
-        pass
-        #self.log = logging.getLogger('claymore')
-        #self.log.setLevel(logging.INFO)
-        #handler = logging.FileHandler(filename = join('logs', 'bot.log'), encoding = 'utf-8', mode = 'w')
-        #handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
-        #self.log.addHandler(handler)
+        self.log = logging.getLogger('claymore')
+        self.log.setLevel(logging.INFO)
+        handler = logging.FileHandler(filename = join('logs', 'bot.log'), encoding = 'utf-8', mode = 'w')
+        handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
+        self.log.addHandler(handler)
 
-        
         self.config = get_config()
         super().__init__(
             command_prefix=self.get_prefix,
@@ -75,12 +72,12 @@ class Claymore(commands.Bot):
             activity = discord.Activity(name = self.config['discord']['activity'])
         )
         self.owner = self.config['discord']['owner']
-        
+
         if self.config['mongo']['conn'] is None:
             self.conn = pymongo.MongoClient()
         else:
             self.conn = pymongo.MongoClient(self.config['mongo']['conn'])
-        
+
         self.db = self.conn[self.config['mongo']['name']]
 
     async def close(self):
