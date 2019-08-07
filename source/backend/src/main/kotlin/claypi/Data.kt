@@ -1,3 +1,5 @@
+package claypi
+
 import kotlinx.serialization.*
 import kotlinx.serialization.json.Json
 
