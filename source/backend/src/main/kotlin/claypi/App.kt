@@ -18,33 +18,13 @@ import io.ktor.routing.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 
-fun kill(name: String) {
-    val log = Logger.getLogger(name)
-    log.setLevel(Level.SEVERE)
-}
-
 fun main(args: Array<String>) {
-    // make java logging shut the fuck up
-    kill("org.mongodb")
-
-    val text = File("../data/bot_info.json").readText()
-
-    val config = Json.parse(BotInfo.serializer(), text)
-
-    val client = KMongo.createClient().coroutine
-    val database = client.getDatabase(config.name)
+    val info = loadInfo("../data/bot_info.json")
 
     embeddedServer(Netty, 8080) {
         install(Routing) {
-            get("/bot_info") {
-                call.respondText(text, ContentType.Application.Json)
-            }
-            get("/prefix") {
-                call.request.queryParameters["guild"]?.let {
-                    println(it)
-                } ?: run {
-                    println("No")
-                }
+            get("/") {
+
             }
         }
     }.start(wait = true)

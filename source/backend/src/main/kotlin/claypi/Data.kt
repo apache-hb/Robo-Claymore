@@ -1,7 +1,14 @@
 package claypi
 
 import kotlinx.serialization.*
-import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.*
+
+import java.io.File
+
+data class Prefix(
+    val id: Long,
+    val prefix: String
+)
 
 @Serializable
 data class BotInfo(
@@ -10,3 +17,6 @@ data class BotInfo(
     val dis: String,
     val avatar: String
 )
+
+fun loadInfo(path: String) = Json.parse(BotInfo.serializer(), File(path).readText())
+//fun loadConfig(path: String) = JsonObject(File(path).readText())
