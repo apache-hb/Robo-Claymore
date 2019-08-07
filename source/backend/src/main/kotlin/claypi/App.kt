@@ -21,14 +21,6 @@ import io.ktor.routing.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 
-@Serializable
-data class BotInfo(
-    val name: String,
-    val id: Long,
-    val dis: String,
-    val avatar: String
-)
-
 fun kill(name: String) {
     val log = Logger.getLogger(name)
     log.setLevel(Level.SEVERE)
@@ -38,7 +30,7 @@ fun main(args: Array<String>) {
     // make java logging shut the fuck up
     kill("org.mongodb")
 
-    val text = File("../data/bot_info.json").inputStream().bufferedReader().use { it.readText() }
+    val text = File("../data/bot_info.json").readText()
 
     val config = Json.parse(BotInfo.serializer(), text)
 
