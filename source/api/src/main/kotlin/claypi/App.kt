@@ -3,13 +3,7 @@
  */
 package claypi
 
-import java.util.logging.Logger
-import java.util.logging.Level
-
-import kotlinx.serialization.*
-import kotlinx.serialization.json.Json
-
-import java.io.File
+import com.mongodb.*
 
 import io.ktor.application.*
 import io.ktor.http.*
@@ -18,9 +12,9 @@ import io.ktor.routing.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 
-fun main(args: Array<String>) {
-    val info = loadInfo("../data/bot_info.json")
+val mongo = MongoClient().getDB("")
 
+fun main(args: Array<String>) {
     embeddedServer(Netty, 8080) {
         install(Routing) {
             get("/") {

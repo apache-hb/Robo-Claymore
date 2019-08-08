@@ -15,31 +15,13 @@ from os import access, R_OK
 import pymongo
 import logging
 
+from configparser import ConfigParser
+
 # get the config and create it if it doesnt exist
 def get_config():
-    path = join('..', 'data', 'config.json')
-    # if the file exists then just load that in
-    if isfile(path) and access(path, R_OK):
-        return json.load(open(path, 'r'))
-    else:
-        # otherwise create it
-        conn = input('Input connection string (leave blank if mongodb is hosted locally)')
-        data = {
-            'discord': {
-                'token': input('Input discord bot token'),
-                'owner': int(input('Input owner id')),
-                'activity': input('Input default activity'),
-                'prefix': input('Input default prefix')
-            },
-            'mongo': {
-                'conn': conn if conn else None,
-                'name': input('Input database name')
-            }
-        }
-
-        json.dump(data, open(path, 'w'), indent = 4)
-        return data
-
+    parser = ConfigParser()
+    parser.read(join('..', 'data', 'config.ini'))
+    return parser
 
 class Claymore(commands.Bot):
     async def get_prefix(self, msg):
@@ -82,13 +64,13 @@ class Claymore(commands.Bot):
         )
         self.owner = self.config['discord']['owner']
 
-        if self.config['mongo']['conn'] is None:
+        if 'url' in self.config['mongo']:
             self.conn = pymongo.MongoClient()
         else:
             self.conn = pymongo.MongoClient(self.config['mongo']['conn'])
 
         self.db = self.conn[self.config['mongo']['name']]
-        
+
 
     async def close(self):
         self.conn.close()

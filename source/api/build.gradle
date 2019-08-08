@@ -24,7 +24,7 @@ dependencies {
     // Use the Kotlin JDK 8 standard library.
     implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
 
-    compile 'org.litote.kmongo:kmongo-coroutine:3.10.2'
+    compile 'org.mongodb:mongo-java-driver:2.12.3'
 
     compile "io.ktor:ktor-server-netty:1.2.3"
 
@@ -32,6 +32,7 @@ dependencies {
 
     compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.26'
     compile group: 'org.slf4j', name: 'slf4j-simple', version: '1.6.4'
+    compile group: 'org.ini4j', name: 'ini4j', version: '0.5.4'
 }
 
 application {

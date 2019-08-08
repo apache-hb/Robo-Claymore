@@ -30,6 +30,7 @@ body {
   text-align: center;
   padding: 12px 12px 12px 12px;
   flex: auto;
+  max-width: 5vw;
 }
 
 .content {

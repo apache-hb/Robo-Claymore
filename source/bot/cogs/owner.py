@@ -1,6 +1,5 @@
 import discord
 from discord.ext import commands
-import sqlite3
 from claymore import Wheel
 
 class Owner(Wheel):

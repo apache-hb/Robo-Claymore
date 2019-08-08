@@ -4,7 +4,7 @@ import logo from '../icons/github.svg'
 export default class GitHub extends React.Component {
   render() {
     return (
-      <a href="#github" className="sidebar-item">
+      <a href="#github" className="sidebar-item" onClick={() => this.props.onClick(this)}>
         <img src={logo} alt="github_logo"/>
         GitHub
       </a>
@@ -14,7 +14,7 @@ export default class GitHub extends React.Component {
 
 class GitHubContent extends React.Component {
   render() {
-    return <div></div>
+    return <div>AAAA</div>
   }
 }
 
