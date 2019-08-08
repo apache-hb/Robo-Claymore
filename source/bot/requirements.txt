@@ -3,3 +3,6 @@ discord.py[voice]
 # lovley database stuff
 pymongo
 dnspython
+
+# human date parser
+dateparser
