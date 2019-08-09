@@ -34,15 +34,6 @@ class Claymore(commands.Bot):
         return default
 
     async def on_ready(self):
-        info = {
-            'name': self.user.name,
-            'id': self.user.id,
-            'dis': self.user.discriminator,
-            'avatar': str(self.user.avatar_url)
-        }
-
-        json.dump(info, open(join('..', 'data', 'bot_info.json'), 'w'), indent = 4)
-
         self.log.info(f'Bot logged in as: {self.user.name}#{self.user.discriminator}')
         self.log.info(f'Bot id: {self.user.id}')
         self.log.info(f'Bot invite: https://discordapp.com/oauth2/authorize?client_id={self.user.id}&scope=bot&permissions=66321471')

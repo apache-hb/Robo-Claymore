@@ -4,6 +4,12 @@
 package claypi
 
 import com.mongodb.*
+import org.ini4j.*
+import java.io.File
+
+import com.serebit.strife.*
+
+import kotlinx.coroutines.*
 
 import io.ktor.application.*
 import io.ktor.http.*
@@ -12,13 +18,72 @@ import io.ktor.routing.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 
-val mongo = MongoClient().getDB("")
+fun config(path: String) = Wini(File(path))
 
-fun main(args: Array<String>) {
-    embeddedServer(Netty, 8080) {
+fun Wini.getInt(head: String, field: String): Int? = this.get(head, field, Int::class.java)
+
+suspend fun main(args: Array<String>) {
+    val cfg = config("../data/config.ini")
+
+    val mongoUrl: String? = cfg.get("mongo", "url")
+    val client = if(mongoUrl != null) MongoClient(mongoUrl) else MongoClient()
+    val db = client.getDB(cfg.get("mongo", "name"))
+    val prefixes = db.getCollection("prefix")
+    val defaultPrefix = cfg.get("discord", "prefix")
+
+    val port = cfg.getInt("api", "port")!!
+
+    var discord: BotClient? = null
+
+    GlobalScope.launch {
+        bot(cfg.get("discord", "token")) {
+            onReady {
+                discord = context
+                println("bot has logged in")
+            }
+        }
+    }
+
+    embeddedServer(Netty, port) {
         install(Routing) {
             get("/") {
-
+                call.respondText("Name jeff", ContentType.Text.Html)
+            }
+            get("/prefix") {
+                call.parameters["id"]?.toLongOrNull()?.let {
+                    val cursors = prefixes.find(BasicDBObject("id", it))
+                    if(cursors.count() != 0) {
+                        val prefix = cursors.one().get("prefix") as String
+                        call.respondText(
+                            """{ "prefix": "$prefix" }""",
+                            ContentType.Application.Json
+                        )
+                    } else {
+                        call.respondText(
+                            """{ "prefix": null }""",
+                            ContentType.Application.Json
+                        )
+                    }
+                } ?: run {
+                    call.respondText(
+                        """{ "valid": false }""",
+                        ContentType.Application.Json
+                    )
+                }
+            }
+            get("/default_prefix") {
+                call.respondText("""{ "prefix": "$defaultPrefix" }""", ContentType.Application.Json)
+            }
+            get("/role") {
+                call.parameters["id"]?.toLongOrNull()?.let {
+                    discord?.getRole(it)?.let { role ->
+                        call.respondText(
+                            """{ "id": ${role.id}, "colour": ${role.color.rgb} }""",
+                            ContentType.Application.Json
+                        )
+                    }
+                }
+                call.respondText("""{ "valid": false }""")
             }
         }
     }.start(wait = true)

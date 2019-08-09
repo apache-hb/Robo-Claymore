@@ -24,6 +24,8 @@ dependencies {
     // Use the Kotlin JDK 8 standard library.
     implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
 
+    implementation group: 'com.serebit.strife', name: 'strife-client-jvm', version: '0.1.2'
+
     compile 'org.mongodb:mongo-java-driver:2.12.3'
 
     compile "io.ktor:ktor-server-netty:1.2.3"

@@ -20,4 +20,6 @@ pluginManagement {
     }
 }
 
+enableFeaturePreview("GRADLE_METADATA")
+
 rootProject.name = 'claypi'
