@@ -50,15 +50,14 @@ class Claymore(commands.Bot):
         super().__init__(
             command_prefix=self.get_prefix,
             case_insensitive=True,
-            owner_id = self.config['discord']['owner'],
-            activity = discord.Activity(name = self.config['discord']['activity'])
+            owner_id = int(self.config['discord']['owner']),
+            activity = discord.Activity(name = self.config.get('discord', 'activity'))
         )
-        self.owner = self.config['discord']['owner']
 
-        if 'url' in self.config['mongo']:
-            self.conn = pymongo.MongoClient()
+        if self.config.has_option('mongo', 'url'):
+            self.conn = pymongo.MongoClient(self.config.get('mongo', 'url'))
         else:
-            self.conn = pymongo.MongoClient(self.config['mongo']['conn'])
+            self.conn = pymongo.MongoClient()
 
         self.db = self.conn[self.config['mongo']['name']]
 

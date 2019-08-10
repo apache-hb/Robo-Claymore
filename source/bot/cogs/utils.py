@@ -2,6 +2,7 @@ from claymore import Wheel
 from discord.ext import commands
 import discord
 from datetime import datetime
+import random
 
 class Utils(Wheel):
     def __init__(self, bot):
@@ -29,6 +30,17 @@ class Utils(Wheel):
         embed.add_field(name = 'Roles', value = ', '.join([role.name for role in user.roles]))
 
         await ctx.send(embed = embed)
+
+    @commands.command(name = 'avatar')
+    async def _avatar(self, ctx, user: discord.User = None):
+        if user is None:
+            user = ctx.author
+
+        await ctx.send(user.avatar_url)
+
+    @commands.command(name = 'emoji')
+    async def _emoji(self, ctx, emoji: discord.Emoji):
+        await ctx.send(str(emoji.url))
 
 def setup(bot):
     bot.add_cog(Utils(bot))
