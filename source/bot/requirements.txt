@@ -6,3 +6,5 @@ dnspython
 
 # human date parser
 dateparser
+
+emoji

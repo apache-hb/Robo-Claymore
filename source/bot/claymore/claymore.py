@@ -20,7 +20,7 @@ from configparser import ConfigParser
 # get the config and create it if it doesnt exist
 def get_config():
     parser = ConfigParser()
-    parser.read(join('..', 'data', 'config.ini'))
+    parser.read(join('..', 'config', 'config.ini'))
     return parser
 
 class Claymore(commands.Bot):

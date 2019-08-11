@@ -3,10 +3,14 @@ from discord.ext import commands
 import discord
 from datetime import datetime
 import random
+from utils import EmojiConverter
+from typing import Union
+from emoji import UNICODE_EMOJI
 
 class Utils(Wheel):
     def __init__(self, bot):
         super().__init__(bot)
+        self.conv = EmojiConverter()
 
     @commands.command(name = 'avatar')
     async def _avatar(self, ctx, user: discord.User = None):
@@ -39,8 +43,16 @@ class Utils(Wheel):
         await ctx.send(user.avatar_url)
 
     @commands.command(name = 'emoji')
-    async def _emoji(self, ctx, emoji: discord.Emoji):
-        await ctx.send(str(emoji.url))
+    async def _emoji(self, ctx, emoji: Union[discord.Emoji, str]):
+        if isinstance(emoji, discord.Emoji):
+            pass
+        else:
+            if emoji in UNICODE_EMOJI:
+                pass
+                
+        await ctx.send(f'`{emoji}` is not a valid emoji')
+        await self.conv.get_image(emoji)
+        await ctx.send(str(emoji))
 
 def setup(bot):
     bot.add_cog(Utils(bot))
