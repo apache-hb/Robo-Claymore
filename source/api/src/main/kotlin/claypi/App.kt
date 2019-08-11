@@ -3,7 +3,11 @@
  */
 package claypi
 
-import com.mongodb.*
+import com.mongodb.reactivestreams.client.MongoClients
+import com.mongodb.client.model.Filters.eq
+import org.reactivestreams.Subscriber
+import org.reactivestreams.Subscription
+import org.bson.Document
 import org.ini4j.*
 import java.io.File
 
@@ -22,12 +26,25 @@ fun config(path: String) = Wini(File(path))
 
 fun Wini.getInt(head: String, field: String): Int? = this.get(head, field, Int::class.java)
 
+const val API_VERSION = "/api/v1"
+const val PREFIX_ENDPOINT = "$API_VERSION/prefix"
+
+class Callback<T>(private val callback: (List<T>, Throwable?) -> Unit) : Subscriber<T> {
+    private var items: MutableList<T> = mutableListOf()
+    override fun onSubscribe(s: Subscription) {
+        s.request(Long.MAX_VALUE)
+    }
+    override fun onNext(v: T) { items.add(v) }
+    override fun onError(err: Throwable) = callback(items, err)
+    override fun onComplete() = callback(items, null)
+}
+
 suspend fun main(args: Array<String>) {
     val cfg = config("../data/config.ini")
 
     val mongoUrl: String? = cfg.get("mongo", "url")
-    val client = if(mongoUrl != null) MongoClient(mongoUrl) else MongoClient()
-    val db = client.getDB(cfg.get("mongo", "name"))
+    val client = if(mongoUrl != null) MongoClients.create(mongoUrl) else MongoClients.create()
+    val db = client.getDatabase(cfg.get("mongo", "name"))
     val prefixes = db.getCollection("prefix")
     val defaultPrefix = cfg.get("discord", "prefix")
 
@@ -45,45 +62,37 @@ suspend fun main(args: Array<String>) {
     }
 
     embeddedServer(Netty, port) {
-        install(Routing) {
+        routing {
             get("/") {
                 call.respondText("Name jeff", ContentType.Text.Html)
             }
-            get("/prefix") {
-                call.parameters["id"]?.toLongOrNull()?.let {
-                    val cursors = prefixes.find(BasicDBObject("id", it))
-                    if(cursors.count() != 0) {
-                        val prefix = cursors.one().get("prefix") as String
-                        call.respondText(
-                            """{ "prefix": "$prefix" }""",
-                            ContentType.Application.Json
-                        )
-                    } else {
-                        call.respondText(
-                            """{ "prefix": null }""",
-                            ContentType.Application.Json
-                        )
-                    }
-                } ?: run {
-                    call.respondText(
-                        """{ "valid": false }""",
-                        ContentType.Application.Json
+            get(PREFIX_ENDPOINT) {
+                when(val id = call.parameters["id"]?.toLongOrNull()) {
+                    null -> call.respondText("""{ "prefix": null }""")
+                    else -> prefixes.find(eq("id", id))
+                        .first()
+                        .subscribe(Callback<Document> { list, err ->
+                            when(err) {
+                                null -> println(list)
+                                else -> call.respondText(list.front()?.toJson())
+                            }
+                        }
                     )
                 }
             }
-            get("/default_prefix") {
+            get("$PREFIX_ENDPOINT/global") {
                 call.respondText("""{ "prefix": "$defaultPrefix" }""", ContentType.Application.Json)
             }
             get("/role") {
-                call.parameters["id"]?.toLongOrNull()?.let {
-                    discord?.getRole(it)?.let { role ->
+                when(val id = call.parameters["id"]?.toLongOrNull()) {
+                    null -> call.respondText("""{ "valid": false }""")
+                    else -> discord?.getRole(id)?.let {
                         call.respondText(
-                            """{ "id": ${role.id}, "colour": ${role.color.rgb} }""",
+                            """{ "id": ${it.id}, "name": ${it.name} "colour": ${it.color.rgb} }""",
                             ContentType.Application.Json
                         )
                     }
                 }
-                call.respondText("""{ "valid": false }""")
             }
         }
     }.start(wait = true)
