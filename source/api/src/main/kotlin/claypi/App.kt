@@ -3,7 +3,8 @@
  */
 package claypi
 
-import com.mongodb.reactivestreams.client.MongoClients
+import com.mongodb.*
+import com.mongodb.client.*
 import com.mongodb.client.model.Filters.eq
 import org.reactivestreams.Subscriber
 import org.reactivestreams.Subscription
@@ -29,15 +30,9 @@ fun Wini.getInt(head: String, field: String): Int? = this.get(head, field, Int::
 const val API_VERSION = "/api/v1"
 const val PREFIX_ENDPOINT = "$API_VERSION/prefix"
 
-class Callback<T>(private val callback: (List<T>, Throwable?) -> Unit) : Subscriber<T> {
-    private var items: MutableList<T> = mutableListOf()
-    override fun onSubscribe(s: Subscription) {
-        s.request(Long.MAX_VALUE)
-    }
-    override fun onNext(v: T) { items.add(v) }
-    override fun onError(err: Throwable) = callback(items, err)
-    override fun onComplete() = callback(items, null)
-}
+fun String.toJsonString(): String = "\"$this\""
+
+fun Role.toJson() = """{ "id": ${this.id}, "name": "${this.name}", "colour": ${this.color.rgb} }"""
 
 suspend fun main(args: Array<String>) {
     val cfg = config("../data/config.ini")
@@ -69,15 +64,10 @@ suspend fun main(args: Array<String>) {
             get(PREFIX_ENDPOINT) {
                 when(val id = call.parameters["id"]?.toLongOrNull()) {
                     null -> call.respondText("""{ "prefix": null }""")
-                    else -> prefixes.find(eq("id", id))
-                        .first()
-                        .subscribe(Callback<Document> { list, err ->
-                            when(err) {
-                                null -> println(list)
-                                else -> call.respondText(list.front()?.toJson())
-                            }
-                        }
-                    )
+                    else -> {
+                        val prefix = prefixes.find(eq("id", id)).first()?.get("prefix") as String?
+                        call.respondText("""{ "prefix": ${prefix?.toJsonString()} }""", ContentType.Application.Json)
+                    }
                 }
             }
             get("$PREFIX_ENDPOINT/global") {
@@ -87,10 +77,7 @@ suspend fun main(args: Array<String>) {
                 when(val id = call.parameters["id"]?.toLongOrNull()) {
                     null -> call.respondText("""{ "valid": false }""")
                     else -> discord?.getRole(id)?.let {
-                        call.respondText(
-                            """{ "id": ${it.id}, "name": ${it.name} "colour": ${it.color.rgb} }""",
-                            ContentType.Application.Json
-                        )
+                        call.respondText(it.toJson(),ContentType.Application.Json)
                     }
                 }
             }
