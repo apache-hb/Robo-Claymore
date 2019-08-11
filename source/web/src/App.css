@@ -1,33 +1,28 @@
-.App {
-  text-align: center;
+@import url(https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.207/distr/fira_code.css);
+
+* {
+  font-family: 'Fira Code', monospace;
 }
 
-.App-logo {
-  animation: App-logo-spin infinite 20s linear;
-  height: 40vmin;
-  pointer-events: none;
+.app-body {
+  background-color: #1E1E1E;
+  height: 100vh;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+.app-header {
+  background-image: linear-gradient(-45deg, #57cfb0, #2ab5d3);
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
+  flex-flow: row;
+  height: 7vh;
+}
+
+.header-item {
+  text-align: middle;
   color: white;
+  font-size: 200%;
+  padding: 6px 6px 6px 6px;
 }
 
-.App-link {
-  color: #61dafb;
-}
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.header-item:hover {
+  background-color: #37373D;
 }
