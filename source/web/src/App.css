@@ -57,6 +57,31 @@ body {
   background-color: #1E1E1E;
 }
 
-.thing {
-  height: 100vh;
+.section {
+  color: white;
+}
+
+.top-section {
+  color: white;
+  padding: 20px;
+}
+
+.invite-button {
+  text-decoration: none;
+  color: inherit;
+  padding: 10px;
+  border-radius: 4px;
+  background-color: rgb(42, 44, 46);
+}
+
+.invite-button:hover {
+  background-color: #3A3D41;
+}
+
+.top-header {
+  text-align: center;
+}
+
+.top-title {
+  display: inline-block;
 }
