@@ -27,11 +27,17 @@ class Utils(Wheel):
         embed.set_thumbnail(url = user.avatar_url)
         embed.add_field(name = 'Is a bot', value = 'Yes' if user.bot else 'No')
         now = datetime.now()
-        embed.add_field(name = f'Time spent in {ctx.guild.name}', value = f'First joined at {user.created_at}, thats over {(now - user.joined_at).days} days ago')
         embed.add_field(name = 'Time spent on discord', value = f'First joined at {user.created_at}, thats over {(now - user.created_at).days} days ago')
-        embed.add_field(name = 'Roles', value = ', '.join([role.name for role in user.roles]))
+
+        if ctx.guild is not None:
+            embed.add_field(name = f'Time spent in {ctx.guild.name}', value = f'First joined at {user.created_at}, thats over {(now - user.joined_at).days} days ago')
+            embed.add_field(name = 'Roles', value = ', '.join([role.name for role in user.roles]))
 
         await ctx.send(embed = embed)
+
+    @commands.command(name = 'selfinfo')
+    async def _selfinfo(self, ctx):
+        await self._userinfo.invoke(ctx)
 
     @commands.command(name = 'avatar')
     async def _avatar(self, ctx, user: discord.User = None):
@@ -47,7 +53,7 @@ class Utils(Wheel):
         else:
             if emoji in UNICODE_EMOJI:
                 pass
-                
+
         await ctx.send(f'`{emoji}` is not a valid emoji')
         await ctx.send(str(emoji))
 

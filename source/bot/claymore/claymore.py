@@ -25,8 +25,11 @@ def get_config():
 
 class Claymore(commands.Bot):
     async def get_prefix(self, msg):
-        prefix = self.db.prefix.find_one({ 'id': msg.guild.id })
         default = self.config['discord']['prefix']
+        if msg.guild is None:
+            return default
+
+        prefix = self.db.prefix.find_one({ 'id': msg.guild.id })
 
         if prefix is not None:
             return (prefix['prefix'], default)

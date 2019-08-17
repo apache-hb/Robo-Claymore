@@ -20,7 +20,6 @@ class Autorole(Wheel):
 
             await member.edit(roles = [guild.get_role(r) for r in roles])
 
-
     async def cog_check(self, ctx):
         if ctx.author.permissions_in(ctx.channel).administrator or ctx.author.id == self.bot.owner:
             return True
@@ -77,7 +76,6 @@ class Autorole(Wheel):
             upsert = True
         )
         await ctx.send(f'Added {role.name} as an autorole')
-
 
     @_autorole.command(name = 'remove')
     async def _autorole_remove(self, ctx, role: discord.Role):
