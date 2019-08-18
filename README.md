@@ -7,6 +7,30 @@ beep boop
 ## Setup
 go into setup and install everything
 
+```sh
+touch source/config/config.ini
+```
+add fields
+```ini
+[discord]
+token=discord token
+owner=owner id
+activity=default activity
+prefix=default prefix
+
+[mongo]
+name=db name
+
+[api]
+port=api port
+
+[web]
+port=web port
+
+[oauth]
+secret=oauth secret
+```
+
 ## Running
 run startup.sh
 

@@ -20,3 +20,4 @@ __pycache__/
 build/
 node_modules/
 .gradle
+source/config/config.ini
