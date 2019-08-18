@@ -1,0 +1,35 @@
+server:
+  port: 2333
+  address: 0.0.0.0
+spring:
+  main:
+    banner-mode: log
+lavalink:
+  server:
+    password: "lavalink_claymore"
+    sources:
+      youtube: true
+      soundclound: true
+    bufferDurationMs: 400
+    youtubePlaylistLoadLimit: 6
+    youtubeSearchEnabled: true
+    soundcloudSearchEnabled: true
+    gc-warnings: true
+
+metrics:
+  prometheus:
+    enabled: false
+    endpoint: /metrics
+
+sentry:
+  dsn: ""
+
+logging:
+  file:
+    max-history: 30
+    max-size: 256MB
+  path: ../logs/
+
+  level:
+    root: WARN
+    lavalink: WARN

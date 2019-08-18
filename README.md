@@ -4,8 +4,11 @@
 # Robo Claymore
 beep boop
 
-```
-python3 -m pip install -r requirements.txt
-cd source/
-python3 main.py
-```
+## Setup
+go into setup and install everything
+
+## Running
+run startup.sh
+
+## Closing down
+run shutdown.sh
