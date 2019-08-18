@@ -1,20 +1,22 @@
 server:
   port: 2333
-  address: 0.0.0.0
-spring:
-  main:
-    banner-mode: log
+  host: "localhost"
+
 lavalink:
   server:
     password: "lavalink_claymore"
     sources:
       youtube: true
-      soundclound: true
+      bandcamp: true
+      soundcloud: true
+      twitch: true
+      vimeo: true
+      mixer: true
+      http: true
+      local: true
+    sentryDsn: ""
     bufferDurationMs: 400
-    youtubePlaylistLoadLimit: 6
-    youtubeSearchEnabled: true
-    soundcloudSearchEnabled: true
-    gc-warnings: true
+    youtubePlaylistLoadLimit: 10000
 
 metrics:
   prometheus:
