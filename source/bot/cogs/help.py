@@ -4,9 +4,6 @@ import claymore
 from claymore import Wheel
 
 class Help(Wheel):
-    def __init__(self, bot):
-        super().__init__(bot)
-
     @commands.command(name = 'help')
     async def _help(self, ctx, *, cmd: str = None):
         if cmd is None:

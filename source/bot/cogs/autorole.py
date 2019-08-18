@@ -60,12 +60,12 @@ class Autorole(Wheel):
 
     @_autorole_toggle.command(name = 'enable')
     async def _autorole_toggle_enable(self, ctx):
-        self.db.autorole.insert({ 'id':ctx.guild.id }, { 'id': ctx.guild.id, 'random': True }, upsert = True)
+        self.db.autorole.insert({ 'id': ctx.guild.id }, { 'id': ctx.guild.id, 'random': True }, upsert = True)
         await ctx.send('Enaabled autorole randomization')
 
     @_autorole_toggle.command(name = 'disable')
     async def _autorole_toggle_disable(self, ctx):
-        self.db.autorole.update({ 'id':ctx.guild.id }, { 'id': ctx.guild.id, 'random': False }, upsert = True)
+        self.db.autorole.update({ 'id': ctx.guild.id }, { 'id': ctx.guild.id, 'random': False }, upsert = True)
         await ctx.send('Disabled autorole randomization')
 
     @_autorole.command(name = 'add')
@@ -93,7 +93,7 @@ class Autorole(Wheel):
         self.db.autorole.remove(
             { 'id': ctx.guild.id }
         )
-        await ctx.send('removed all autoroles')
+        await ctx.send('Removed all autoroles')
 
 def setup(bot):
     bot.add_cog(Autorole(bot))

@@ -18,12 +18,12 @@ class Reminders(Wheel):
         rems = self.db.remind.find({ 'time': { '$lte': now }})
         for each in rems:
             try:
-                await self.bot.get_user(each['author']).send(f'You asked to be remineded {each["msg"]}')
+                await self.bot.get_user(each['author']).send(f'You asked to be reminded about `{each["msg"]}`')
             except:
                 pass
         self.db.remind.remove({ 'time': { '$lte': now }})
 
-    @commands.command(name = 'remind')
+    @commands.command(name = 'remind', aliases = [ 'remindme' ])
     async def _remind(self, ctx, msg: str, *, time: str):
         time = dateparser.parse(time)
         if time <= datetime.now():

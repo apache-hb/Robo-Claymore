@@ -3,9 +3,6 @@ from discord.ext import commands
 from claymore import Wheel
 
 class Admin(Wheel):
-    def __init__(self, bot):
-        super().__init__(bot)
-
     async def cog_check(self, ctx):
         if ctx.author.permissions_in(ctx.channel).administrator or ctx.author.id == self.bot.owner:
             return True

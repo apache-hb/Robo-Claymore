@@ -3,9 +3,6 @@ from discord.ext import commands
 from claymore import Wheel, PagedEmbed
 
 class Owner(Wheel):
-    def __init__(self, bot):
-        super().__init__(bot)
-
     async def cog_check(self, ctx):
         if await self.bot.is_owner(ctx.author):
             return True
@@ -23,10 +20,6 @@ class Owner(Wheel):
             embed.add_field(name = f'name {i}', value = f'value {i}')
 
         await ctx.send_pages(embed)
-
-    @commands.command(name = 'query')
-    async def _query(self, ctx, *, query: str):
-        pass
 
 def setup(bot):
     bot.add_cog(Owner(bot))

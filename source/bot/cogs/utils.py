@@ -4,12 +4,9 @@ import discord
 from datetime import datetime
 import random
 from typing import Union
-from emoji import UNICODE_EMOJI
+from utils import json
 
 class Utils(Wheel):
-    def __init__(self, bot):
-        super().__init__(bot)
-
     @commands.command(name = 'avatar')
     async def _avatar(self, ctx, user: discord.User = None):
         if user is None:
@@ -47,15 +44,35 @@ class Utils(Wheel):
         await ctx.send(user.avatar_url)
 
     @commands.command(name = 'emoji')
-    async def _emoji(self, ctx, emoji: Union[discord.Emoji, str]):
+    async def _emoji(self, ctx, emoji: discord.Emoji):
         if isinstance(emoji, discord.Emoji):
             return await ctx.send(str(emoji.url))
-        else:
-            if emoji in UNICODE_EMOJI:
-                pass
 
-        await ctx.send(f'`{emoji}` is not a valid emoji')
-        await ctx.send(str(emoji))
+    @commands.command(
+        name = 'urban',
+        aliases = [ 'urbandict' ]
+    )
+    async def _urban(self, ctx, *, query: str = None):
+        if query is None:
+            url = 'http://api.urbandictionary.com/v0/random'
+        else:
+            url = f'http://api.urbandictionary.com/v0/define?term={query}'
+
+        data = await json(url)
+
+        if not data['list']:
+            return await ctx.send(embed = ctx.make_embed(f'Search for {query} was blank'))
+
+        post = random.choice(data['list'])
+
+        embed = ctx.make_embed(f'Definition of {post["word"]}', description = f'Written by {post["author"]}')
+        embed.add_field(name = 'Definition', value = post['definition'])
+        embed.add_field(name = 'Example', value = post['example'])
+        embed.add_field(name = 'Link', value = post['permalink'])
+        embed.set_footer(text = f'Rating {post["thumbs_up"]}/{post["thumbs_down"]}')
+
+        await ctx.send(embed = embed)
+
 
 def setup(bot):
     bot.add_cog(Utils(bot))

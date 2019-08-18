@@ -4,9 +4,6 @@ from discord.ext import commands
 import random
 
 class Fun(Wheel):
-    def __init__(self, bot):
-        super().__init__(bot)
-
     @commands.command(name = 'clap')
     async def _clap(self, ctx, *, text: str):
         await ctx.send(' :clap: '.join(text.split(' ')))
