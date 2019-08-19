@@ -13,13 +13,13 @@ class Owner(Wheel):
     async def _shutdown(self, ctx):
         await self.bot.close()
 
-    @commands.command(name = 'test')
-    async def _test(self, ctx):
-        embed = PagedEmbed('test', 'something')
-        for i in range(69):
-            embed.add_field(name = f'name {i}', value = f'value {i}')
+    @commands.command(name = 'setname')
+    async def _setname(self, ctx, *, name: str):
+        await self.bot.edit(username = name)
 
-        await ctx.send_pages(embed)
+    @commands.command(name = 'setactivity')
+    async def _setactivity(self, ctx, *, text: str):
+        await self.bot.change_presence(activity = discord.Game(text))
 
 def setup(bot):
     bot.add_cog(Owner(bot))
