@@ -36,6 +36,24 @@ class Utils(Wheel):
     async def _selfinfo(self, ctx):
         await self._userinfo.invoke(ctx)
 
+    @commands.command(name = 'ping')
+    async def _ping(self, ctx):
+        await ctx.send(f'Current ping to discord servers is {round(self.bot.latency()/1000)}ms')
+
+    @commands.command(name = 'serverinfo')
+    @commands.guild_only()
+    async def _serverinfo(self, ctx):
+        embed = ctx.make_embed('Server info', f'for server {ctx.guild.name}')
+        embed.add_field(name = 'Owner', value = ctx.guild.owner.mention)
+        embed.add_field(name = 'Region', value = ctx.guild.region)
+        embed.add_field(name = 'Total members', value = len(ctx.guild.members))
+        embed.add_field(name = 'Text channels', value = len(ctx.guild.text_channels))
+        embed.add_field(name = 'Voice channels', value = len(ctx.guild.voice_channels))
+        embed.add_field(name = 'Roles', value = ', '.join([role.name for role in ctx.guild.roles]))
+        embed.set_footer(text = f'Server ID: {ctx.guild.id}')
+
+        await ctx.send(embed = embed)
+
     @commands.command(name = 'avatar')
     async def _avatar(self, ctx, user: discord.User = None):
         if user is None:

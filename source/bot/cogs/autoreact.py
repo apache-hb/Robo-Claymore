@@ -24,7 +24,7 @@ class AutoReact(Wheel):
         name = 'autoreact',
         invoke_without_command = True
     )
-    @commands.check(add_reactions = True)
+    @commands.has_permissions(add_reactions = True)
     @commands.guild_only()
     async def _autoreact(self, ctx):
         reacts = self.db.autoreact.find_one({ 'id': ctx.guild.id })

@@ -8,3 +8,4 @@ dnspython
 dateparser
 emoji
 red-lavalink
+aiorule34
