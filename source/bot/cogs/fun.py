@@ -20,6 +20,11 @@ BALL_OPTIONS = [
     'Not a chance'
 ]
 
+COMPARES = [
+    'is better than',
+    'is worse than'
+]
+
 class Fun(Wheel):
     @commands.command(name = 'clap')
     async def _clap(self, ctx, *, text: str):
@@ -111,6 +116,15 @@ class Fun(Wheel):
     @commands.command(name = 'rate')
     async def _rate(self, ctx, *, thing: str):
         await ctx.send(f'I\'d rate {thing} at {randint(0, 10)}/10')
+
+    @commands.command(name = 'compare')
+    async def _compare(self, ctx, *, things: str):
+        options = things.split(' and ')
+        
+        if len(options) != 2:
+            return await ctx.send('You must compare 2 things')
+
+        return await ctx.send(f'{options[0]} {choice(COMPARES)} {options[1]}')
 
 def setup(bot):
     bot.add_cog(Fun(bot))
