@@ -5,7 +5,9 @@
 beep boop
 
 ## Setup
-go into setup and install everything
+- install `python3.7`, `gradle`, `java`, `node` and `screen`
+- install requirements.txt in source/bot (`pip install -r requirements.txt`)
+- install packages.json in source/web (`npm install`)
 
 ```sh
 touch source/config/config.ini
