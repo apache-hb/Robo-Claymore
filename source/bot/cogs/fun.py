@@ -50,7 +50,7 @@ class Fun(Wheel):
     async def _expand(self, ctx, *, text: str = 'dong'):
         ret = figlet_format(text, font = choice(['big', 'contessa', '5lineoblique', 'alphabet', 'banner', 'doom']))
 
-        if len(ret) < 1900:
+        if len(ret) > 1900:
             return await ctx.send('Text is too big to send through discord')
 
         await ctx.send(f'```{ret}```')
@@ -120,7 +120,7 @@ class Fun(Wheel):
     @commands.command(name = 'compare')
     async def _compare(self, ctx, *, things: str):
         options = things.split(' and ')
-        
+
         if len(options) != 2:
             return await ctx.send('You must compare 2 things')
 

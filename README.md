@@ -28,6 +28,7 @@ port=api port
 port=web port
 
 [oauth]
+id=bot id
 secret=oauth secret
 ```
 

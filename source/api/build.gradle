@@ -19,9 +19,8 @@ plugins {
 }
 
 repositories {
-    // Use jcenter for resolving dependencies.
-    // You can declare any Maven/Ivy/file repository here.
     jcenter()
+    maven { url "https://jitpack.io" }
 }
 
 dependencies {
@@ -31,6 +30,7 @@ dependencies {
     implementation group: 'com.serebit.strife', name: 'strife-client-jvm', version: '0.1.2'
 
     compile 'org.mongodb:mongodb-driver-reactivestreams:1.11.0'
+    compile 'com.github.mazine:oauth2-client-kotlin:1.0.2'
     compile group: 'org.mongodb', name: 'mongo-java-driver', version: '3.10.2'
 
     compile "io.ktor:ktor-server-netty:$ktor_version"
