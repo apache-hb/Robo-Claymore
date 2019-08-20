@@ -26,6 +26,7 @@ repositories {
 dependencies {
     // Use the Kotlin JDK 8 standard library.
     implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
+    implementation 'io.github.rybalkinsd:kohttp:0.10.0'
 
     implementation group: 'com.serebit.strife', name: 'strife-client-jvm', version: '0.1.2'
 
