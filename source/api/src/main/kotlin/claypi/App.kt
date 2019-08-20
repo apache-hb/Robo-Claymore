@@ -37,9 +37,12 @@ fun config(path: String) = Wini(File(path))
 
 fun Wini.getInt(head: String, field: String): Int? = this.get(head, field, Int::class.java)
 
-fun String.toJsonString(): String = "\"$this\""
+fun String.toJsonString() = "\"$this\""
+fun <T: String> List<T>.toJsonString() = this.map { it.toJsonString() }.joinToString(", ", "[", "]")
 
 class NotFound : Exception()
+
+const val port = 8080
 
 suspend fun main(args: Array<String>) {
     val cfg = config("../config/config.ini")
@@ -51,10 +54,9 @@ suspend fun main(args: Array<String>) {
 
     val defaultPrefix = cfg.get("discord", "prefix")
 
-    val discordID = cfg.getInt("oauth", "id")!!
-    val discordSecret = cfg.get("oauth", "secret")
+    val discordID = cfg.getInt("discord", "id")!!
+    val discordSecret = cfg.get("discord", "secret")
 
-    val port = cfg.getInt("api", "port")!!
     val discordCreds = Base64.encode("$discordID:$discordSecret".toByteArray())
     val redirect = URLEncoder.encode("http://localhost:$port/api/discord/callback", "UTF-8")
 
@@ -88,9 +90,29 @@ suspend fun main(args: Array<String>) {
                 get("prefix/global") {
                     call.respondText("""{ "prefix": "$defaultPrefix" }""", ContentType.Application.Json)
                 }
-
                 get("bot") {
+                    when(val user = discord?.selfUser) {
+                        null -> throw NotFound()
+                        else -> call.respondText("""{
+                            "id": ${user.id},
+                            "user": "${user.username}",
+                            "dis": ${user.discriminator},
+                            "avatar": ${user.avatar.uri}
+                        }""", ContentType.Application.Json)
+                    }
+                }
 
+                route("quotes") {
+                    get("for") {
+                        when(val id = call.parameters["id"]?.toLongOrNull()) {
+                            null -> call.respondText("""{ "quotes": null }""", ContentType.Application.Json)
+                            else -> call.respondText("""{ "quotes": []}""", ContentType.Application.Json)
+                        }
+                    }
+
+                    delete("delete") {
+
+                    }
                 }
             }
 
@@ -117,6 +139,8 @@ suspend fun main(args: Array<String>) {
                     }?.use { data ->
                         if(data.code() != 200)
                             throw NotFound()
+
+
                     }
                 }
             }

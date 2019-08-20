@@ -17,19 +17,11 @@ token=discord token
 owner=owner id
 activity=default activity
 prefix=default prefix
+secret=oauth secret
+id=bot id
 
 [mongo]
 name=db name
-
-[api]
-port=api port
-
-[web]
-port=web port
-
-[oauth]
-id=bot id
-secret=oauth secret
 ```
 
 ## Running
