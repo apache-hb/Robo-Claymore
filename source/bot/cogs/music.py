@@ -3,6 +3,7 @@ import discord
 from discord.ext import commands
 import asyncio
 import lavalink
+from asyncio import TimeoutError as AsyncTimeoutError
 
 class Music(Wheel):
     def __init__(self, bot):
@@ -10,14 +11,19 @@ class Music(Wheel):
         bot.add_listener(self.music_ready, 'on_ready')
 
     async def music_ready(self):
-        await lavalink.initialize(
-            self.bot,
-            host='localhost',
-            password='lavalink_claymore',
-            rest_port=2333,
-            ws_port=2333
-        )
-        self.bot.log.info('Initialized lavalink connection')
+        try:
+            await lavalink.initialize(
+                self.bot,
+                host='localhost',
+                password='lavalink_claymore',
+                rest_port=2333,
+                ws_port=2333
+            )
+        except AsyncTimeoutError:
+            self.bot.log.error('Failed to initalize lavalink connection, disabling music module')
+            self.bot.remove_cog(self.__class__.__name__)
+        else:
+            self.bot.log.info('Initialized lavalink connection')
 
     async def add_track(self, ctx, track):
         player = await lavalink.connect(ctx.author.voice.channel)

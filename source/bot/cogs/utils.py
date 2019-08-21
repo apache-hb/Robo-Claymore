@@ -49,8 +49,12 @@ class Utils(Wheel):
         embed.add_field(name = 'Total members', value = len(ctx.guild.members))
         embed.add_field(name = 'Text channels', value = len(ctx.guild.text_channels))
         embed.add_field(name = 'Voice channels', value = len(ctx.guild.voice_channels))
+        now = datetime.now()
+        then = ctx.guild.created_at
+        embed.add_field(name = 'Age', value = f'Created at `{then.strftime("%Y-%m-%d")}`, thats over {str(now - then)} ago')
         embed.add_field(name = 'Roles', value = ', '.join([role.name for role in ctx.guild.roles]))
         embed.set_footer(text = f'Server ID: {ctx.guild.id}')
+        embed.set_thumbnail(url = ctx.guild.icon_url)
 
         await ctx.send(embed = embed)
 
