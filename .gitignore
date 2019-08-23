@@ -13,9 +13,12 @@ __pycache__/
 
 # mac thing
 .DS_Store
+
+# logs and stuff
 *.bin
 *.db
 *.log
+*.gz
 
 build/
 node_modules/
