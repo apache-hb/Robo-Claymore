@@ -17,9 +17,21 @@ class Images(Wheel):
 
         vince_path = join('..', 'data', 'images', 'vince', '*.*')
         self.vince = {splitext(basename(img))[0]:Image.open(img).convert('ARGB') for img in glob(vince_path)}
+        self.vince_range = range(2, max([name[0] for name, _ in self.vince.items()]))
 
         brains_path = join('..', 'data', 'images', 'brain', '*.*')
         self.brain = {splitext(basename(img))[0]:Image.open(img).convert('ARGB') for img in glob(brains_path)}
+        self.brain_range = range(2, max([name[0] for name, _ in self.brain.items()]))
+
+    @commands.command(name = 'vince')
+    @commands.cooldown(1, 15, commands.BucketType.user)
+    def _vince(self, ctx, *, fields: str):
+        pass
+
+    @commands.command(name = 'brain')
+    @commands.cooldown(1, 15, commands.BucketType.user)
+    def _brain(self, ctx, *, fields: str):
+        pass
 
 def setup(bot):
     bot.add_cog(Images(bot))
