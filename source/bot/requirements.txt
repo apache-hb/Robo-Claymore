@@ -10,3 +10,4 @@ emoji
 red-lavalink
 aiorule34
 pyfiglet
+mcstatus

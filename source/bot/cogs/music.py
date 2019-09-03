@@ -19,7 +19,7 @@ class Music(Wheel):
                 rest_port=2333,
                 ws_port=2333
             )
-        except AsyncTimeoutError:
+        except:
             self.bot.log.error('Failed to initalize lavalink connection, disabling music module')
             self.bot.remove_cog(self.__class__.__name__)
         else:
@@ -167,8 +167,11 @@ class Music(Wheel):
         await ctx.send(embed = ctx.make_embed('Player', 'Player has disconnected from channel'))
 
     def cog_unload(self):
-        loop = asyncio.get_event_loop()
-        loop.run_until_complete(lavalink.close())
+        try:
+            loop = asyncio.get_event_loop()
+            loop.run_until_complete(lavalink.close())
+        except:
+            pass
 
 def setup(bot):
     bot.add_cog(Music(bot))

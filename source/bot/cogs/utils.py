@@ -5,6 +5,7 @@ from datetime import datetime
 import random
 from typing import Union
 from utils import json
+from mcstatus import MinecraftServer
 
 class Utils(Wheel):
     @commands.command(name = 'avatar')
@@ -95,6 +96,20 @@ class Utils(Wheel):
 
         await ctx.send(embed = embed)
 
+    @commands.command(name = 'mcstatus')
+    @commands.cooldown(1, 15.0, commands.BucketType.user)
+    async def _mcstatus(self, ctx, ip: str):
+        try:
+            server = MinecraftServer(ip)
+            status = server.status()
+
+            embed = ctx.make_embed(ip, status.description['text'])
+            embed.add_field(name = 'Ping', value = status.latency)
+            embed.add_field(name = 'Version', value = status.version.name)
+            embed.add_field(name = 'Players', value = f'{status.players.online}/{status.players.max}')
+            await ctx.send(embed = embed)
+        except Exception as e:
+            await ctx.send(f'No server found at `{ip}`')
 
 def setup(bot):
     bot.add_cog(Utils(bot))
