@@ -11,6 +11,7 @@ import org.bson.Document
 // config parsing
 import org.ini4j.*
 import java.io.File
+import java.io.FileNotFoundException
 
 // discord api stuff
 import com.serebit.strife.*
@@ -33,8 +34,6 @@ import io.ktor.routing.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 
-fun config(path: String) = Wini(File(path))
-
 fun Wini.getLong(head: String, field: String): Long? = this.get(head, field, Long::class.java)
 
 fun String.toJsonString() = "\"$this\""
@@ -45,7 +44,10 @@ class NotFound : Exception()
 const val port = 8080
 
 suspend fun main(args: Array<String>) {
-    val cfg = config("../config/config.ini")
+    val configPath = File("../config/config.ini")
+    configPath.parentFile.mkdirs()
+    configPath.createNewFile()
+    val cfg = Wini(configPath)
 
     val mongoUrl: String? = cfg.get("mongo", "url")
     val client = if(mongoUrl != null) MongoClients.create(mongoUrl) else MongoClients.create()

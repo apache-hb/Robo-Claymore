@@ -10,4 +10,4 @@ screen -S ClaymoreWeb -dm bash -c "cd web;npm run build"
 screen -S ClaymoreLava -dm bash -c "cd lavalink;java -jar Lavalink.jar"
 
 # then run the discord bot
-screen -S ClaymoreBot -dm bash -c "cd bot;python main.py"
+screen -S ClaymoreBot -dm bash -c "cd bot;python3.7 main.py"

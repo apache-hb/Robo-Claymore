@@ -9,6 +9,9 @@ from ntpath import basename
 from PIL import Image
 
 class Images(Wheel):
+    def desc(self):
+        return 'image manipluation commands'
+
     def __init__(self, bot):
         super().__init__(bot)
 
@@ -23,7 +26,11 @@ class Images(Wheel):
         self.brain = {splitext(basename(img))[0]:Image.open(img).convert('RGBA') for img in glob(brains_path)}
         self.brain_range = range(2, max([int(name[0]) for name, _ in self.brain.items()]))
 
-    @commands.command(name = 'vince')
+    @commands.command(
+        name = 'vince',
+        brief = 'create a vince meme with custom text',
+        usage = 'text seperated with a |'
+    )
     @commands.cooldown(1, 15, commands.BucketType.user)
     async def _vince(self, ctx, *, fields: str):
         parts = fields.split('|')
@@ -31,7 +38,11 @@ class Images(Wheel):
         if len(parts) not in self.vince_range:
             return await ctx.send(f'There must be between `{self.vince_range.start}` and `{self.vince_range.stop}` fields')
 
-    @commands.command(name = 'brain')
+    @commands.command(
+        name = 'brain',
+        brief = 'create an expanding brain meme with custom text',
+        usage = 'text seperated with a |'
+    )
     @commands.cooldown(1, 15, commands.BucketType.user)
     async def _brain(self, ctx, *, fields: str):
         parts = fields.split('|')

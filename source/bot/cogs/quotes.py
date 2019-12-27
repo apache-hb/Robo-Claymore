@@ -4,8 +4,12 @@ from discord.ext import commands
 from random import choice
 
 class Quotes(Wheel):
+    def desc(self):
+        return 'dont quote me on that'
+
     @commands.group(
         name = 'quote',
+        brief = 'get a server quote',
         invoke_without_command = True
     )
     @commands.guild_only()
@@ -23,7 +27,10 @@ class Quotes(Wheel):
         except IndexError:
             await ctx.send(f'No quote at index {index}')
 
-    @_quote.command(name = 'add')
+    @_quote.command(
+        name = 'add',
+        brief = 'add a tag with content'
+    )
     async def _quote_add(self, ctx, *, text: str):
         self.db.quotes.update(
             { 'id': ctx.guild.id },
@@ -35,7 +42,10 @@ class Quotes(Wheel):
 
         await ctx.send(f'Added quote with an index of {len(quotes["quotes"])-1}')
 
-    @_quote.command(name = 'remove')
+    @_quote.command(
+        name = 'remove',
+        brief = 'remove a tag'
+    )
     async def _quote_remove(self, ctx, index: int):
         self.db.quotes.update(
             { 'id': ctx.guild.id },
@@ -50,7 +60,11 @@ class Quotes(Wheel):
 
         await ctx.send(f'Removed quote at {index} if there was one')
 
-    @_quote.command(name = 'list')
+    #TODO: broken
+    @_quote.command(
+        name = 'list',
+        brief = 'list all quotes for the current server'
+    )
     async def _quote_list(self, ctx):
         quotes = self.db.quotes.find_one({ 'id': ctx.guild.id })
 
@@ -64,12 +78,14 @@ class Quotes(Wheel):
 
         await ctx.send_pages(embed)
 
-    @_quote.command(name = 'purge')
+    @_quote.command(
+        name = 'purge',
+        brief = 'remove all tags from the current server',
+        aliases = [ 'wipe', 'clean', 'reset' ]
+    )
     @commands.has_permissions(administrator = True)
     async def _quote_purge(self, ctx):
-        self.db.quotes.remove(
-            { 'id': ctx.guild.id }
-        )
+        self.db.quotes.remove({ 'id': ctx.guild.id })
         await ctx.send('Removed all quotes')
 
 def setup(bot):

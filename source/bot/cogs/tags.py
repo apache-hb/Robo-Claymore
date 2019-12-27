@@ -4,8 +4,12 @@ from discord.ext import commands
 from random import choice
 
 class Tags(Wheel):
+    def desc(self):
+        return 'tag text with a name'
+        
     @commands.group(
         name = 'tag',
+        brief = 'get a tag from the current server',
         invoke_without_command = True
     )
     @commands.guild_only()
@@ -27,7 +31,10 @@ class Tags(Wheel):
         except KeyError:
             await ctx.send(f'No tag with name `{name}`')
 
-    @_tag.command(name = 'add')
+    @_tag.command(
+        name = 'add',
+        brief = 'add a tag to the current server'
+    )
     async def _tag_add(self, ctx, name: str, *, content: str):
         self.db.tags.update(
             { 'id': ctx.guild.id },
@@ -37,7 +44,10 @@ class Tags(Wheel):
 
         await ctx.send(f'Created tag `{name}` if it did not already exist')
 
-    @_tag.command(name = 'remove')
+    @_tag.command(
+        name = 'remove',
+        brief = 'remove a tag from the current server'
+    )
     async def _tag_remove(self, ctx, name: str):
         self.db.tags.update(
             { 'id': ctx.guild.id },
@@ -46,7 +56,10 @@ class Tags(Wheel):
 
         await ctx.send(f'Removed `{name}` if it was a tag')
 
-    @_tag.command(name = 'list')
+    @_tag.command(
+        name = 'list',
+        brief = 'list all server tags'
+    )
     async def _tag_list(self, ctx):
         tags = self.db.tags.find_one({ 'id':ctx.guild.id })
 
@@ -63,12 +76,14 @@ class Tags(Wheel):
 
         await ctx.send_pages(embed)
 
-    @_tag.command(name = 'purge')
+    @_tag.command(
+        name = 'purge',
+        brief = 'remove all tags from the current server',
+        aliases = [ 'reset', 'wipe', 'clean']
+    )
     @commands.has_permissions(administrator = True)
     async def _tag_purge(self, ctx):
-        self.db.tags.remove(
-            { 'id': ctx.guild.id }
-        )
+        self.db.tags.remove({ 'id': ctx.guild.id })
 
         await ctx.send('Removed all tags')
 

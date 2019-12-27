@@ -5,6 +5,9 @@ from datetime import datetime
 import dateparser
 
 class Reminders(Wheel):
+    def desc(self):
+        return 'set reminders for yourself'
+
     def __init__(self, bot):
         super().__init__(bot)
         self._reminder.start()
@@ -23,11 +26,18 @@ class Reminders(Wheel):
                 pass
         self.db.remind.remove({ 'time': { '$lte': now }})
 
-    @commands.command(name = 'remind', aliases = [ 'remindme' ])
-    async def _remind(self, ctx, msg: str, *, time: str):
-        time = dateparser.parse(time)
-        if time <= datetime.now():
-            return await ctx.send('Cannot remind you in the past')
+    @commands.command(
+        name = 'remind', 
+        brief = 'create a reminder for yourself sometime in the future',
+        aliases = [ 'remindme' ]
+    )
+    async def _remind(self, ctx, msg: str, *, time_fmt: str):
+        time = dateparser.parse(time_fmt)
+        try:
+            if time <= datetime.now():
+                return await ctx.send('Cannot remind you in the past')
+        except:
+            return await ctx.send(f'`{time_fmt}` could not be parsed')
 
         self.db.remind.insert_one({
             'author': ctx.message.author.id,

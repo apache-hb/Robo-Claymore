@@ -6,6 +6,9 @@ from aiorule34 import rule34get as r34get
 from random import choice
 
 class Nsfw(Wheel):
+    def desc(self):
+        return 'nsfw commands'
+        
     async def cog_check(self, ctx):
         if isinstance(ctx.channel, discord.DMChannel) or ctx.channel.is_nsfw():
             return True
@@ -14,6 +17,7 @@ class Nsfw(Wheel):
 
     @commands.command(
         name = 'rule34',
+        brief = 'search rule34.xxx for a post with the desired tags',
         aliases = [ 'r34' ]
     )
     async def _rule34(self, ctx, *, tags: str):
@@ -33,7 +37,10 @@ class Nsfw(Wheel):
 
             await ctx.send(embed = embed)
 
-    @commands.command(name = 'e621')
+    @commands.command(
+        name = 'e621',
+        brief = 'search e621 for a post'
+    )
     async def _e621(self, ctx, *, tags: str = None):
         if tags is None:
             url = 'https://e621.net/post/index.json?limit=25'
@@ -58,6 +65,7 @@ class Nsfw(Wheel):
 
     @commands.command(
         name = 'gelbooru',
+        brief = 'query gelbooru for a post with the desired tags',
         aliases = [ 'gel', 'gb' ]
     )
     async def _gelbooru(self, ctx, *, tags: str):
@@ -82,6 +90,7 @@ class Nsfw(Wheel):
 
     @commands.command(
         name = 'danbooru',
+        brief = 'search danbooru for a post',
         aliases = [ 'dan', 'db' ]
     )
     async def _danbooru(self, ctx, *, tags: str = None):

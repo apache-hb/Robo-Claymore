@@ -3,6 +3,9 @@ from discord.ext import commands
 from claymore import Wheel
 
 class Admin(Wheel):
+    def desc(self):
+        return 'admin and moderation commands'
+
     async def cog_check(self, ctx):
         if ctx.author.permissions_in(ctx.channel).administrator or ctx.author.id == self.bot.owner:
             return True
@@ -11,18 +14,27 @@ class Admin(Wheel):
 
     @commands.group(
         name = 'prefix',
+        brief = 'manage bots prefix on the current server',
         invoke_without_command = True
     )
     async def _prefix(self, ctx):
         prefix = await self.bot.get_prefix(ctx.message)
-        await ctx.send(f'Current prefix is `{prefix[0]}`')
+        if isinstance(prefix, tuple):
+            prefix = '(' + ' | '.join(prefix) + ')'
+        await ctx.send(f'Current prefix is `{prefix}`')
 
-    @_prefix.command('update')
+    @_prefix.command(
+        name = 'update',
+        brief = 'update server prefix to a new prefix'
+    )
     async def _prefix_update(self, ctx, prefix: str):
         self.db.prefix.update({ 'id': ctx.guild.id }, { 'id': ctx.guild.id, 'prefix': prefix }, upsert = True)
         await ctx.send(f'New prefix is now `{prefix}`')
 
-    @_prefix.command('reset')
+    @_prefix.command(
+        name = 'reset',
+        brief = 'reset server prefix to the default prefix'
+    )
     async def _prefix_reset(self, ctx):
         self.db.prefix.delete_one({ 'id': ctx.guild.id })
         await ctx.send(f'Reset prefix to `{self.bot.config["discord"]["prefix"]}`')

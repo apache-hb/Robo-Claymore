@@ -3,7 +3,7 @@ import discord
 from discord.ext import commands
 import random
 from utils import json, can_embed
-from random import choice, randint
+from random import choice, randint, shuffle
 from pyfiglet import figlet_format
 
 BALL_OPTIONS = [
@@ -20,33 +20,50 @@ BALL_OPTIONS = [
     'Not a chance'
 ]
 
-COMPARES = [
-    'is better than',
-    'is worse than'
-]
-
 class Fun(Wheel):
-    @commands.command(name = 'clap')
+    def desc(self):
+        return 'vanity commands'
+
+    @commands.command(
+        name = 'clap',
+        brief = 'seperate a scentence with the :clap: emoji'
+    )
     async def _clap(self, ctx, *, text: str):
         await ctx.send(' :clap: '.join(text.split(' ')))
 
-    @commands.command(name = 'randomcase')
+    @commands.command(
+        name = 'randomcase',
+        brief = 'randomize the case of every letter in a phrase'
+    )
     async def _randomcase(self, ctx, *, text: str):
         await ctx.send(''.join(random.choice((str.upper, str.lower))(x) for x in text))
 
-    @commands.command(name = 'sawpcase')
+    @commands.command(
+        name = 'swapcase',
+        brief = 'invert the case of every letter in a phrase'
+    )
     async def _swapcase(self, ctx, *, text: str):
         await ctx.send(text.swapcase())
 
-    @commands.command(name = 'reverse')
+    @commands.command(
+        name = 'reverse',
+        brief = 'reverse the text in a phrase'
+    )
     async def _reverse(self, ctx, *, text: str):
         await ctx.send(text[::-1])
 
-    @commands.command(name = 'hash')
+    @commands.command(
+        name = 'hash',
+        brief = 'get the hash of some text'
+    )
     async def _hash(self, ctx, *, text: str):
         await ctx.send(hash(text))
 
-    @commands.command(name = 'expand')
+    @commands.command(
+        name = 'expand',
+        brief = 'expand text using figlet',
+        aliases = [ 'figlet' ]
+    )
     async def _expand(self, ctx, *, text: str = 'dong'):
         ret = figlet_format(text, font = choice(['big', 'contessa', '5lineoblique', 'alphabet', 'banner', 'doom']))
 
@@ -55,13 +72,19 @@ class Fun(Wheel):
 
         await ctx.send(f'```{ret}```')
 
-    @commands.command(name = 'wolfram')
+    @commands.command(
+        name = 'wolfram',
+        brief = 'query wolfram alpha with a question'
+    )
     async def _wolfram(self, ctx, *, query: str):
         pass
 
-    @commands.command(name = 'reddit')
+    @commands.command(
+        name = 'reddit',
+        brief = 'find a post from a subreddit'
+    )
     async def _reddit(self, ctx, sub: str = 'all', search: str = 'new', index: int = None):
-        if index is not None and 0 <= index <= 25:
+        if index not in range(0, 25):
             return await ctx.send('Index must be between 0 and 25')
 
         search = search.lower()
@@ -109,22 +132,29 @@ class Fun(Wheel):
 
         await ctx.send(embed = embed)
 
-    @commands.command(name = '8ball')
+    @commands.command(
+        name = '8ball',
+        brief = 'ask the magic 8 ball a question'
+    )
     async def _8ball(self, ctx, *, thing: str):
         await ctx.send(choice(BALL_OPTIONS))
 
-    @commands.command(name = 'rate')
+    @commands.command(
+        name = 'rate',
+        brief = 'ask the bot to rate something'
+    )
     async def _rate(self, ctx, *, thing: str):
         await ctx.send(f'I\'d rate {thing} at {randint(0, 10)}/10')
 
-    @commands.command(name = 'compare')
+    @commands.command(
+        name = 'compare',
+        brief = 'compare anything to see whats best',
+        usage = '<n> and <n+1> and ... <n+n>'
+    )
     async def _compare(self, ctx, *, things: str):
         options = things.split(' and ')
-
-        if len(options) != 2:
-            return await ctx.send('You must compare 2 things')
-
-        return await ctx.send(f'{options[0]} {choice(COMPARES)} {options[1]}')
+        shuffle(options)
+        await ctx.send(' > '.join(options))
 
 def setup(bot):
     bot.add_cog(Fun(bot))

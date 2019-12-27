@@ -8,7 +8,7 @@ export default function App() {
     <Router>
       <div>
         <div className="header">
-          <a href="#" className="logo">Robo-Claymore</a>
+          <a href="#top" className="logo">Robo-Claymore</a>
           <div className="header-right">
             <AnchorLink href="#features">Features</AnchorLink>
             <AnchorLink href="#commands">Commands</AnchorLink>

@@ -8,7 +8,14 @@ from utils import json
 from mcstatus import MinecraftServer
 
 class Utils(Wheel):
-    @commands.command(name = 'avatar')
+    def desc(self):
+        return 'utility commands'
+
+    @commands.command(
+        name = 'avatar',
+        brief = 'get a users discord avatar',
+        aliases = ['av']
+    )
     async def _avatar(self, ctx, user: discord.User = None):
         if user is None:
             user = ctx.author
@@ -16,7 +23,10 @@ class Utils(Wheel):
         embed.set_image(url = user.avatar_url)
         await ctx.send(embed = embed)
 
-    @commands.command(name = 'userinfo')
+    @commands.command(
+        name = 'userinfo',
+        brief = 'get a users info'
+    )
     async def _userinfo(self, ctx, user: discord.Member = None):
         if user is None:
             user = ctx.author
@@ -33,15 +43,24 @@ class Utils(Wheel):
 
         await ctx.send(embed = embed)
 
-    @commands.command(name = 'selfinfo')
+    @commands.command(
+        name = 'selfinfo',
+        brief = 'get info about yourself'
+    )
     async def _selfinfo(self, ctx):
         await self._userinfo.invoke(ctx)
 
-    @commands.command(name = 'ping')
+    @commands.command(
+        name = 'ping',
+        brief = 'check latency with discord api'
+    )
     async def _ping(self, ctx):
         await ctx.send(f'Current ping to discord servers is {round(self.bot.latency()/1000)}ms')
 
-    @commands.command(name = 'serverinfo')
+    @commands.command(
+        name = 'serverinfo',
+        brief = 'get info about the current server'
+    )
     @commands.guild_only()
     async def _serverinfo(self, ctx):
         embed = ctx.make_embed('Server info', f'for server {ctx.guild.name}')
@@ -59,20 +78,18 @@ class Utils(Wheel):
 
         await ctx.send(embed = embed)
 
-    @commands.command(name = 'avatar')
-    async def _avatar(self, ctx, user: discord.User = None):
-        if user is None:
-            user = ctx.author
-
-        await ctx.send(user.avatar_url)
-
-    @commands.command(name = 'emoji')
+    @commands.command(
+        name = 'emoji',
+        brief = 'get the url of an emote on the current server',
+        aliases = ['emote']
+    )
     async def _emoji(self, ctx, emoji: discord.Emoji):
         if isinstance(emoji, discord.Emoji):
             return await ctx.send(str(emoji.url))
 
     @commands.command(
         name = 'urban',
+        brief = 'get the definition of something from the urban dictionary',
         aliases = [ 'urbandict' ]
     )
     async def _urban(self, ctx, *, query: str = None):
@@ -96,7 +113,11 @@ class Utils(Wheel):
 
         await ctx.send(embed = embed)
 
-    @commands.command(name = 'mcstatus')
+    #TODO: broken
+    @commands.command(
+        name = 'mcstatus',
+        brief = 'get the current status of a minecraft server'
+    )
     @commands.cooldown(1, 15.0, commands.BucketType.user)
     async def _mcstatus(self, ctx, ip: str):
         try:
@@ -108,7 +129,7 @@ class Utils(Wheel):
             embed.add_field(name = 'Version', value = status.version.name)
             embed.add_field(name = 'Players', value = f'{status.players.online}/{status.players.max}')
             await ctx.send(embed = embed)
-        except Exception as e:
+        except Exception:
             await ctx.send(f'No server found at `{ip}`')
 
 def setup(bot):

@@ -28,7 +28,7 @@ dependencies {
     implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
     implementation 'io.github.rybalkinsd:kohttp:0.10.0'
 
-    implementation group: 'com.serebit.strife', name: 'strife-client-jvm', version: '0.1.2'
+    implementation group: 'com.serebit.strife', name: 'strife-client-jvm', version: '0.3.1'
 
     compile 'org.mongodb:mongodb-driver-reactivestreams:1.11.0'
     compile 'com.github.mazine:oauth2-client-kotlin:1.0.2'

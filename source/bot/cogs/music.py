@@ -6,9 +6,20 @@ import lavalink
 from asyncio import TimeoutError as AsyncTimeoutError
 
 class Music(Wheel):
+    def desc(self):
+        return 'music commands'
+
     def __init__(self, bot):
         super().__init__(bot)
+        bot.add_listener(self.voice_update, 'on_voice_state_update')
         bot.add_listener(self.music_ready, 'on_ready')
+
+    async def voice_update(self, member, before, after):
+        if before.channel is not None and after.channel is None:
+            try:
+                await lavalink.get_player(member.guild.id).disconnect()
+            except:
+                pass 
 
     async def music_ready(self):
         try:
@@ -40,6 +51,7 @@ class Music(Wheel):
 
     @commands.command(
         name = 'join',
+        brief = 'join the current voice channel',
         aliases = [ 'summon' ]
     )
     @commands.guild_only()
@@ -47,7 +59,10 @@ class Music(Wheel):
         await lavalink.connect(ctx.author.voice.channel)
         await ctx.send(embed = ctx.make_embed('Player', 'Joined channel'))
 
-    @commands.command(name = 'play')
+    @commands.command(
+        name = 'play',
+        brief = 'play a song in your current voice channel'
+    )
     @commands.guild_only()
     async def _play(self, ctx, *, song: str):
         player = await lavalink.connect(ctx.author.voice.channel)
@@ -59,7 +74,10 @@ class Music(Wheel):
         if not player.is_playing:
             await player.play()
 
-    @commands.command(name = 'stop')
+    @commands.command(
+        name = 'stop',
+        brief = 'stop playing in the bots current voice channel'
+    )
     @commands.guild_only()
     async def _stop(self, ctx):
         try:
@@ -70,7 +88,10 @@ class Music(Wheel):
         await player.stop()
         await ctx.send(embed = ctx.make_embed('Player', 'Stopped playing'))
 
-    @commands.command(name = 'pause')
+    @commands.command(
+        name = 'pause',
+        brief = 'pause audio playback in current channel'
+    )
     @commands.guild_only()
     async def _pause(self, ctx):
         player = lavalink.get_player(ctx.guild.id)
@@ -80,7 +101,10 @@ class Music(Wheel):
         await player.pause()
         await ctx.send(embed = ctx.make_embed('Player', 'Music has been paused'))
 
-    @commands.command(name = 'resume')
+    @commands.command(
+        name = 'resume',
+        brief = 'resume playing if audio is paused'
+    )
     @commands.guild_only()
     async def _resume(self, ctx):
         player = lavalink.get_player(ctx.guild.id)
@@ -90,7 +114,10 @@ class Music(Wheel):
         else:
             await ctx.send(embed = ctx.make_embed('Player', 'Player is not paused'))
 
-    @commands.command(name = 'volume')
+    @commands.command(
+        name = 'volume',
+        brief = 'change the volume in the current channel'
+    )
     @commands.guild_only()
     async def _volume(self, ctx, volume: int = None):
         player = lavalink.get_player(ctx.guild.id)
@@ -104,7 +131,10 @@ class Music(Wheel):
         await player.set_volume(volume)
         await ctx.send(embed = ctx.make_embed('Player', f'Volume has been set to {volume}'))
 
-    @commands.command(name = 'skip')
+    @commands.command(
+        name = 'skip',
+        brief = 'skip the current song playing'
+    )
     @commands.guild_only()
     async def _skip(self, ctx, count: int = 1):
         try:
@@ -115,7 +145,10 @@ class Music(Wheel):
         await player.skip()
         await ctx.send(embed = ctx.make_embed('Player', 'Skipped song'))
 
-    @commands.command(name = 'queue')
+    @commands.command(
+        name = 'queue',
+        brief = 'view current audio queue'
+    )
     @commands.guild_only()
     async def _queue(self, ctx):
         try:
@@ -137,6 +170,7 @@ class Music(Wheel):
 
     @commands.command(
         name = 'current',
+        brief = 'show currently playing trackk',
         aliases = [ 'nowplaying', 'now', 'np' ]
     )
     @commands.guild_only()
@@ -155,7 +189,10 @@ class Music(Wheel):
 
         await ctx.send(embed = embed)
 
-    @commands.command(name = 'leave')
+    @commands.command(
+        name = 'leave',
+        brief = 'leave the current voice channel'
+    )
     @commands.guild_only()
     async def _leave(self, ctx):
         try:

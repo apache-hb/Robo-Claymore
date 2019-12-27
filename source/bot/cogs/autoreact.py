@@ -4,6 +4,9 @@ from discord.ext import commands
 from utils import emoji
 
 class AutoReact(Wheel):
+    def desc(self):
+        return 'automatically add reactions containing certain words or scentences'
+
     def __init__(self, bot):
         super().__init__(bot)
         bot.add_listener(self.on_message, 'on_message')
@@ -22,6 +25,7 @@ class AutoReact(Wheel):
 
     @commands.group(
         name = 'autoreact',
+        brief = 'manage autoreacts for the current server',
         invoke_without_command = True
     )
     @commands.has_permissions(add_reactions = True)
@@ -54,16 +58,21 @@ class AutoReact(Wheel):
 
         await ctx.send_pages(embed)
 
-    @_autoreact.command(name = 'purge')
+    @_autoreact.command(
+        name = 'purge',
+        brief = 'remove all autoreacts for the current server',
+        aliases = [ 'reset', 'wipe', 'clean']
+    )
     @commands.has_permissions(administrator = True)
     async def _autoreact_purge(self, ctx):
-        self.db.autoreact.remove(
-            { 'id': ctx.guild.id }
-        )
+        self.db.autoreact.remove({ 'id': ctx.guild.id })
 
         await ctx.send('Removed all autoreacts')
 
-    @_autoreact.command(name = 'add')
+    @_autoreact.command(
+        name = 'add',
+        brief = 'add an autoreact to the current server'
+    )
     async def _autoreact_add(self, ctx, *, text: str):
         text = text.split()
         react = text[-1]
@@ -80,7 +89,10 @@ class AutoReact(Wheel):
 
         await ctx.send(f'Updated autoreacts to react with {react} to messages that contain `{phrase}`')
 
-    @_autoreact.command(name = 'remove')
+    @_autoreact.command(
+        name = 'remove',
+        brief = 'remove an autoreact from the current server'
+    )
     async def _autoreact_remove(self, ctx, react: str):
         if not emoji(react):
             return await ctx.send(f'`{react}` is not a valid autoreact')

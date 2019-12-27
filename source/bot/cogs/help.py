@@ -4,21 +4,29 @@ import claymore
 from claymore import Wheel
 
 class Help(Wheel):
-    @commands.command(name = 'help')
+    def desc(self):
+        return 'help command'
+
+    @commands.command(
+        name = 'help',
+        brief = 'get help for a commands usage'
+    )
     async def _help(self, ctx, *, cmd: str = None):
         if cmd is None:
             # todo print all commands or something
             embed = ctx.make_embed(title = 'Cogs', description = 'All avaiable cogs')
 
             for cog in self.bot.cogs.values():
-                embed.add_field(name = cog.qualified_name, value = cog.description or 'No descrption')
+                embed.add_field(name = cog.qualified_name, value = cog.desc() if "desc" in dir(cog) else 'No descrption')
 
             return await ctx.send(embed = embed)
 
         command = self.bot.get_command(cmd.lower())
 
         if command is not None:
-            prefix = (await self.bot.get_prefix(ctx))[0]
+            prefix = (await self.bot.get_prefix(ctx))
+            if isinstance(prefix, tuple):
+                prefix = '(' + (' | '.join(prefix)) + ')'
 
             # we use the full extenson here to prevent some weird errors
             if isinstance(command, discord.ext.commands.Group):
@@ -34,7 +42,13 @@ class Help(Wheel):
                 return await ctx.send(embed = embed)
 
             embed = ctx.make_embed(title = f'Help for {cmd}', description = command.brief or 'No description')
-            embed.add_field(name = 'Usage', value = f'{prefix}{cmd.lower()} {command.signature or ""}')
+            
+            if 'usage' in dir(command):
+                use = command.usage
+            else:
+                use = command.signature or ''
+
+            embed.add_field(name = 'Usage', value = f'{prefix}{cmd.lower()} {use}')
             return await ctx.send(embed = embed)
 
         cog = next((val for key, val in self.bot.cogs.items() if key.lower() == cmd.lower()), None)
