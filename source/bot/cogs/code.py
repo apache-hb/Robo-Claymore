@@ -20,9 +20,9 @@ class Code(Wheel):
         if func is None:
             return await ctx.send(f'No command called {name} found')
 
-        ret = getsource(func.callback)
+        ret = getsource(func.callback).replace('`', '\`')
         if len(ret) > 1950:
-            return await ctx.send(f'https://github.com/Apache-HB/Robo-Claymore/source/bot/{relpath(getfile(func.callback))}')
+            return await ctx.send(f'https://github.com/Apache-HB/Robo-Claymore/tree/rewrite/source/bot/{relpath(getfile(func.callback))}')
 
         await ctx.send(f'```py\n{ret}```')
 
