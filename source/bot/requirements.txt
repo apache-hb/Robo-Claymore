@@ -6,9 +6,15 @@ dnspython
 
 # human date parser
 dateparser
+
+# more bits
 emoji
 red-lavalink
 aiorule34
 pyfiglet
 mcstatus
 pillow
+
+# code formatting
+yapf
+clang-format

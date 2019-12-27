@@ -7,6 +7,20 @@ from typing import Union
 from utils import json
 from mcstatus import MinecraftServer
 
+POLL_EMOTES = [
+    '0⃣',
+    '1⃣',
+    '2⃣',
+    '3⃣',
+    '4⃣',
+    '5⃣',
+    '6⃣',
+    '7⃣',
+    '8⃣',
+    '9⃣',
+    '🔟'
+]
+
 class Utils(Wheel):
     def desc(self):
         return 'utility commands'
@@ -42,6 +56,25 @@ class Utils(Wheel):
             embed.add_field(name = 'Roles', value = ', '.join([role.name for role in user.roles]))
 
         await ctx.send(embed = embed)
+
+    @commands.command(
+        name = 'poll',
+        brief = 'create a poll with multiple choices'
+    )
+    async def _poll(self, ctx, *, options: str):
+        opts = options.split('|')
+
+        if len(opts) not in range(len(POLL_EMOTES)):
+            return await ctx.send(f'Poll must have less than {len(POLL_EMOTES)} options')
+
+        embed = ctx.make_embed(title = f'Poll by {ctx.author.name}', description = f'{len(opts)} choices')
+        for idx, opt in enumerate(opts):
+            embed.add_field(name = opt, value = f'Vote with {POLL_EMOTES[idx]}')
+
+        msg = await ctx.send(embed = embed)
+
+        for idx in range(len(opts)):
+            await msg.add_reaction(POLL_EMOTES[idx])
 
     @commands.command(
         name = 'selfinfo',
@@ -113,7 +146,6 @@ class Utils(Wheel):
 
         await ctx.send(embed = embed)
 
-    #TODO: broken
     @commands.command(
         name = 'mcstatus',
         brief = 'get the current status of a minecraft server'
@@ -121,10 +153,10 @@ class Utils(Wheel):
     @commands.cooldown(1, 15.0, commands.BucketType.user)
     async def _mcstatus(self, ctx, ip: str):
         try:
-            server = MinecraftServer(ip)
+            server = MinecraftServer.lookup(ip)
             status = server.status()
-
-            embed = ctx.make_embed(ip, status.description['text'])
+            
+            embed = ctx.make_embed(ip, status.description)
             embed.add_field(name = 'Ping', value = status.latency)
             embed.add_field(name = 'Version', value = status.version.name)
             embed.add_field(name = 'Players', value = f'{status.players.online}/{status.players.max}')

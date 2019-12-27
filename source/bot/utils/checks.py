@@ -1,5 +1,4 @@
 from emoji import UNICODE_EMOJI as uemoji
-from mimetypes import MimeTypes
 
 def emoji(em: str) -> bool:
     if em.startswith('<') and em.endswith('>') and em.count(':') == 2:
@@ -10,8 +9,6 @@ def emoji(em: str) -> bool:
         return bool(em)
 
     return em in uemoji
-
-MIME = MimeTypes()
 
 def can_embed(url: str) -> bool:
     return any([t in url for t in ['.jpeg', '.png', '.gif', '.jpg']])
