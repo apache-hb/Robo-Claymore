@@ -17,6 +17,7 @@ class Help(Wheel):
             embed = ctx.make_embed(title = 'Cogs', description = 'All avaiable cogs')
 
             for cog in self.bot.cogs.values():
+                
                 embed.add_field(name = cog.qualified_name, value = cog.desc() if "desc" in dir(cog) else 'No descrption')
 
             return await ctx.send(embed = embed)

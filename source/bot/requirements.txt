@@ -2,7 +2,6 @@
 discord.py[voice]
 # lovley database stuff
 pymongo
-dnspython
 
 # human date parser
 dateparser
@@ -17,4 +16,3 @@ pillow
 
 # code formatting
 yapf
-clang-format
