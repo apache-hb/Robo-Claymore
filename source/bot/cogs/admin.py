@@ -39,5 +39,17 @@ class Admin(Wheel):
         self.db.prefix.delete_one({ 'id': ctx.guild.id })
         await ctx.send(f'Reset prefix to `{self.bot.config["discord"]["prefix"]}`')
 
+    @commands.command(
+        name = 'hackban',
+        brief = 'ban someone not on the server by userid'
+    )
+    async def _hackban(self, ctx, user: int):
+        try:
+            await ctx.guild.ban(discord.Object(id = user))
+        except Exception:
+            return await ctx.send(f'Failed to ban `{user}`')
+
+        await ctx.send(f'Banned user with id of `{user}`')
+
 def setup(bot):
     bot.add_cog(Admin(bot))
