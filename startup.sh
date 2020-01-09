@@ -1,3 +1,4 @@
+#!/bin/bash
 cd source/
 
 # run the backend web api

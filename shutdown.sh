@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # kill the bot
 screen -S ClaymoreBot -X quit
 
