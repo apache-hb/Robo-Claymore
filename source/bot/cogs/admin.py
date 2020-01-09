@@ -7,7 +7,7 @@ class Admin(Wheel):
         return 'admin and moderation commands'
 
     async def cog_check(self, ctx):
-        if ctx.author.permissions_in(ctx.channel).administrator or ctx.author.id == self.bot.owner:
+        if ctx.author.permissions_in(ctx.channel).administrator or ctx.author.id == self.bot.owner_id:
             return True
         await ctx.send('You need to be an admin to use this command')
         return False
