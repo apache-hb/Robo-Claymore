@@ -88,7 +88,7 @@ class Utils(Wheel):
         brief = 'check latency with discord api'
     )
     async def _ping(self, ctx):
-        await ctx.send(f'Current ping to discord servers is {self.bot.latency}')
+        await ctx.send('Current ping to discord servers is {0:.2f}'.format(self.bot.latency*1000))
 
     @commands.command(
         name = 'serverinfo',
