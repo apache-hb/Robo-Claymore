@@ -4,8 +4,16 @@ import claymore
 from claymore import Wheel
 
 class Help(Wheel):
+    def __init__(self, bot):
+        super().__init__(bot)
+        bot.add_listener(self.command_not_found, 'on_command_error')
+
     def desc(self):
         return 'help command'
+
+    async def command_not_found(self, ctx, err):
+        if not isinstance(err, discord.ext.commands.CommandNotFound):
+            return
 
     @commands.command(
         name = 'help',
@@ -17,6 +25,8 @@ class Help(Wheel):
             embed = ctx.make_embed(title = 'Cogs', description = 'All avaiable cogs')
 
             for cog in self.bot.cogs.values():
+                if "hidden" in dir(cog) and ctx.author.id != self.bot.owner_id:
+                    continue
                 
                 embed.add_field(name = cog.qualified_name, value = cog.desc() if "desc" in dir(cog) else 'No descrption')
 
@@ -25,6 +35,9 @@ class Help(Wheel):
         command = self.bot.get_command(cmd.lower())
 
         if command is not None:
+            if command.cog is not None and "hidden" in dir(command.cog) and ctx.author.id != self.bot.owner_id:
+                return await ctx.send('No')
+
             prefix = (await self.bot.get_prefix(ctx))
             if isinstance(prefix, tuple):
                 prefix = '(' + (' | '.join(prefix)) + ')'
@@ -55,6 +68,9 @@ class Help(Wheel):
         cog = next((val for key, val in self.bot.cogs.items() if key.lower() == cmd.lower()), None)
 
         if cog is not None:
+            if "hidden" in dir(cog) and ctx.author.id != self.bot.author_id:
+                return await ctx.send('No')
+
             commands = cog.get_commands()
             embed = ctx.make_embed(title = f'All commands for {cmd}', description = f'{len(commands)} total commands')
 

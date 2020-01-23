@@ -15,7 +15,8 @@ class Music(Wheel):
         bot.add_listener(self.music_ready, 'on_ready')
 
     async def voice_update(self, member, before, after):
-        if before.channel is not None and after.channel is None:
+        # if the user has disconnected and the channel is now empty try to disconnect
+        if before.channel is not None and after.channel is None and not before.channel.members:
             try:
                 await lavalink.get_player(member.guild.id).disconnect()
             except:

@@ -6,6 +6,9 @@ class Owner(Wheel):
     def desc(self):
         return 'owner only commands'
         
+    def hidden(self):
+        return True
+    
     async def cog_check(self, ctx):
         if await self.bot.is_owner(ctx.author):
             return True
