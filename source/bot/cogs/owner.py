@@ -36,5 +36,39 @@ class Owner(Wheel):
     async def _setactivity(self, ctx, *, text: str):
         await self.bot.change_presence(activity = discord.Game(text))
 
+    @commands.command(
+        name = 'dm',
+        brief = 'send a user a dm'
+    )
+    async def _dm(self, ctx, user: discord.User, *, msg: str):
+        try:
+            await user.send(msg)
+            await ctx.send(f'sent message to `{user.name}`')
+        except:
+            await ctx.send(f'failed to send `{user.name}` a message')
+
+    @commands.command(
+        name = 'massdm',
+        brief = 'send every user in the current server a dm'
+    )
+    async def _dm(self, ctx, *, msg: str):
+        for user in ctx.guild.members:
+            try:
+                await user.send(msg)
+            except:
+                await ctx.send(f'failed to send `{user.name}` a message')
+
+    @commands.command(
+        name = 'spam',
+        brief = 'spam a user with a dm'
+    )
+    async def _dm(self, ctx, user: discord.User, num: int, *, msg: str):
+        for _ in range(num):
+            try:
+                await user.send(msg)
+            except:
+                await ctx.send(f'failed to send `{user.name}` a message')
+                break
+
 def setup(bot):
     bot.add_cog(Owner(bot))
