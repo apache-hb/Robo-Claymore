@@ -40,16 +40,19 @@ def load_config() -> dict:
         json.dump(config, open(os.path.join('cogs', 'store', 'config.json'), 'w'), indent = 4)
         return config
 
-class ClayBot(commands.Bot):
+class Claymore(commands.Bot):
     def __init__(self, command_prefix: str, activity: discord.Game, owner_id: int, config: dict):
-        super(commands.Bot, self).__init__(
+        super().__init__(
             command_prefix = command_prefix, 
             activity = activity, 
             owner_id = owner_id,
             case_insensitive = True
         )
         self.config = config
-        self.__version__ = __version__
+
+    async def on_ready(self):
+        logging.info(f'name: {self.user.name}#{self.user.discriminator}')
+        logging.info(f'id: {self.user.id}')
 
 def make_bot(config: dict) -> ClayBot:
     return ClayBot(
@@ -170,3 +173,7 @@ if __name__ == "__main__":
 
     config = configparser.ConfigParser()
     config.read(args.config or 'config.ini')
+
+    bot = Claymore(
+        command_prefix = config['discord']['prefix']
+    )

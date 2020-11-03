@@ -11,6 +11,6 @@ fuzzywuzzy
 python-Levenshtein
 randomdict
 numpy
-opencv-python
+opencv-python-headless
 psutil
 pymongo
