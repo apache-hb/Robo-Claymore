@@ -1,5 +1,7 @@
-FROM python:3.9-buster
+FROM alpine:3.9
 
-RUN pip insrall -r requirements.txt
+RUN apk add --no-cache mongodb python3
+
+RUN python3 -m pip install -r requirements.txt
 
 CMD cd source && python main.py
