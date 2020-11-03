@@ -83,7 +83,7 @@ class Help(commands.Cog):
             description = getattr(cog, 'description', 'No description')
         )
 
-        for command in ctx.bot.get_cog_commands(cog.__class__.__name__):
+        for command in ctx.bot.cogs[cog.__class__.__name__].walk_commands():
             if not command.hidden:
                 embed.add_field(name = command.name, value = getattr(command, 'brief', 'No description'), inline = False)
 

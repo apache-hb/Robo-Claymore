@@ -10,6 +10,7 @@ import pip
 def install_command(name: str):
     operating = system()
 
+    # TODO: this is awful lmao
     if operating == 'Darwin':
         cmd = subprocess.check_call(['brew', 'install', name])
     elif operating == 'Windows':
@@ -22,6 +23,7 @@ def install_command(name: str):
         return False
     return True
 
+#TODO: this is also awful jesus
 def ensure_installs():
     if which('clang-format') is None:
         if not install_command('clang-format'):
@@ -55,6 +57,7 @@ class Code(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
+        #TODO: fuck me this is bad
         if which('rustfmt') is None:
             print('rustfmt not detected, install this manually as it cannot be done in a script')
         else:
@@ -102,6 +105,7 @@ class Code(commands.Cog):
         await ctx.send(f'```js\n{self.read_file(f"{ctx.author.id}.temp.kt")}```')
     '''
     
+    #TODO: this entire file is a RCE waiting to happen
     @commands.command(name = "js-format")
     async def _js_beautify(self, ctx, *, data: str):
         data = self.trim_code(data, 'js')

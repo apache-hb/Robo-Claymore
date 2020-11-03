@@ -10,6 +10,7 @@ from .utils.welcomecard import make_card, card_choices
 class Admin(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        #TODO: oh christ i need a database
         self.server_blacklists = SavedDict('cogs/store/server_blacklist.json')
         self.autorole_list = SavedDict('cogs/store/autorole.json')
         self.leave_channels = SavedDict('cogs/store/leave.json')
