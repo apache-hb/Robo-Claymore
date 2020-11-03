@@ -5,8 +5,33 @@
 beep boop
 
 # bot setup
+
+install prereqs
+```sh
+sudo apt update && apt upgrade
+sudo apt install python3.8 python3.8-dev
 ```
-python3 -m pip install -r requirements.txt
+
+create a config.ini
+```ini
+[discord]
+token = discord-bot-token
+prefix = discord-prefix
+activity = default-activity
+owner = user-id
+
+[mongo]
+port = mongo-port
+db = mongo-db-name
+
+[keys]
+wolfram = wolfram-key
+github = github-app-key
+```
+
+run bot
+```
+python3.8 -m pip install -r requirements.txt
 cd source/
-python3 main.py
+python3.8 main.py
 ```

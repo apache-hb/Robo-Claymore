@@ -13,3 +13,4 @@ randomdict
 numpy
 opencv-python
 psutil
+pymongo

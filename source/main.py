@@ -10,6 +10,10 @@ from discord.ext import commands
 
 from cogs.utils.shortcuts import quick_embed
 
+import argparse
+import logging
+import configparser
+
 def load_config() -> dict:
     try:
         return json.load(open(os.path.join('cogs', 'store', 'config.json')))
@@ -101,6 +105,7 @@ def backup_files() -> None:
         copyfile(storefile, os.path.join('cogs', 'store', 'backup', os.path.basename(storefile)))
         print(f'Backed up {storefile}')
 
+"""
 if __name__ == '__main__':
     if not os.path.isdir(os.path.join('cogs', 'store')):
         os.mkdir(os.path.join('cogs', 'store'))
@@ -152,4 +157,16 @@ if __name__ == '__main__':
 
     #no point catching exceptions here
     bot.run(config['discord']['token'])
+"""
 
+parser = argparse.ArgumentParser(description = 'robo-claymore discord bot')
+parser.add_argument('--config', help = 'path of config.ini file')
+parser.add_argument('--log', help = 'logging output file')
+
+if __name__ == "__main__":
+    args = parser.parse_args(sys.argv[1:])
+
+    logging.basicConfig(filename = args.log or 'claymore.log')
+
+    config = configparser.ConfigParser()
+    config.read(args.config or 'config.ini')
