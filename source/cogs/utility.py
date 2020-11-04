@@ -111,7 +111,7 @@ class Utility(commands.Cog):
         self.dir_path = os.path.dirname(os.path.realpath(__file__))
         self.tags = json.load(try_file('cogs/store/tags.json', content = '{}'))
         self.quotes = json.load(try_file('cogs/store/quotes.json', content = '{}'))
-        self.wolfram = Wolfram(bot.config['wolfram']['key'])
+        self.wolfram = Wolfram(bot.config['keys']['wolfram'])
         print(f'cog {self.__class__.__name__} loaded')
 
     @commands.command(
@@ -853,6 +853,6 @@ https://discord.gg/y3uSzCK'''
 def setup(bot):
     util = Utility(bot)
     bot.add_cog(util)
-    if not bot.config['wolfram']['key']:
+    if not bot.config['keys']['wolfram']:
         bot.remove_command('wolfram')
         print('Wolfram key missing, command removed')

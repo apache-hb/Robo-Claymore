@@ -1,13 +1,15 @@
 import discord
 from discord.ext import commands
 
+from claymore.utils import Wheel
+
 from .utils import checks
 from .utils.checks import can_override
 from .utils.shortcuts import quick_embed, try_file
 from .utils.saved_dict import SavedDict
 from .utils.welcomecard import make_card, card_choices
 
-class Admin(commands.Cog):
+class Admin(Wheel):
     def __init__(self, bot):
         self.bot = bot
         #TODO: oh christ i need a database
@@ -18,7 +20,6 @@ class Admin(commands.Cog):
         self.wlecome_channels = SavedDict('cogs/store/welcome.json')
         self.command_blacklist = SavedDict('cogs/store/command_blacklist.json')
         self.silenced_users = SavedDict('cogs/store/silenced.json')
-        print(f'cog {self.__class__.__name__} loaded')
 
     async def on_message(self, ctx):
         if ctx.channel.id in self.silenced_users.data.get(ctx.author.id, []):

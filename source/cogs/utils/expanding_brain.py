@@ -13,7 +13,7 @@ from . import image_to_bytes
 
 images = {}
 
-for img in glob('cogs/images/expanding_brain/*.jpg'):
+for img in glob('images/expanding_brain/*.jpg'):
     name = basename(img)
     images[name[:-4]] = Image.open(img).convert('RGBA')
 

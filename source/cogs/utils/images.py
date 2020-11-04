@@ -11,8 +11,8 @@ from _io import BytesIO
 from . import image_to_bytes
 
 IMAGES = {}
-FILES = glob('cogs/images/*.jpg')
-FILES.extend(glob('cogs/images/*.png'))
+FILES = glob('images/*.jpg')
+FILES.extend(glob('images/*.png'))
 
 for each in FILES:
     name = basename(each)

@@ -1,6 +1,7 @@
 import discord
 from aiohttp.client_exceptions import InvalidURL
 from discord.ext import commands
+from claymore.utils import Wheel
 
 from .utils.converters import bytes_to_image
 from .utils.images import (
@@ -15,24 +16,16 @@ from .utils.networking import get_bytes
 from .utils.filters import do_deepfry, jpegify, do_sharpen, emboss
 from io import BytesIO
 
-HAMMER = open('cogs/images/banhammer.jpg', 'rb')
-BANHAMMER = discord.File(HAMMER, 'banhammer.jpg')
-
-SHAD = open('cogs/images/shadman.png', 'rb')
-SHADMAN = discord.File(SHAD, 'shadman.png')
-
-
-async def message_check(ctx):
-    if '>shadman' in ctx.content:
-        await ctx.channel.send(file = SHADMAN)
-    elif 'b&' in ctx.content:
-        await ctx.channel.send(file = BANHAMMER)
-
-class Images(commands.Cog):
+class Images(Wheel):
     def __init__(self, bot):
         self.bot = bot
-        bot.add_listener(message_check, 'on_message')
-        print(f'Cog {self.__class__.__name__} loaded')
+
+    @Wheel.listener()
+    async def on_message(self, msg):
+        if '>shadman' in msg.content:
+            await msg.channel.send(file = discord.File(open('images/shadman.png', 'rb'), 'shadman.png'))
+        elif 'b&' in msg.content:
+            await msg.channel.send(file = discord.File(open('images/banhammer.jpg', 'rb'), 'ban.jpg'))
 
     @commands.command(
         name = "emboss"

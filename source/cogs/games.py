@@ -3,6 +3,7 @@ import random
 import time
 
 from discord.ext import commands
+from claymore.utils import Wheel
 
 from .utils.networking import url_request, json_request
 from .utils.shortcuts import quick_embed
@@ -75,15 +76,10 @@ titanfall_pilot_variables = {
     ]
 }
 
-class Games(commands.Cog):
+class Games(Wheel):
     def __init__(self, bot):
         self.bot = bot
         self.frames = None#used for warframe cache
-        try:
-            bot.config['count']
-        except KeyError:
-            bot.config['count'] = 0
-        print(f'cog {self.__class__.__name__} loaded')
 
     @classmethod
     def polarity_converter(cls, text: str):
@@ -135,14 +131,17 @@ class Games(commands.Cog):
         if a:
             embed.add_field(name = 'Variants', value = ', '.join(a))
         embed.add_field(name = 'Name', value = ret[0]['name'])
-        embed.add_field(name = 'More info', value = ret[0]['url'])
-        embed.add_field(name = 'Minimum mastery rank', value = ret[0]['mr'])
+        embed.add_field(name = 'More info', value = ret[0]['wikiaUrl'])
+        embed.add_field(name = 'Minimum mastery rank', value = ret[0]['masteryReq'])
         embed.add_field(name = 'Type', value = ret[0]['type'])
 
         try:
             stats = ret[0]
-            embed.add_field(name = 'Base damage',
-            value = f'A total of {stats["damage"]} damage comprised of {stats["slash"]} slash, {stats["puncture"]} puncture and {stats["impact"]} impact')
+            types = stats['damageTypes']
+            embed.add_field(
+                name = 'Base damage',
+                value = f'A total of {stats["damage"]} damage comprised of {types["slash"]} slash, {types["puncture"]} puncture and {types["impact"]} impact'
+            )
         except KeyError:
             embed.add_field(name = 'Base damage', value = ret[0]['damage'])
 
@@ -177,11 +176,11 @@ class Games(commands.Cog):
             try: embed.add_field(name='Flight speed', value=ret[0]['flight'])
             except KeyError:pass
 
-        embed.add_field(name = 'Critical chance', value = ret[0]['crit_chance'])
-        embed.add_field(name = 'Critical damage multiplier', value = ret[0]['crit_mult'])
-        embed.add_field(name = 'Status chance', value = ret[0]['status_chance'])
-        embed.add_field(name = 'Riven disposition', value = ret[0]['riven_disposition'])
-        embed.set_thumbnail(url = ret[0]['thumbnail'])
+        embed.add_field(name = 'Critical chance', value = ret[0]['criticalChance'])
+        embed.add_field(name = 'Critical damage multiplier', value = ret[0]['criticalMultiplier'])
+        embed.add_field(name = 'Status chance', value = ret[0]['procChance'])
+        embed.add_field(name = 'Riven disposition', value = ret[0]['disposition'])
+        embed.set_thumbnail(url = ret[0]['wikiaThumbnail'])
 
         await ctx.send(embed = embed)
 

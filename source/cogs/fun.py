@@ -141,16 +141,16 @@ class Fun(commands.Cog):
 
         #gather all the images of frothy for the `frothy` command
         self.frothy_images = [BytesIO(open(image, 'rb').read())
-                                for image in glob('cogs/images/frothy/*.png')]
+                                for image in glob('images/frothy/*.png')]
 
         #gather all the images of eyes for the `eyes` command
         self.eye_dict = rdict()
-        for eye_path in glob('cogs/images/eyes/*.png'):
+        for eye_path in glob('images/eyes/*.png'):
             name = basename(eye_path)
             #do [:-4] to trim off the `.png` ending
             self.eye_dict[name[:-4]] = Image.open(eye_path).convert('RGBA')
 
-        self.youtube_crime = Image.open('cogs/images/crime.png', mode = 'r').convert('RGBA')
+        self.youtube_crime = Image.open('images/crime.png', mode = 'r').convert('RGBA')
 
         print(f'cog {self.__class__.__name__} loaded')
 

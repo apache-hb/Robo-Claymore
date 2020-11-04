@@ -7,7 +7,7 @@ from io import BytesIO
 from PIL import Image
 from .converters import bytes_to_image, image_to_bytes
 
-VAN_IMAGE = Image.open('cogs/images/creepy_van.png').convert('RGBA')
+VAN_IMAGE = Image.open('images/creepy_van.png').convert('RGBA')
 
 #this is the center of the window
 WINDOW_LOC = (440, 90)

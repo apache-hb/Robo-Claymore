@@ -1,83 +1,43 @@
-import json
-import os
 import sys
-import traceback
-from glob import glob
-from shutil import copyfile
-
-import discord
-from discord.ext import commands
-
-from cogs.utils.shortcuts import quick_embed
+import os
 
 import argparse
 import logging
 import configparser
 
-def load_config() -> dict:
-    try:
-        return json.load(open(os.path.join('cogs', 'store', 'config.json')))
-    except FileNotFoundError:
-        print('The config file was not found, let me run the setup')
-        config = {
-            'discord': {
-                'token': input('Enter bot token'),
-                'prefix': input('Enter bot prefix'),
-                'activity': input('Enter default bot activity'),
-                'owner': input('Enter the owners id')
-            },
+from traceback import format_exception
+from glob import glob
+from claymore import Claymore
 
-            'wolfram': {
-                'key': input('Enter wolfram-alpha key (optional)')
-            },
+parser = argparse.ArgumentParser(description = 'robo-claymore discord bot')
+parser.add_argument('--config', help = 'path of config.ini file')
+parser.add_argument('--log', help = 'logging output file')
 
-            'github': {
-                'key': input('Enter a github token to enable some commands that send large messages (optional)')
-            },
+if __name__ == "__main__":
+    args = parser.parse_args(sys.argv[1:])
 
-            'count': 0,
-        }
-        json.dump(config, open(os.path.join('cogs', 'store', 'config.json'), 'w'), indent = 4)
-        return config
-
-class Claymore(commands.Bot):
-    def __init__(self, command_prefix: str, activity: discord.Game, owner_id: int, config: dict):
-        super().__init__(
-            command_prefix = command_prefix, 
-            activity = activity, 
-            owner_id = owner_id,
-            case_insensitive = True
-        )
-        self.config = config
-
-    async def on_ready(self):
-        logging.info(f'name: {self.user.name}#{self.user.discriminator}')
-        logging.info(f'id: {self.user.id}')
-
-def make_bot(config: dict) -> ClayBot:
-    return ClayBot(
-        command_prefix = commands.when_mentioned_or(config['discord']['prefix']),
-        activity = discord.Game(name = config['discord']['activity']),
-        owner_id = int(config['discord']['owner']),
-        config = config
+    logging.basicConfig(
+        filename = args.log or 'claymore.log', 
+        level = logging.INFO
     )
 
-__version__ = '0.4.11'
+    config = configparser.ConfigParser()
+    config.read(args.config or 'config.ini')
+    bot = Claymore(config)
 
-async def on_ready():
-    print('''
-name: {0.name}#{0.discriminator}
-id: {0.id}
-invite: https://discordapp.com/oauth2/authorize?client_id={0.id}&scope=bot&permissions=66321471
-discord.py version: {1.__version__}
-bot version: {2}
-bot ready'''.format(bot.user, discord, __version__))
-    for arg in sys.argv:
-        if '--rcid' in arg:
-            i = int(arg.replace('--rcid=', ''))
-            ch = bot.get_channel(i)
-            await ch.send('Restart complete.')
+    cogs = os.path.join(os.path.dirname(__file__), 'cogs')
+    globbed = [mod for mod in glob('cogs/*.py') if '__init__' not in mod]
 
+    for cog in globbed:
+        try:
+            bot.load_extension(cog.replace('.py', '').replace(os.sep, '.'))
+        except Exception as e:
+            logging.error(f'failed to load {cog}')
+            logging.error('\n'.join(format_exception(None, e, e.__traceback__)))
+
+    bot.run(config['discord']['token'])
+
+"""
 ignored_errors = [
     commands.errors.CheckFailure,
     commands.errors.CommandNotFound
@@ -107,7 +67,7 @@ def backup_files() -> None:
     for storefile in glob(os.path.join('cogs', 'store', '*.json')):
         copyfile(storefile, os.path.join('cogs', 'store', 'backup', os.path.basename(storefile)))
         print(f'Backed up {storefile}')
-
+"""
 """
 if __name__ == '__main__':
     if not os.path.isdir(os.path.join('cogs', 'store')):
@@ -161,19 +121,3 @@ if __name__ == '__main__':
     #no point catching exceptions here
     bot.run(config['discord']['token'])
 """
-
-parser = argparse.ArgumentParser(description = 'robo-claymore discord bot')
-parser.add_argument('--config', help = 'path of config.ini file')
-parser.add_argument('--log', help = 'logging output file')
-
-if __name__ == "__main__":
-    args = parser.parse_args(sys.argv[1:])
-
-    logging.basicConfig(filename = args.log or 'claymore.log')
-
-    config = configparser.ConfigParser()
-    config.read(args.config or 'config.ini')
-
-    bot = Claymore(
-        command_prefix = config['discord']['prefix']
-    )

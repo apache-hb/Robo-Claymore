@@ -21,7 +21,7 @@ activity = default-activity
 owner = user-id
 
 [mongo]
-port = mongo-port
+url = mongo-url
 db = mongo-db-name
 
 [keys]

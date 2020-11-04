@@ -18,7 +18,7 @@ def clean_name(name: str):
 
     return name[:-1]
 
-for card in glob('cogs/images/welcome_cards/*.*'):
+for card in glob('images/welcome_cards/*.*'):
     CARDS[clean_name(basename(card))] = Image.open(card).convert('RGBA')
 
 async def card_choices():
