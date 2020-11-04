@@ -34,7 +34,7 @@ class ClayContext(commands.context.Context):
 class Wheel(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.db = self.bot.db
+        self.db = self.bot.db[self.bot.config['mongo']['db']]
         self.log = logging.getLogger(self.__class__.__name__)
 
         self.log.info(f'initialized')

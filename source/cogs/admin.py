@@ -3,6 +3,31 @@ from discord.ext import commands
 
 from claymore.utils import Wheel
 
+class Admin(Wheel):
+    @commands.group('join-message')
+    async def join_message(self, ctx):
+        pass
+
+    @join_message.command('channel')
+    async def join_message_channel(self, ctx, channel: discord.Channel = None):
+        channel = channel or ctx.channel
+
+    @join_message.command('update')
+    async def join_message_update(self, ctx, *, msg: str):
+        pass
+
+    @join_message.command('enable')
+    async def join_message_enable(self, ctx):
+        pass
+
+    @join_message.command('disable')
+    async def join_message_disable(self, ctx):
+        pass
+
+def setup(bot):
+    bot.add_cog(Admin(bot))
+
+"""
 from .utils import checks
 from .utils.checks import can_override
 from .utils.shortcuts import quick_embed, try_file
@@ -488,3 +513,4 @@ def setup(bot):
     ADMIN = Admin(bot)
     bot.add_listener(admin_member_join, 'on_member_join')
     bot.add_cog(Admin(bot))
+"""
