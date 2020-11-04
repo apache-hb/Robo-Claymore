@@ -3,15 +3,20 @@ from itertools import chain
 import discord
 from discord.ext import commands
 from fuzzywuzzy import process
+from claymore.utils import Wheel
 
 from .utils.shortcuts import quick_embed
 from .utils.saved_dict import SavedDict
 
-class Help(commands.Cog):
+class Help(Wheel):
     def __init__(self, bot):
         self.bot = bot
         self.complaints = SavedDict('cogs/store/complaints.json', content = '[]')
-        print(f'cog {self.__class__.__name__} loaded')
+
+        @bot.event
+        async def on_command_error(ctx, err):
+            if isinstance(err, commands.errors.CommandNotFound):
+                await ctx.send(err)
 
     def __get_cog(self, name: str):
         for (key, val) in self.bot.cogs.items():
