@@ -1,13 +1,24 @@
-from itertools import chain
+#from itertools import chain
 
 import discord
 from discord.ext import commands
-from fuzzywuzzy import process
-from claymore.utils import Wheel
+from discord.ext.commands import HelpCommand
+#from fuzzywuzzy import process
+#from claymore.utils import Wheel
 
-from .utils.shortcuts import quick_embed
-from .utils.saved_dict import SavedDict
+#from .utils.shortcuts import quick_embed
+#from .utils.saved_dict import SavedDict
 
+class Help(HelpCommand):
+    async def command_not_found(self, cmd: str) -> str:
+        print(cmd)
+        return cmd
+
+    async def subcommand_not_found(self, cmd: str, sub: str) -> str:
+        print(cmd, sub)
+        return f'{cmd} {sub}'
+
+"""
 class Help(Wheel):
     def __init__(self, bot):
         self.bot = bot
@@ -16,7 +27,8 @@ class Help(Wheel):
         @bot.event
         async def on_command_error(ctx, err):
             if isinstance(err, commands.errors.CommandNotFound):
-                await ctx.send(err)
+                cmd = ctx.invoked_with
+                print(cmd)
 
     def __get_cog(self, name: str):
         for (key, val) in self.bot.cogs.items():
@@ -134,8 +146,8 @@ Aliases: {command.aliases}'''
         })
         self.complaints.save()
         await ctx.send('your complaint has been submitted')
+"""
 
 def setup(bot):
-    bot.remove_command('help')
-    print('Removed the default help command')
-    bot.add_cog(Help(bot))
+    #bot.help_command = Help()
+

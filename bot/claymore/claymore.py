@@ -1,12 +1,11 @@
 import discord
 from discord.ext import commands
 
-
 import os
 import logging
 from pymongo import MongoClient
 
-from .utils import ClayContext
+from .utils import Context
 
 class Claymore(commands.Bot):
     def __init__(self, config: dict):
@@ -27,5 +26,5 @@ class Claymore(commands.Bot):
         logging.info(f'id: {self.user.id}')
         logging.info(f'invite: https://discordapp.com/oauth2/authorize?client_id={self.user.id}&scope=bot&permissions=66321471')
     
-    async def get_context(self, msg, *, cls = ClayContext):
-        return await super().get_context(msg, cls = ClayContext)
+    async def get_context(self, msg, *, cls = Context):
+        return await super().get_context(msg, cls = cls)

@@ -27,6 +27,7 @@ db = mongo-db-name
 [keys]
 wolfram = wolfram-key
 github = github-app-key
+docs = readthedocs.io-key
 ```
 
 run bot

@@ -10,7 +10,7 @@ from glob import glob
 from claymore import Claymore
 
 parser = argparse.ArgumentParser(description = 'robo-claymore discord bot')
-parser.add_argument('--config', help = 'path of config.ini file')
+parser.add_argument('--config', help = 'path of config file')
 parser.add_argument('--log', help = 'logging output file')
 
 if __name__ == "__main__":
