@@ -36,8 +36,8 @@ class Context(commands.context.Context):
             else:
                 out.add_field(name = key, value = val)
 
-        if 'thumbnail' in kwargs:
-            out.set_thumbnail(url = kwargs['thumbnail'])
+        out.set_thumbnail(url = kwargs.get('thumbnail', Embed.Empty))
+        out.set_image(url = kwargs.get('image', Embed.Empty))
 
         return out
 

@@ -1,4 +1,5 @@
 from discord.embeds import Embed
+from discord.ext.commands.core import Group
 from claymore.utils import wheel, Context
 from claymore.claymore import Claymore
 from discord.ext.commands import command, CommandNotFound
@@ -49,12 +50,13 @@ class Help(wheel(desc = 'bot usage commands')):
         names = "  \n".join(res)
         return ctx.embed(f'no {msg} named {item}', f'possible results\n```{names}```')
 
-    def all_cogs(self, ctx) -> Embed:
+    def all_cogs(self, ctx, prefix) -> Embed:
         fields = { 
             name: body.description for name, body 
                 in self.bot.cogs.items() if not body.hidden
         }
-        return ctx.embed('all cogs', 'all cogs you have permission to use', fields)
+        desc = f'`{", ".join(prefix)}` are the current prefixes' if isinstance(prefix, tuple) else f'`{prefix}` is the current prefix'
+        return ctx.embed('all cogs', f'all cogs you have permission to use\n{desc}', fields)
 
     def cog_help(self, ctx, cog_name: str) -> Embed:
         cog = first(self.bot.cogs.items(), cog_name)
@@ -62,7 +64,7 @@ class Help(wheel(desc = 'bot usage commands')):
             return self.search_fuzz(ctx, self.bot.cogs.keys(), cog_name, 'cog')
 
         cmds = {
-            cmd.name: cmd.brief or cmd.usage for cmd
+            cmd.name: (cmd.brief or cmd.usage) if cmd.enabled else '(disabled)' for cmd
                 in cog.get_commands() if not cmd.hidden
         }
 
@@ -72,15 +74,19 @@ class Help(wheel(desc = 'bot usage commands')):
         if not name:
             return False
 
-        cmd = self.bot.get_command(name)
+        cmd = self.bot.get_command(name.lower())
         if not cmd or cmd.hidden:
             return False
 
-        details = { 
-            'signature': f'```\n{cmd.name} {cmd.signature}```',
+        details = {
+            'signature': f'```\n{cmd.qualified_name} {cmd.signature}```',
+            'enabled': str(cmd.enabled).lower(),
             'aliases': ', '.join(cmd.aliases) if cmd.aliases else 'no aliases',
             'usage': (f'```{dedent(cmd.help)}```', False) if cmd.help else 'see signature'
         }
+
+        if isinstance(cmd, Group):
+            details['subcommands'] = f'```\n{", ".join([it.name for it in cmd.commands])}```'
 
         await ctx.send(embed = ctx.embed(
             cmd.name, cmd.brief,
@@ -89,7 +95,6 @@ class Help(wheel(desc = 'bot usage commands')):
         return True
 
     @command(
-        name = 'help',
         brief = 'bot usermanual',
         help = """
         // get general help
@@ -102,10 +107,10 @@ class Help(wheel(desc = 'bot usage commands')):
         &help ping
         """
     )
-    async def help(self, ctx: Context, name: str = None):
+    async def help(self, ctx: Context, *, name: str = None):
         # self.cmd_help prints and returns true if it finds a command
         if not await self.cmd_help(ctx, name):
-            await ctx.push(self.cog_help(ctx, name.lower()) if name else self.all_cogs(ctx))
+            await ctx.push(self.cog_help(ctx, name.lower()) if name else self.all_cogs(ctx, await self.bot.get_prefix(ctx)))
 
     def cog_commands(self, ctx, name: str):
         cog = first(self.bot.cogs.items(), name)
@@ -130,13 +135,20 @@ class Help(wheel(desc = 'bot usage commands')):
             cmds = cog.get_commands()
             ncogs += 1
             ncmds += len(cmds)
-            names = '\n'.join([cmd.name for cmd in cmds])
+            
+            def fmt(cmds, depth = 0):
+                if isinstance(cmds, Group):
+                    return f'{cmds.name}\n' + '\n'.join([fmt(cmd, depth+1) for cmd in cmds.commands])
+                
+                return ('-' * depth) + ' ' + (f'{cmds.name} (disabled)' if not cmds.enabled else cmds.name)
+
+            names = ''
+            names = '\n'.join([fmt(cmd) for cmd in cmds])
             fields[it] =  f'```\n{names}```'
 
         return ctx.embed('all commands', f'{ncogs} cogs containing {ncmds} commands', fields)
         
     @command(
-        name = 'commands',
         brief = 'command & module listings',
         help = """
         // list all commands

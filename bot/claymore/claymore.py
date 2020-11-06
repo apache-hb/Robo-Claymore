@@ -3,9 +3,17 @@ from discord.ext import commands
 
 import os
 import logging
+from discord.flags import Intents
 from pymongo import MongoClient
 
 from .utils import Context
+
+def intents(**kwargs):
+    out = Intents.default()
+    for k, v in kwargs.items():
+        setattr(out, k, v)
+
+    return out
 
 class Claymore(commands.Bot):
     def __init__(self, config: dict):
@@ -13,13 +21,21 @@ class Claymore(commands.Bot):
             command_prefix = self.get_prefix, 
             activity = discord.Game(name = config['discord']['activity'] or 'help'), 
             owner_id = int(config['discord']['owner'] or 0),
-            case_insensitive = True
+            case_insensitive = True,
+            intents = intents(members = True)
         )
         self.config = config
-        self.db = MongoClient(self.config['mongo']['url'])
+        self.db = MongoClient(self.config['mongo']['url'])[self.config['mongo']['db']]
 
     async def get_prefix(self, ctx):
-        return self.config['discord']['prefix'] or '&'
+        default = self.config['discord'].get('prefix', '&')
+
+        if not ctx.guild:
+            return default
+
+        prefix = self.db.config.find_one({ 'id': ctx.guild.id }).get('prefix', None)
+
+        return (prefix, default) if prefix else default
 
     async def on_ready(self):
         logging.info(f'name: {self.user.name}#{self.user.discriminator}')

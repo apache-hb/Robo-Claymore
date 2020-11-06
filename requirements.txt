@@ -1,5 +1,6 @@
 wheel
 discord.py[voice]
+humanize
 imageio
 beautifulsoup4
 aiohttp
