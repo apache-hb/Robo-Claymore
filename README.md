@@ -13,7 +13,7 @@ sudo apt install python3.8 python3.8-dev
 python3.8 -m pip install -r requirements.txt
 ```
 
-create a config.ini
+create a config
 ```ini
 [discord]
 token = discord-bot-token
@@ -34,5 +34,5 @@ docs = readthedocs.io-key
 run bot
 ```
 cd source/
-python3.8 main.py
+python3.8 main.py --config=path/to/cfg.ini --log=path/to/log.txt
 ```
