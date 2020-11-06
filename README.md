@@ -10,6 +10,7 @@ install prereqs
 ```sh
 sudo apt update && apt upgrade
 sudo apt install python3.8 python3.8-dev
+python3.8 -m pip install -r requirements.txt
 ```
 
 create a config.ini
@@ -32,7 +33,6 @@ docs = readthedocs.io-key
 
 run bot
 ```
-python3.8 -m pip install -r requirements.txt
 cd source/
 python3.8 main.py
 ```
