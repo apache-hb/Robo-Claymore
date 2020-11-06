@@ -5,6 +5,7 @@ from discord.ext.commands import command, CommandNotFound
 from discord.user import User
 from fuzzywuzzy import process as fuzz
 from traceback import format_exception
+from textwrap import dedent
 
 def first(iter, key):
     for k, v in iter:
@@ -78,7 +79,7 @@ class Help(wheel(desc = 'bot usage commands')):
         details = { 
             'signature': f'```\n{cmd.name} {cmd.signature}```',
             'aliases': ', '.join(cmd.aliases) if cmd.aliases else 'no aliases',
-            'usage': cmd.usage or 'see signature'
+            'usage': (f'```{dedent(cmd.help)}```', False) if cmd.help else 'see signature'
         }
 
         await ctx.send(embed = ctx.embed(
@@ -87,7 +88,20 @@ class Help(wheel(desc = 'bot usage commands')):
         ))
         return True
 
-    @command(name = 'help')
+    @command(
+        name = 'help',
+        brief = 'bot usermanual',
+        help = """
+        // get general help
+        &help
+
+        // get help about a cog
+        &help utils
+
+        // get help for a specific command
+        &help ping
+        """
+    )
     async def help(self, ctx: Context, name: str = None):
         # self.cmd_help prints and returns true if it finds a command
         if not await self.cmd_help(ctx, name):
@@ -121,7 +135,17 @@ class Help(wheel(desc = 'bot usage commands')):
 
         return ctx.embed('all commands', f'{ncogs} cogs containing {ncmds} commands', fields)
         
-    @command(name = 'commands')
+    @command(
+        name = 'commands',
+        brief = 'command & module listings',
+        help = """
+        // list all commands
+        &commands
+
+        // list all commands in a specific module
+        &help utils
+        """
+    )
     async def commands(self, ctx: Context, mod: str = None):
         await ctx.send(embed = self.cog_commands(ctx, mod.lower()) if mod else self.all_commands(ctx))
 

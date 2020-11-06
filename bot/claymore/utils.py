@@ -4,7 +4,7 @@ from discord.ext import commands
 
 from dataclasses import dataclass
 import logging
-from typing import Mapping
+from typing import Mapping, Any
 
 class PagedEmbed:
     def __init__(self, title: str, desc: str, colour: int = None):
@@ -23,7 +23,7 @@ class PagedEmbed:
         self.fields.append(Field(name, value, inline))
 
 class Context(commands.context.Context):
-    def embed(self, title: str, desc: str, body: Mapping[str, str] = {}, colour: int = None) -> Embed:
+    def embed(self, title: str, desc: str, body: Mapping[str, Any] = {}, colour: int = None, **kwargs) -> Embed:
         out = Embed(
             title = title,
             description = desc,
@@ -31,7 +31,13 @@ class Context(commands.context.Context):
         )
 
         for key, val in body.items():
-            out.add_field(name = key, value = val)
+            if isinstance(val, tuple):
+                out.add_field(name = key, value = val[0], inline = val[1])
+            else:
+                out.add_field(name = key, value = val)
+
+        if 'thumbnail' in kwargs:
+            out.set_thumbnail(url = kwargs['thumbnail'])
 
         return out
 
