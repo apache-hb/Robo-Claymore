@@ -1,5 +1,6 @@
 from discord.embeds import Embed
 from discord.ext.commands.core import Group
+from discord.ext.commands.errors import BotMissingPermissions, CommandOnCooldown
 from claymore.utils import wheel, Context
 from claymore.claymore import Claymore
 from discord.ext.commands import command, CommandNotFound
@@ -18,6 +19,12 @@ def first(iter, key):
 def fuzzy(items, term, cutoff = 50):
     return [ pair[0] for pair in fuzz.extract(term, items, limit = 3) if pair[1] > cutoff]
 
+def format_cmds(cmds, depth = 0):
+    if isinstance(cmds, Group):
+        return f'{cmds.name}\n' + '\n'.join([format_cmds(cmd, depth+1) for cmd in cmds.commands])
+    
+    return ('-' * depth) + ' ' + (f'{cmds.name} (disabled)' if not cmds.enabled else cmds.name)
+
 class Help(wheel(desc = 'bot usage commands')):
     def __init__(self, bot: Claymore):
         super().__init__(bot)
@@ -26,7 +33,9 @@ class Help(wheel(desc = 'bot usage commands')):
     async def on_command_error(self, ctx, err):
         options = {
             CommandNotFound: self.command_not_found,
-            PermissionError: self.permission_denied
+            PermissionError: self.permission_denied,
+            CommandOnCooldown: self.cooldown,
+            BotMissingPermissions: self.missing_permissions
         }
 
         await ctx.send(options.get(type(err), self.report_error)(ctx, err))
@@ -41,6 +50,12 @@ class Help(wheel(desc = 'bot usage commands')):
 
     def permission_denied(self, ctx, _) -> str:
         return f'you do not have sufficient privileges to use the `{ctx.invoked_with}` command`'
+
+    def cooldown(self, ctx, err) -> str:
+        return f'command is still on cooldown, try again in `{err.retry_after:.2f}s`'
+
+    def missing_permissions(self, ctx, err) -> str:
+        return f'i am missing permissions to execute that command\nrequired permissions: {", ".join(err.missing_perms)}'
 
     def search_fuzz(self, ctx, items, item: str, msg: str):
         res = fuzzy(items, item)
@@ -119,7 +134,7 @@ class Help(wheel(desc = 'bot usage commands')):
             return self.search_fuzz(ctx, self.bot.cogs.keys(), name, 'cog')
 
         cmds = cog.get_commands()
-        names = "  \n".join([cmd.name for cmd in cmds])
+        names = "  \n".join([format_cmds(cmd) for cmd in cmds])
 
         return ctx.embed(f'all commands for {name}', f'{len(cmds)} total commands```\n{names}```')
 
@@ -136,14 +151,8 @@ class Help(wheel(desc = 'bot usage commands')):
             ncogs += 1
             ncmds += len(cmds)
             
-            def fmt(cmds, depth = 0):
-                if isinstance(cmds, Group):
-                    return f'{cmds.name}\n' + '\n'.join([fmt(cmd, depth+1) for cmd in cmds.commands])
-                
-                return ('-' * depth) + ' ' + (f'{cmds.name} (disabled)' if not cmds.enabled else cmds.name)
-
             names = ''
-            names = '\n'.join([fmt(cmd) for cmd in cmds])
+            names = '\n'.join([format_cmds(cmd) for cmd in cmds])
             fields[it] =  f'```\n{names}```'
 
         return ctx.embed('all commands', f'{ncogs} cogs containing {ncmds} commands', fields)

@@ -1,3 +1,5 @@
+from discord.channel import TextChannel
+from claymore.utils import PagedEmbed
 from typing import Union
 from discord.ext.commands.core import group, guild_only, has_permissions
 from discord import Emoji
@@ -13,7 +15,7 @@ class Text(wheel(desc = 'automatic messages')):
             if message.author.bot:
                 return
 
-            reacts = self.db.reacts.find_one({ 'id': message.guild.id })
+            reacts = await self.db.reacts.find_one({ 'id': message.guild.id })
 
             for text, emotes in (reacts or {}).items():
                 if 'id' in text:
@@ -23,13 +25,60 @@ class Text(wheel(desc = 'automatic messages')):
                     for emote in emotes:
                         await message.add_reaction(emote)
 
-    @group()
+        @bot.listen()
+        async def on_member_join(member):
+            if member.bot:
+                return
+
+            message = await self.db.welcome.find_one({ 'id': member.guild.id })
+            if not message or not message['msg']:
+                return
+
+            await member.guild.get_channel(message['channel']).send(message['msg'].replace('$user', member.mention))
+
+        @bot.listen()
+        async def on_member_remove(member):
+            if member.bot:
+                return
+
+            message = await self.db.leave.find_one({ 'id': member.guild.id })
+            if not message or not message['msg']:
+                return
+
+            await member.guild.get_channel(message['channel']).send(message['msg'].replace('$user', member.mention))
+
+    @group(
+        invoke_without_command = True,
+        brief = 'list all reacts',
+        help = """
+        // list all current autoreacts for the server
+        """
+    )
+    @guild_only()
     async def reacts(self, ctx):
-        pass
+        async def fail():
+            await ctx.send(embed = ctx.embed('no autoreacts', 'add autoreacts using `reacts add`'))
+
+        current = await self.db.reacts.find_one({ 'id': ctx.guild.id })
+        if not current:
+            return await fail()
+
+        embed = PagedEmbed('all embeds', f'`{len(current)}` total phrases')
+
+        for phrase, emotes in current.items():
+            if 'id' in phrase:
+                continue
+
+            embed.add_field(phrase, ', '.join(emotes))
+
+        if not embed.fields:
+            return await fail()
+
+        await ctx.page_embeds(embed)
 
     @reacts.command()
     async def add(self, ctx, emote: str, *, text: str):
-        self.db.reacts.update(
+        await self.db.reacts.update_one(
             { 'id': ctx.guild.id },
             { '$set': { 'id': ctx.guild.id }, '$addToSet': { text: emote } },
             upsert = True
@@ -37,32 +86,80 @@ class Text(wheel(desc = 'automatic messages')):
         await ctx.send(f'will now react to `{text}` with `{emote}`')
 
     @reacts.command()
-    async def remove(self, ctx, *, it: str):
-        pass
+    async def remove(self, ctx, *, text: str):
+        await self.db.reacts.update_one(
+            { 'id': ctx.guild.id },
+            { '$set': { 'id': ctx.guild.id }, '$unset': { text: 1 } },
+            upsert = True
+        )
+        await ctx.send(f'removed all autoreacts for `{text}`')
 
-    @group()
-    async def welcome(self, ctx, *, msg: str):
-        pass
 
-    @welcome.command()
-    async def enable(self, ctx):
-        pass
+    @command(
+        brief = 'set a welcome message',
+        help = """
+        // set a welcome message
+        &welcome hello $user
 
-    @welcome.command()
-    async def disable(self, ctx):
-        pass
+        // $user is replaced with a user mention
+        // will now post "hello @user" when a user joins
+        """
+    )
+    @guild_only()
+    async def welcome(self, ctx, *, msg: str = None):
+        await self.db.welcome.update_one(
+            { 'id': ctx.guild.id },
+            { '$set': { 'id': ctx.guild.id, 'msg': msg, 'channel': ctx.channel.id } },
+            upsert = True
+        )
+        await ctx.send(f'set the welcome message to `{msg}`')
 
-    @group()
-    async def leave(self, ctx, *, msg: str):
-        pass
+    @command(
+        name = 'welcome-channel',
+        brief = 'set welcome message channel'
+    )
+    @guild_only()
+    async def welcome_channel(self, ctx, chan: TextChannel = None):
+        channel = chan or ctx.channel
+        await self.db.welcome.update_one(
+            { 'id': ctx.guild.id },
+            { '$set': { 'id': ctx.guild.id, 'channel': channel.id } }
+        )
+        await ctx.send(f'set the welcome channel to `{channel.name}`')
 
-    @leave.command()
-    async def enable(self, ctx):
-        pass
 
-    @leave.command()
-    async def disable(self, ctx):
-        pass
+    @command(
+        brief = 'set a leaving message',
+        help = """
+        // set a leaving message
+        &leave goodbye $user
+
+        // $user is replaced with a user mention
+        // will now post "goodbye @user" when a user leaves
+        """
+    )
+    @guild_only()
+    async def leave(self, ctx, *, msg: str = None):
+        await self.db.leave.update_one(
+            { 'id': ctx.guild.id },
+            { '$set': { 'id': ctx.guild.id, 'msg': msg, 'channel': ctx.channel.id } },
+            upsert = True
+        )
+        await ctx.send(f'set the leave message to `{msg}`')
+
+    @command(
+        name = 'leave-channel',
+        brief = 'set leave message channel'
+    )
+    @guild_only()
+    async def leave_channel(self, ctx, chan: TextChannel):
+        channel = chan or ctx.channel
+        await self.db.leave.update_one(
+            { 'id': ctx.guild.id },
+            { '$set': { 'id': ctx.guild.id, 'channel': channel.id } }
+        )
+        await ctx.send(f'set the leave channel to `{channel.name}`')
+
 
 def setup(bot):
     bot.add_cog(Text(bot))

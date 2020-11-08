@@ -25,14 +25,14 @@ class Admin(wheel(desc = 'server administration tools')):
     @has_permissions(administrator = True)
     async def prefix(self, ctx, it: str = None):
         if it:
-            self.db.config.update(
+            await self.db.config.update_one(
                 { 'id': ctx.guild.id },
-                { 'id': ctx.guild.id, 'prefix': it },
+                { '$set': { 'id': ctx.guild.id, 'prefix': it } },
                 upsert = True
             )
             await ctx.send(f'set the custom prefix to `{it}`')
         else:
-            self.db.config.update(
+            await self.db.config.update_one(
                 { 'id': ctx.guild.id },
                 { '$unset': { 'prefix': 1 } },
                 upsert = True

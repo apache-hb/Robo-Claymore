@@ -63,7 +63,7 @@ def wheel(visible: bool = True, desc: str = ''):
         description = desc
         def __init__(self, bot):
             self.bot = bot
-            self.db = self.bot.db
+            self.db = bot.db
             self.log = logging.getLogger(self.__class__.__name__)
 
             self.log.info(f'initialized')

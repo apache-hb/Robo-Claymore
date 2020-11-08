@@ -4,7 +4,7 @@ from discord.ext import commands
 import os
 import logging
 from discord.flags import Intents
-from pymongo import MongoClient
+from motor.motor_asyncio import AsyncIOMotorClient as MotorClient
 
 from .utils import Context
 
@@ -25,7 +25,10 @@ class Claymore(commands.Bot):
             intents = intents(members = True)
         )
         self.config = config
-        self.db = MongoClient(self.config['mongo']['url'])[self.config['mongo']['db']]
+        # create the mongo client
+        dbclient = MotorClient(self.config['mongo']['url'])
+        # get our database from the client
+        self.db = dbclient[config['mongo']['db']]
 
     async def get_prefix(self, ctx):
         default = self.config['discord'].get('prefix', '&')
@@ -33,7 +36,7 @@ class Claymore(commands.Bot):
         if not ctx.guild:
             return default
 
-        prefix = self.db.config.find_one({ 'id': ctx.guild.id }).get('prefix', None)
+        prefix = (await self.db.config.find_one({ 'id': ctx.guild.id }) or {}).get('prefix', None)
 
         return (prefix, default) if prefix else default
 
