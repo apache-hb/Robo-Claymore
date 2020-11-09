@@ -6,14 +6,16 @@ beep boop
 
 # bot setup
 
-install prereqs
+* install prereqs
 ```sh
 sudo apt update && apt upgrade
 sudo apt install python3.8 python3.8-dev
 python3.8 -m pip install -r requirements.txt
 ```
 
-create a config
+* install mongodb and create a database
+
+* create a config
 ```ini
 [discord]
 token = discord-bot-token
@@ -31,7 +33,7 @@ github = github-app-key
 docs = readthedocs.io-key
 ```
 
-run bot
+* run bot
 ```
 python3.8 source/main.py --config=path/to/cfg.ini --log=path/to/log.txt
 ```
