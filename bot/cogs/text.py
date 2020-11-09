@@ -52,6 +52,7 @@ class Text(wheel(desc = 'automatic messages')):
         brief = 'list all reacts',
         help = """
         // list all current autoreacts for the server
+        &reacts
         """
     )
     @guild_only()
@@ -76,7 +77,16 @@ class Text(wheel(desc = 'automatic messages')):
 
         await ctx.page_embeds(embed)
 
-    @reacts.command()
+    @reacts.command(
+        brief = 'add an autoreact',
+        help = """
+        // add a reaction for duck
+        &reacts add :duck: duck
+
+        // now every message that contains the word "duck"
+        // will be reacted to with a :duck: emote
+        """
+    )
     async def add(self, ctx, emote: str, *, text: str):
         await self.db.reacts.update_one(
             { 'id': ctx.guild.id },
@@ -85,7 +95,16 @@ class Text(wheel(desc = 'automatic messages')):
         )
         await ctx.send(f'will now react to `{text}` with `{emote}`')
 
-    @reacts.command()
+    @reacts.command(
+        brief = 'remove an autoreact',
+        aliases = [ 'delete' ],
+        help = """
+        // delete an autoreact based on text
+        &reacts remove hello
+
+        // any reacts associated with "hello" have been removed
+        """
+    )
     async def remove(self, ctx, *, text: str):
         await self.db.reacts.update_one(
             { 'id': ctx.guild.id },
@@ -116,7 +135,13 @@ class Text(wheel(desc = 'automatic messages')):
 
     @command(
         name = 'welcome-channel',
-        brief = 'set welcome message channel'
+        brief = 'set welcome message channel',
+        help = """
+        // set the welcome channel
+        &welcome-channel #channel
+
+        // when a user joins a welcome message will be posted in #channel 
+        """
     )
     @guild_only()
     async def welcome_channel(self, ctx, chan: TextChannel = None):
@@ -149,7 +174,13 @@ class Text(wheel(desc = 'automatic messages')):
 
     @command(
         name = 'leave-channel',
-        brief = 'set leave message channel'
+        brief = 'set leave message channel',
+        help = """
+        // set leave message channel
+        &leave-channel #channel
+
+        // when a user leaves #channel will be notified
+        """
     )
     @guild_only()
     async def leave_channel(self, ctx, chan: TextChannel):

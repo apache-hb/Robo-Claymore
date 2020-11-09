@@ -1,6 +1,7 @@
 wheel
 discord.py[voice]
 humanize
+motor
 imageio
 beautifulsoup4
 aiohttp
@@ -17,5 +18,3 @@ numpy==1.19.3
 opencv-python-headless
 psutil
 
-motor
-#pymongo

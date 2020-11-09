@@ -33,6 +33,5 @@ docs = readthedocs.io-key
 
 run bot
 ```
-cd source/
-python3.8 main.py --config=path/to/cfg.ini --log=path/to/log.txt
+python3.8 source/main.py --config=path/to/cfg.ini --log=path/to/log.txt
 ```

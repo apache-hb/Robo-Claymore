@@ -25,12 +25,13 @@ if __name__ == "__main__":
     config.read(args.config or 'config.ini')
     bot = Claymore(config)
 
-    cogs = os.path.join(os.path.dirname(__file__), 'cogs')
-    globbed = [mod for mod in glob('cogs/*.py') if '__init__' not in mod]
+    cogs = os.path.join(os.path.dirname(__file__), 'cogs', '*.py')
+    globbed = [mod for mod in glob(cogs) if '__init__' not in mod]
 
     for cog in globbed:
         try:
-            bot.load_extension(cog.replace('.py', '').replace(os.sep, '.'))
+            ext = cog.replace('.py', '').replace(os.sep, '.').replace('bot.', '')
+            bot.load_extension(ext)
         except Exception as e:
             logging.error(f'failed to load {cog}')
             logging.error('\n'.join(format_exception(None, e, e.__traceback__)))
