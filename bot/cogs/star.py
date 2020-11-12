@@ -2,7 +2,7 @@ from discord import Member, TextChannel, Embed
 from discord.ext.commands import group, command
 from claymore.utils import wheel
 
-def star_embed(guild, author, msg):
+def star_embed(author, msg):
     return Embed(
         title = '{0.name}#{0.discriminator}'.format(author),
         url = msg.jump_url,
@@ -27,7 +27,7 @@ class Star(wheel(desc = 'starboard')):
 
                 num = len([react for react in msg.reactions if react.emoji == emote['emote']])
                 if num >= emote.get('limit', 10):
-                    await channel.send(embed = star_embed(user.guild, msg.author, msg))
+                    await channel.send(embed = star_embed(msg.author, msg))
 
     @command(
         brief = 'set or disable the starboard',
