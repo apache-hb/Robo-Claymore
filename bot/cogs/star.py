@@ -20,7 +20,6 @@ class Star(wheel(desc = 'starboard')):
             chan = guild.get_channel(event.channel_id)
             user = event.member
             msg = await chan.fetch_message(event.message_id)
-            emoji = event.emoji
 
             if emote := await self.db.star.find_one({ 'id': user.guild.id }):
                 if not (channel := user.guild.get_channel(emote['channel'])):
