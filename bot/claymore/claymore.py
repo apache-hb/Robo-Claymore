@@ -22,7 +22,7 @@ class Claymore(commands.Bot):
             activity = discord.Game(name = config['discord']['activity'] or 'help'), 
             owner_id = int(config['discord']['owner'] or 0),
             case_insensitive = True,
-            intents = intents(members = True)
+            intents = intents(members = True, guild_reactions = True)
         )
         self.config = config
         # create the mongo client

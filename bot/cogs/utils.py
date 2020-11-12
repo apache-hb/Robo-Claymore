@@ -195,12 +195,5 @@ class Utils(wheel(desc = 'helpful tools')):
     async def selfinfo(self, ctx):
         await ctx.invoke(self.userinfo)
 
-    """@command()
-    async def wolfram(self, ctx, *, query: str):
-        try:
-            resp = await self.wapi.query(query)
-        except LookupError:
-            return await ctx.send(embed = ctx.embed('no results', query))"""
-
 def setup(bot: Claymore):
     bot.add_cog(Utils(bot))

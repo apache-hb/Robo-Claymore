@@ -45,10 +45,10 @@ class Context(commands.context.Context):
         fields = [embed.fields[i:i + 25] for i in range(0, len(embed.fields), 25)]
 
         for idx, field in zip(range(len(fields)), fields):
-            page = Embed(title = embed.title, description = embed.description, colour = embed.colour)
+            page = Embed(title = embed.title, description = embed.desc, colour = embed.colour or self.me.colour)
             page.set_footer(text = f'page {idx+1} of {len(fields)}')
             for entry in field:
-                page.add_field(entry.name, entry.value, inline = entry.inline)
+                page.add_field(name = entry.name, value = entry.value, inline = entry.inline)
             await self.send(embed = page)
 
     async def push(self, it):

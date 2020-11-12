@@ -28,9 +28,28 @@ url = mongo-url
 db = mongo-db-name
 
 [keys]
-wolfram = wolfram-key
-github = github-app-key
-docs = readthedocs.io-key
+wolfram = wolfram-key # optional
+github = github-app-key # optional
+docs = readthedocs.io-key # optional
+
+# optional
+[twitter]
+key = api-key
+secret = api-secret-key
+access = access-token
+access-secret = access-token-secret
+
+# optional
+[ruqqus]
+user = ruqqus-username
+pass = ruqqus-password
+
+# optional
+[reddit]
+id = client-id
+secret = client-secret
+password = reddit-password
+user = reddit-username
 ```
 
 * run bot

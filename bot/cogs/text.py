@@ -60,8 +60,7 @@ class Text(wheel(desc = 'automatic messages')):
         async def fail():
             await ctx.send(embed = ctx.embed('no autoreacts', 'add autoreacts using `reacts add`'))
 
-        current = await self.db.reacts.find_one({ 'id': ctx.guild.id })
-        if not current:
+        if not (current := await self.db.reacts.find_one({ 'id': ctx.guild.id })):
             return await fail()
 
         embed = PagedEmbed('all embeds', f'`{len(current)}` total phrases')
