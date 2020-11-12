@@ -1,5 +1,5 @@
-from discord import Member, TextChannel, Embed
-from discord.ext.commands import group, command
+from discord import TextChannel, Embed
+from discord.ext.commands import command
 from claymore.utils import wheel
 
 def star_embed(author, msg):
