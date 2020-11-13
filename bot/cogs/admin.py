@@ -49,7 +49,7 @@ class Admin(wheel(desc = 'server administration tools')):
 
     @group(
         aliases = [ 'autoroles' ],
-        invoke_without_subcommand = False
+        invoke_without_command = True
     )
     @guild_only()
     async def autorole(self, ctx):
@@ -100,6 +100,21 @@ class Admin(wheel(desc = 'server administration tools')):
             upsert = True
         )
         await ctx.send('removed all autoroles')
+
+    #TODO: this
+    @group(
+        invoke_without_command = True
+    )
+    async def pubrole(self, ctx, role: str):
+        pass
+
+    @pubrole.command()
+    async def pubrole_add(self, ctx, role: Role):
+        pass
+
+    @pubrole.command()
+    async def pubrole_remove(self, ctx, role: Role):
+        pass
 
 def setup(bot):
     bot.add_cog(Admin(bot))
