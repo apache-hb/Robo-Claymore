@@ -14,13 +14,7 @@ class PagedEmbed:
         self.desc = desc
 
     def add_field(self, name: str, value, inline = True):
-        @dataclass
-        class Field:
-            name: str
-            value: str
-            inline: bool
-
-        self.fields.append(Field(name, value, inline))
+        self.fields.append((name, value, inline))
 
 class Context(commands.context.Context):
     def embed(self, title: str, desc: str, body: Mapping[str, Any] = {}, colour: int = None, **kwargs) -> Embed:
@@ -41,15 +35,16 @@ class Context(commands.context.Context):
 
         return out
 
-    async def page_embeds(self, embed: PagedEmbed):
+    async def page_embeds(self, embed: PagedEmbed, out = None):
+        out = out or self
         fields = [embed.fields[i:i + 25] for i in range(0, len(embed.fields), 25)]
 
         for idx, field in zip(range(len(fields)), fields):
             page = Embed(title = embed.title, description = embed.desc, colour = embed.colour or self.me.colour)
             page.set_footer(text = f'page {idx+1} of {len(fields)}')
             for entry in field:
-                page.add_field(name = entry.name, value = entry.value, inline = entry.inline)
-            await self.send(embed = page)
+                page.add_field(name = entry[0], value = entry[1], inline = entry[2])
+            await out.send(embed = page)
 
     async def push(self, it):
         if isinstance(it, Embed):

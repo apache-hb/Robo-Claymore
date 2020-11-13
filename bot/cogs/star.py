@@ -1,5 +1,5 @@
 from discord import TextChannel, Embed
-from discord.ext.commands import command
+from discord.ext.commands import guild_only, group
 from claymore.utils import wheel
 
 def star_embed(author, msg):
@@ -29,7 +29,8 @@ class Star(wheel(desc = 'starboard')):
                 if num >= emote.get('limit', 10):
                     await channel.send(embed = star_embed(msg.author, msg))
 
-    @command(
+    @group(
+        invoke_without_command = True,
         brief = 'set or disable the starboard',
         help = """
         &starboard #channel
@@ -42,6 +43,7 @@ class Star(wheel(desc = 'starboard')):
         // the starboard is now disabled
         """
     )
+    @guild_only()
     async def starboard(self, ctx, channel: TextChannel = None):
         if channel:
             await self.db.star.update_one(
@@ -58,8 +60,8 @@ class Star(wheel(desc = 'starboard')):
             )
             await ctx.send('disabled the starboard')
 
-    @command(
-        name = 'starboard-emote',
+    @starboard.command(
+        name = 'emote',
         brief = 'set starboard emote',
         help = """
         &starboard-emote 🦆
@@ -77,8 +79,8 @@ class Star(wheel(desc = 'starboard')):
         )
         await ctx.send(f'set the starboard emote to {emote}')
 
-    @command(
-        name = 'starboard-limit',
+    @starboard.command(
+        name = 'limit',
         brief = 'set the minimum amount of stars',
         help = """
         &starboard-limit 5

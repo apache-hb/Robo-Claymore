@@ -1,10 +1,8 @@
 from discord.channel import TextChannel
-from claymore.utils import PagedEmbed
-from typing import Union
 from discord.ext.commands.core import group, guild_only, has_permissions
-from discord import Emoji
-from claymore.utils import wheel
+from claymore.utils import wheel, PagedEmbed
 from discord.ext.commands import command
+from random import choice
 
 class Text(wheel(desc = 'automatic messages')):
     def __init__(self, bot):
@@ -190,6 +188,61 @@ class Text(wheel(desc = 'automatic messages')):
         )
         await ctx.send(f'set the leave channel to `{channel.name}`')
 
+    @group(
+        aliases = [ 'quotes' ],
+        invoke_without_command = True
+    )
+    async def quote(self, ctx, idx: int = None):
+        if quotes := await self.db.quotes.find_one({ 'id': ctx.guild.id }):
+            if q := quotes['quotes']:
+                return await ctx.send(
+                        q[idx] if idx in range(len(q)) 
+                        else f'index must be between `0` and `{len(q)}`'
+                        if idx else choice(q)
+                    )
+                
+        await ctx.send(f'this server has no quotes')
+
+    @quote.command(
+        name = 'list'
+    )
+    async def quote_list(self, ctx):
+        if quotes := await self.db.quotes.find_one({ 'id': ctx.guild.id }):
+            if quotes['quotes']:
+                embed = PagedEmbed(f'`{ctx.guild.name}` quotes', f'{len(quotes["quotes"])} total quotes')
+                embed.fields = [(str(idx), quote, False) for idx, quote in enumerate(quotes['quotes'])]
+                return await ctx.page_embeds(embed, ctx.author)
+
+        return await ctx.author.send(f'`{ctx.guild.name}` has no quotes')
+
+    @quote.command(
+        name = 'add'
+    )
+    async def quote_add(self, ctx, *, text: str):
+        await self.db.quotes.update_one(
+            { 'id': ctx.guild.id },
+            { '$set': { 'id': ctx.guild.id }, '$push': { 'quotes': text } },
+            upsert = True
+        )
+        res = await self.db.quotes.find_one({ 'id': ctx.guild.id })
+        await ctx.send(f'added quote as index {len(res["quotes"])}')
+
+    @quote.command(
+        name = 'remove',
+        aliases = [ 'delete' ]
+    )
+    async def quote_remove(self, ctx, idx: int):
+        # mongo doesnt let you remove by index atomically 
+        # this isnt going to be pretty
+        if res := await self.db.quotes.find_one({ 'id': ctx.guild.id }):
+            quotes = res['quotes']
+            quotes.pop(idx)
+            await self.db.quotes.update_one(
+                { 'id': ctx.guild.id },
+                { '$set': { 'quotes': quotes } }
+            )
+        
+        await ctx.send(f'removed quote at {idx} if there was one')
 
 def setup(bot):
     bot.add_cog(Text(bot))
