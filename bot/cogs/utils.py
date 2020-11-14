@@ -15,12 +15,11 @@ from aiowolfram import Wolfram
 class Utils(wheel(desc = 'helpful tools')):
     def __init__(self, bot):
         super().__init__(bot)
-        wkey = bot.config['keys'].get('wolfram', None)
-        if not wkey:
+        if wkey := bot.config['keys'].get('wolfram', None):
+            self.wapi = Wolfram(wkey)
+        else:
             self.log.warning('no api key. disabling wolfram command')
             self.wolfram.update(enabled = False)
-        else:
-            self.wapi = Wolfram(wkey)
 
     @command(
         brief = 'bot latency',

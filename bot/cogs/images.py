@@ -32,7 +32,13 @@ class Images(wheel(desc = 'image manipulation')):
         else:
             await ctx.send(file = File(self.frothy_images[idx]))
         
-    @command()
+    @command(
+        brief = 'get a picture of a cat',
+        help = """
+        // get a cat picture from the internet
+        &cat
+        """
+    )
     async def cat(self, ctx):
         obj = await json_request('https://api.thecatapi.com/v1/images/search')
         return await ctx.send(embed = ctx.embed('cat', 'thecatapi.com', image = obj[0]['url']))

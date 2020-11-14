@@ -48,8 +48,6 @@ pass = ruqqus-password
 [reddit]
 id = client-id
 secret = client-secret
-password = reddit-password
-user = reddit-username
 ```
 
 * run bot
