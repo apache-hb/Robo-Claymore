@@ -2,12 +2,17 @@ version: '3.9'
 services:
   discord:
     build: .
+    container_name: bot
     volumes:
-      - .:/bot
+      - ~/data/config.ini:/app/config.ini:ro
   mongo:
     image: mongo
+    container_name: storage
     volumes:
       - .:/mongo
   lavalink:
     image: fredboat/lavalink:master
+    container_name: audio
+    volumes:
+      - ~/data/application.yml:/opt/Lavalink/application.yml:ro
     entrypoint: java -Xmx128m -jar Lavalink.jar

@@ -4,16 +4,15 @@ server:
 
 lavalink:
   server:
-    password: "lavalink_claymore"
+    password: "claymore"
     sources:
       youtube: true
       bandcamp: true
       soundcloud: true
       twitch: true
       vimeo: true
-      mixer: true
       http: true
-      local: true
+      local: false
     sentryDsn: ""
     bufferDurationMs: 400
     youtubePlaylistLoadLimit: 10000

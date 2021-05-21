@@ -9,7 +9,7 @@ from .context import Context as ClayContext
 import json
 
 # file IO nastyness
-from os.path import join, abspath, dirname, isfile
+from os.path import abspath, dirname, isfile
 from os import access, R_OK
 
 import pymongo
@@ -20,7 +20,7 @@ from configparser import ConfigParser
 # get the config and create it if it doesnt exist
 def get_config():
     parser = ConfigParser()
-    parser.read(join('..', 'config', 'config.ini'))
+    parser.read('config.ini')
     return parser
 
 class Claymore(commands.Bot):
