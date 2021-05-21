@@ -46,9 +46,6 @@ class Claymore(commands.Bot):
     def __init__(self):
         self.log = logging.getLogger('claymore')
         self.log.setLevel(logging.INFO)
-        handler = logging.FileHandler(filename = join('..', 'logs', 'bot.log'), encoding = 'utf-8', mode = 'w')
-        handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
-        self.log.addHandler(handler)
 
         self.config = get_config()
         super().__init__(

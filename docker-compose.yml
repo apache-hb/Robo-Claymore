@@ -1,0 +1,13 @@
+version: '3.9'
+services:
+  discord:
+    build: .
+    volumes:
+      - .:/bot
+  mongo:
+    image: mongo
+    volumes:
+      - .:/mongo
+  lavalink:
+    image: fredboat/lavalink:master
+    entrypoint: java -Xmx128m -jar Lavalink.jar
