@@ -28,7 +28,7 @@ class Help(Wheel):
                 if "hidden" in dir(cog) and ctx.author.id != self.bot.owner_id:
                     continue
                 
-                embed.add_field(name = cog.qualified_name, value = cog.desc() if "desc" in dir(cog) else 'No descrption')
+                embed.add_field(name = cog.qualified_name, value = cog.desc() if 'desc' in dir(cog) else 'No descrption')
 
             return await ctx.send(embed = embed)
 
@@ -57,7 +57,7 @@ class Help(Wheel):
 
             embed = ctx.make_embed(title = f'Help for {cmd}', description = command.brief or 'No description')
             
-            if 'usage' in dir(command):
+            if 'usage' in dir(command) and command.usage is not None:
                 use = command.usage
             else:
                 use = command.signature or ''
@@ -75,7 +75,7 @@ class Help(Wheel):
             embed = ctx.make_embed(title = f'All commands for {cmd}', description = f'{len(commands)} total commands')
 
             for command in commands:
-                embed.add_field(name = command.name, value = command.description or 'No description')
+                embed.add_field(name = command.name, value = command.brief or 'No description')
 
             return await ctx.send(embed = embed)
 

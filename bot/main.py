@@ -53,7 +53,6 @@ def main():
 
     for path in glob('bot/cogs/*.py'):
         mod = clean_path(path)
-        bot.log.info(f'loading cog {mod}')
         bot.load_extension(mod)
 
     bot.run()

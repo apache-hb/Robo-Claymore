@@ -71,7 +71,8 @@ class AutoReact(Wheel):
 
     @_autoreact.command(
         name = 'add',
-        brief = 'add an autoreact to the current server'
+        brief = 'add an autoreact to the current server',
+        usage = '<text> <emote>'
     )
     async def _autoreact_add(self, ctx, *, text: str):
         text = text.split()
