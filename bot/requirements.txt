@@ -1,0 +1,11 @@
+discord.py[voice]
+motor
+dateparser
+toml
+emoji
+red-lavalink
+aiorule34
+pyfiglet
+mcstatus
+pillow
+yapf

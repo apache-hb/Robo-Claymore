@@ -26,16 +26,16 @@ class Music(Wheel):
         try:
             await lavalink.initialize(
                 self.bot,
-                host='localhost',
+                host='127.0.0.1',
                 password='claymore',
-                rest_port=2333,
                 ws_port=2333
             )
-        except:
-            self.bot.log.error('Failed to initalize lavalink connection, disabling music module')
+        except Exception as e:
+            self.bot.log.error(str(e))
+            self.bot.log.error('failed to initalize lavalink connection, disabling music module')
             self.bot.remove_cog(self.__class__.__name__)
         else:
-            self.bot.log.info('Initialized lavalink connection')
+            self.bot.log.info('initialized lavalink connection')
 
     async def add_track(self, ctx, track):
         player = await lavalink.connect(ctx.author.voice.channel)

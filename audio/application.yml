@@ -1,0 +1,36 @@
+server:
+  port: 2333
+  host: "localhost"
+
+lavalink:
+  server:
+    password: "claymore"
+    sources:
+      youtube: true
+      bandcamp: true
+      soundcloud: true
+      twitch: true
+      vimeo: true
+      http: true
+      local: false
+    sentryDsn: ""
+    bufferDurationMs: 400
+    youtubePlaylistLoadLimit: 10000
+
+metrics:
+  prometheus:
+    enabled: false
+    endpoint: /metrics
+
+sentry:
+  dsn: ""
+
+logging:
+  file:
+    max-history: 30
+    max-size: 256MB
+  path: ../logs/
+
+  level:
+    root: WARN
+    lavalink: WARN

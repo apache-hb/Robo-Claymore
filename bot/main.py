@@ -22,7 +22,7 @@ parser.add_argument('--config',
 
 parser.add_argument('--cogs',
     help = 'path to cogs folder',
-    nargs = '?', default = Path('cogs'),
+    nargs = '?', default = Path('bot/cogs'),
     type = Path
 )
 
@@ -51,7 +51,7 @@ def main():
 
     bot.log.info(f'loading all cogs in `{args.cogs}`')
 
-    for path in glob('bot/cogs/*.py'):
+    for path in args.cogs.glob('*.py'):
         mod = clean_path(path)
         bot.load_extension(mod)
 
