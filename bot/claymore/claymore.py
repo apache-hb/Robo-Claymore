@@ -6,7 +6,7 @@ import discord
 from .context import Context as ClayContext
 
 # config parsing
-import json
+import toml
 
 # file IO nastyness
 from os.path import abspath, dirname, isfile
@@ -15,13 +15,9 @@ from os import access, R_OK
 import motor.motor_asyncio as motor
 import logging
 
-from configparser import ConfigParser
-
 # get the config and create it if it doesnt exist
 def get_config(path: str):
-    parser = ConfigParser()
-    parser.read(path)
-    return parser
+    return toml.load(path)
 
 class Claymore(commands.Bot):
     async def get_prefix(self, msg):
@@ -54,13 +50,10 @@ class Claymore(commands.Bot):
             command_prefix=self.get_prefix,
             case_insensitive=True,
             owner_id = int(self.config['discord']['owner']),
-            activity = discord.Activity(name = self.config.get('discord', 'activity'))
+            activity = discord.Activity(name = self.config['discord']['activity'])
         )
 
-        if self.config.has_option('mongo', 'url'):
-            self.conn = motor.AsyncIOMotorClient(self.config.get('mongo', 'url'))
-        else:
-            self.conn = motor.AsyncIOMotorClient()
+        self.conn = motor.AsyncIOMotorClient(self.config['mongo']['url'])
 
         self.db = self.conn[self.config['mongo']['db']]
 

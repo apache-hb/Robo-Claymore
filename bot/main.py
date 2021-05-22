@@ -16,7 +16,7 @@ parser = argparse.ArgumentParser(description = 'discord bot')
 
 parser.add_argument('--config',
     help = 'path to config file',
-    nargs = '?', default = 'data/config.ini',
+    nargs = '?', default = 'data/config.toml',
     type = str
 )
 

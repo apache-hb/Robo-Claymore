@@ -1,18 +1,11 @@
-# discord api (duh)
 discord.py[voice]
-# lovley database stuff
 motor
-
-# human date parser
 dateparser
-
-# more bits
+toml
 emoji
 red-lavalink
 aiorule34
 pyfiglet
 mcstatus
 pillow
-
-# code formatting
 yapf
