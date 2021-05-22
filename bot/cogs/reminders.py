@@ -18,13 +18,13 @@ class Reminders(Wheel):
     @tasks.loop(seconds = 1.0)
     async def _reminder(self):
         now = datetime.now()
-        rems = self.db.remind.find({ 'time': { '$lte': now }})
-        for each in rems:
+        async for each in self.db.remind.find({ 'time': { '$lte': now }}):
             try:
                 await self.bot.get_user(each['author']).send(f'You asked to be reminded about `{each["msg"]}`')
             except:
                 pass
-        self.db.remind.remove({ 'time': { '$lte': now }})
+        
+        await self.db.remind.delete_many({ 'time': { '$lte': now }})
 
     @commands.command(
         name = 'remind', 
@@ -39,7 +39,7 @@ class Reminders(Wheel):
         except:
             return await ctx.send(f'`{time_fmt}` could not be parsed')
 
-        self.db.remind.insert_one({
+        await self.db.remind.insert_one({
             'author': ctx.message.author.id,
             'time': time,
             'msg': msg

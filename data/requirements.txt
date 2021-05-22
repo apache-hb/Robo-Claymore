@@ -1,7 +1,7 @@
 # discord api (duh)
 discord.py[voice]
 # lovley database stuff
-pymongo
+motor
 
 # human date parser
 dateparser

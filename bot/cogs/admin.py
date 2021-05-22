@@ -28,7 +28,11 @@ class Admin(Wheel):
         brief = 'update server prefix to a new prefix'
     )
     async def _prefix_update(self, ctx, prefix: str):
-        self.db.prefix.update({ 'id': ctx.guild.id }, { 'id': ctx.guild.id, 'prefix': prefix }, upsert = True)
+        await self.db.prefix.update(
+            { 'id': ctx.guild.id }, 
+            { 'id': ctx.guild.id, 'prefix': prefix }, 
+            upsert = True
+        )
         await ctx.send(f'New prefix is now `{prefix}`')
 
     @_prefix.command(
@@ -36,7 +40,7 @@ class Admin(Wheel):
         brief = 'reset server prefix to the default prefix'
     )
     async def _prefix_reset(self, ctx):
-        self.db.prefix.delete_one({ 'id': ctx.guild.id })
+        await self.db.prefix.delete_one({ 'id': ctx.guild.id })
         await ctx.send(f'Reset prefix to `{self.bot.config["discord"]["prefix"]}`')
 
     @commands.command(

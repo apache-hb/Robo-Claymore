@@ -14,7 +14,7 @@ class Quotes(Wheel):
     )
     @commands.guild_only()
     async def _quote(self, ctx, index: int = None):
-        quotes = self.db.quotes.find_one({ 'id': ctx.guild.id })
+        quotes = await self.db.quotes.find_one({ 'id': ctx.guild.id })
 
         if quotes is None or not 'quotes' in quotes or not quotes['quotes']:
             return await ctx.send('This server has no quotes')
@@ -32,13 +32,13 @@ class Quotes(Wheel):
         brief = 'add a tag with content'
     )
     async def _quote_add(self, ctx, *, text: str):
-        self.db.quotes.update(
+        await self.db.quotes.update(
             { 'id': ctx.guild.id },
             { '$push': { 'quotes': text } },
             upsert = True
         )
 
-        quotes = self.db.quotes.find_one({ 'id': ctx.guild.id })
+        quotes = await self.db.quotes.find_one({ 'id': ctx.guild.id })
 
         await ctx.send(f'Added quote with an index of {len(quotes["quotes"])-1}')
 
@@ -47,13 +47,13 @@ class Quotes(Wheel):
         brief = 'remove a tag'
     )
     async def _quote_remove(self, ctx, index: int):
-        self.db.quotes.update(
+        await self.db.quotes.update(
             { 'id': ctx.guild.id },
             { '$unset': { f'quotes.{index}': 1 } },
             upsert = True
         )
 
-        self.db.quotes.update(
+        await self.db.quotes.update(
             { 'id': ctx.guild.id },
             { '$pull': { 'quotes': None } }
         )
@@ -66,7 +66,7 @@ class Quotes(Wheel):
         brief = 'list all quotes for the current server'
     )
     async def _quote_list(self, ctx):
-        quotes = self.db.quotes.find_one({ 'id': ctx.guild.id })
+        quotes = await self.db.quotes.find_one({ 'id': ctx.guild.id })
 
         if quotes is not None or 'quotes' not in quotes:
             return await ctx.send('This server has no quotes')
@@ -85,7 +85,7 @@ class Quotes(Wheel):
     )
     @commands.has_permissions(administrator = True)
     async def _quote_purge(self, ctx):
-        self.db.quotes.remove({ 'id': ctx.guild.id })
+        await self.db.quotes.remove({ 'id': ctx.guild.id })
         await ctx.send('Removed all quotes')
 
 def setup(bot):

@@ -2,7 +2,6 @@ import discord
 from discord.ext import commands
 from random import choice
 from claymore import Wheel
-import pymongo
 
 class Autorole(Wheel):
     def desc(self):
@@ -13,7 +12,7 @@ class Autorole(Wheel):
         self.bot.add_listener(self.on_member_join)
 
     async def on_member_join(self, member):
-        roles = self.db.autorole.find_one({ 'id': member.guild.id })
+        roles = await self.db.autorole.find_one({ 'id': member.guild.id })
         if roles:
             guild = self.bot.get_guild(roles['id'])
             if roles.get('random', False):
@@ -35,7 +34,7 @@ class Autorole(Wheel):
         invoke_without_command = True
     )
     async def _autorole(self, ctx):
-        auto = self.db.autorole.find_one({ 'id': ctx.guild.id })
+        auto = await self.db.autorole.find_one({ 'id': ctx.guild.id })
         if auto is not None and auto['roles']:
             roles = auto['roles']
             embed = ctx.make_embed(title = 'Autoroles', description = f'There are currently {len(roles)} in the autoroles list')
@@ -47,7 +46,11 @@ class Autorole(Wheel):
                     roles.remove(role)
 
             await ctx.send(embed = embed)
-            self.db.autorole.update({ 'id': ctx.guild.id }, { 'id': ctx.guild.id, 'roles': roles }, upsert = True)
+            await self.db.autorole.update(
+                { 'id': ctx.guild.id }, 
+                { 'id': ctx.guild.id, 'roles': roles }, 
+                upsert = True
+            )
         else:
             await ctx.send(embed = ctx.make_embed(title = 'Autoroles', description = 'No current autoroles'))
 
@@ -57,7 +60,7 @@ class Autorole(Wheel):
         invoke_without_command = True
     )
     async def _autorole_toggle(self, ctx, new: str):
-        auto = self.db.autorole.select_one({ 'id': ctx.guild.id })
+        auto = await self.db.autorole.select_one({ 'id': ctx.guild.id })
         if auto is not None:
             await ctx.send(f'Randomized autorole is `{"enabled" if auto["random"] else "disabled"}`')
         else:
@@ -68,7 +71,7 @@ class Autorole(Wheel):
         brief = 'enable autorole randomization for the current server'
     )
     async def _autorole_toggle_enable(self, ctx):
-        self.db.autorole.insert({ 'id': ctx.guild.id }, { 'id': ctx.guild.id, 'random': True }, upsert = True)
+        await self.db.autorole.insert({ 'id': ctx.guild.id }, { 'id': ctx.guild.id, 'random': True }, upsert = True)
         await ctx.send('Enaabled autorole randomization')
 
     @_autorole_toggle.command(
@@ -76,7 +79,7 @@ class Autorole(Wheel):
         brief = 'disable autorole randomization for the current server'
     )
     async def _autorole_toggle_disable(self, ctx):
-        self.db.autorole.update({ 'id': ctx.guild.id }, { 'id': ctx.guild.id, 'random': False }, upsert = True)
+        await self.db.autorole.update({ 'id': ctx.guild.id }, { 'id': ctx.guild.id, 'random': False }, upsert = True)
         await ctx.send('Disabled autorole randomization')
 
     @_autorole.command(
@@ -84,7 +87,7 @@ class Autorole(Wheel):
         brief = 'add an role to the autorole list'
     )
     async def _autorole_add(self, ctx, role: discord.Role):
-        self.db.autorole.update(
+        await self.db.autorole.update(
             { 'id': ctx.guild.id },
             { '$push': { 'roles': role.id }, '$set': { 'random': False } },
             upsert = True
@@ -96,7 +99,7 @@ class Autorole(Wheel):
         brief = 'remove a role from the autorole list'
     )
     async def _autorole_remove(self, ctx, role: discord.Role):
-        self.db.autorole.update(
+        await self.db.autorole.update(
             { 'id': ctx.guild.id },
             { '$pull': { 'roles': { '$in': [ role.id ] } } }
         )
@@ -108,7 +111,7 @@ class Autorole(Wheel):
         aliases = [ 'wipe', 'purge', 'clean' ]
     )
     async def _autorole_reset(self, ctx):
-        self.db.autorole.remove({ 'id': ctx.guild.id })
+        await self.db.autorole.remove({ 'id': ctx.guild.id })
         await ctx.send('Removed all autoroles')
 
 def setup(bot):

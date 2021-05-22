@@ -14,7 +14,7 @@ class Tags(Wheel):
     )
     @commands.guild_only()
     async def _tag(self, ctx, name: str = None):
-        tags = self.db.tags.find_one({ 'id': ctx.guild.id })
+        tags = await self.db.tags.find_one({ 'id': ctx.guild.id })
 
         del tags['id']
         del tags['_id']
@@ -36,7 +36,7 @@ class Tags(Wheel):
         brief = 'add a tag to the current server'
     )
     async def _tag_add(self, ctx, name: str, *, content: str):
-        self.db.tags.update(
+        await self.db.tags.update(
             { 'id': ctx.guild.id },
             { '$addToSet': { name: content } },
             upsert = True
@@ -49,7 +49,7 @@ class Tags(Wheel):
         brief = 'remove a tag from the current server'
     )
     async def _tag_remove(self, ctx, name: str):
-        self.db.tags.update(
+        await self.db.tags.update(
             { 'id': ctx.guild.id },
             { '$unset': { name: "" } }
         )
@@ -61,7 +61,7 @@ class Tags(Wheel):
         brief = 'list all server tags'
     )
     async def _tag_list(self, ctx):
-        tags = self.db.tags.find_one({ 'id':ctx.guild.id })
+        tags = await self.db.tags.find_one({ 'id':ctx.guild.id })
 
         if tags is None:
             return await ctx.send('This server has no tags')
@@ -83,7 +83,7 @@ class Tags(Wheel):
     )
     @commands.has_permissions(administrator = True)
     async def _tag_purge(self, ctx):
-        self.db.tags.remove({ 'id': ctx.guild.id })
+        await self.db.tags.remove({ 'id': ctx.guild.id })
 
         await ctx.send('Removed all tags')
 

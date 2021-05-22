@@ -12,7 +12,7 @@ import json
 from os.path import abspath, dirname, isfile
 from os import access, R_OK
 
-import pymongo
+import motor.motor_asyncio as motor
 import logging
 
 from configparser import ConfigParser
@@ -29,7 +29,7 @@ class Claymore(commands.Bot):
         if msg.guild is None:
             return default
 
-        prefix = self.db.prefix.find_one({ 'id': msg.guild.id })
+        prefix = await self.db.prefix.find_one({ 'id': msg.guild.id })
 
         if prefix is not None:
             return (prefix['prefix'], default)
@@ -58,9 +58,9 @@ class Claymore(commands.Bot):
         )
 
         if self.config.has_option('mongo', 'url'):
-            self.conn = pymongo.MongoClient(self.config.get('mongo', 'url'))
+            self.conn = motor.AsyncIOMotorClient(self.config.get('mongo', 'url'))
         else:
-            self.conn = pymongo.MongoClient()
+            self.conn = motor.AsyncIOMotorClient()
 
         self.db = self.conn[self.config['mongo']['db']]
 

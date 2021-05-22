@@ -12,7 +12,7 @@ class AutoReact(Wheel):
         bot.add_listener(self.on_message, 'on_message')
 
     async def on_message(self, message):
-        reacts = self.db.autoreact.find_one({ 'id': message.guild.id })
+        reacts = await self.db.autoreact.find_one({ 'id': message.guild.id })
 
         if reacts:
             # a bit ugly but it makes iterating work
@@ -31,7 +31,7 @@ class AutoReact(Wheel):
     @commands.has_permissions(add_reactions = True)
     @commands.guild_only()
     async def _autoreact(self, ctx):
-        reacts = self.db.autoreact.find_one({ 'id': ctx.guild.id })
+        reacts = await self.db.autoreact.find_one({ 'id': ctx.guild.id })
 
         # remove the fields we dont need
         if reacts:
@@ -65,7 +65,7 @@ class AutoReact(Wheel):
     )
     @commands.has_permissions(administrator = True)
     async def _autoreact_purge(self, ctx):
-        self.db.autoreact.remove({ 'id': ctx.guild.id })
+        await self.db.autoreact.remove({ 'id': ctx.guild.id })
 
         await ctx.send('Removed all autoreacts')
 
@@ -82,7 +82,7 @@ class AutoReact(Wheel):
         if not emoji(react):
             return await ctx.send(f'`{react}` is not a valid autoreact')
 
-        self.db.autoreact.update(
+        await self.db.autoreact.update(
             { 'id': ctx.guild.id },
             { '$addToSet': { react: phrase } },
             upsert = True
@@ -98,7 +98,7 @@ class AutoReact(Wheel):
         if not emoji(react):
             return await ctx.send(f'`{react}` is not a valid autoreact')
 
-        self.db.autoreact.update(
+        await self.db.autoreact.update(
             { 'id': ctx.guild.id },
             { '$unset': { react: "" } }
         )
