@@ -6,4 +6,4 @@ class Wheel(commands.Cog):
         self.bot = bot
         self.db = self.bot.db
         # this print magically gets the name of the superclass
-        self.bot.log.info(f'Loaded cog {self.__class__.__name__}')
+        self.bot.log.info(f'loaded cog {self.__class__.__name__}')

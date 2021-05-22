@@ -8,6 +8,9 @@ from ntpath import basename
 
 from PIL import Image
 
+def collect_images(path: str):
+    return { splitext(basename(img))[0]:Image.open(img).convert('RGBA') for img in glob(path) }
+
 class Images(Wheel):
     def desc(self):
         return 'image manipluation commands'
@@ -15,15 +18,11 @@ class Images(Wheel):
     def __init__(self, bot):
         super().__init__(bot)
 
-        images_path = join('..', 'data', 'images', '*.*')
-        self.images = {splitext(basename(img))[0]:Image.open(img).convert('RGBA') for img in glob(images_path)}
+        self.images = collect_images('data/images/*.*')
+        self.vince = collect_images('data/images/vince/*.*')
+        self.brain = collect_images('data/images/brain/*.*')
 
-        vince_path = join('..', 'data', 'images', 'vince', '*.*')
-        self.vince = {splitext(basename(img))[0]:Image.open(img).convert('RGBA') for img in glob(vince_path)}
         self.vince_range = range(2, max([int(name[0]) for name, _ in self.vince.items()]))
-
-        brains_path = join('..', 'data', 'images', 'brain', '*.*')
-        self.brain = {splitext(basename(img))[0]:Image.open(img).convert('RGBA') for img in glob(brains_path)}
         self.brain_range = range(2, max([int(name[0]) for name, _ in self.brain.items()]))
 
     @commands.command(

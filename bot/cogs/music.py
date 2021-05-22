@@ -27,7 +27,7 @@ class Music(Wheel):
             await lavalink.initialize(
                 self.bot,
                 host='localhost',
-                password='lavalink_claymore',
+                password='claymore',
                 rest_port=2333,
                 ws_port=2333
             )

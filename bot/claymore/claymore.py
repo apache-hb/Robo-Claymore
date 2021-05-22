@@ -18,9 +18,9 @@ import logging
 from configparser import ConfigParser
 
 # get the config and create it if it doesnt exist
-def get_config():
+def get_config(path: str):
     parser = ConfigParser()
-    parser.read('config.ini')
+    parser.read(path)
     return parser
 
 class Claymore(commands.Bot):
@@ -38,16 +38,18 @@ class Claymore(commands.Bot):
 
     async def on_ready(self):
         await super().change_presence(activity = discord.Game(self.config['discord']['activity']))
-        self.log.info(f'Bot logged in as: {self.user.name}#{self.user.discriminator}')
-        self.log.info(f'Bot id: {self.user.id}')
-        self.log.info(f'Bot invite: https://discordapp.com/oauth2/authorize?client_id={self.user.id}&scope=bot&permissions=66321471')
+        self.log.info(f'logged in as: {self.user.name}#{self.user.discriminator}')
+        self.log.info(f'id: {self.user.id}')
+        self.log.info(f'invite: https://discordapp.com/oauth2/authorize?client_id={self.user.id}&scope=bot&permissions=66321471')
         self.log.info(f'discord.py version: {discord.__version__}')
 
-    def __init__(self):
+    def __init__(self, cfg: str):
         self.log = logging.getLogger('claymore')
         self.log.setLevel(logging.INFO)
 
-        self.config = get_config()
+        self.log.info(f'loading config from {cfg}')
+
+        self.config = get_config(cfg)
         super().__init__(
             command_prefix=self.get_prefix,
             case_insensitive=True,
@@ -60,7 +62,7 @@ class Claymore(commands.Bot):
         else:
             self.conn = pymongo.MongoClient()
 
-        self.db = self.conn[self.config['mongo']['name']]
+        self.db = self.conn[self.config['mongo']['db']]
 
 
     async def close(self):
