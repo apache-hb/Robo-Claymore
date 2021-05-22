@@ -8,7 +8,7 @@ __pycache__/
 # ignore data files
 *.json
 *.db
-*.toml
+config.toml
 
 !package*
 
