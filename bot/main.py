@@ -1,16 +1,12 @@
-from typing import List
-
-from glob import glob
-from os.path import sep, isfile, abspath, dirname, join, splitext
-from os import access, R_OK
+from os.path import splitext
 from pathlib import Path
 
 from claymore import Claymore
-import json
 
 import logging
 import sys
 import argparse
+import asyncio
 
 parser = argparse.ArgumentParser(description = 'discord bot')
 
@@ -35,7 +31,7 @@ def clean_path(path: str) -> str:
     return path.replace('bot.', '')
 
 
-def main():
+async def main():
     # setup logging to log to stdout
     root = logging.getLogger()
     handler = logging.StreamHandler(sys.stdout)
@@ -53,9 +49,9 @@ def main():
 
     for path in args.cogs.glob('*.py'):
         mod = clean_path(path)
-        bot.load_extension(mod)
+        await bot.load_extension(mod)
 
     bot.run()
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())

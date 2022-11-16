@@ -8,10 +8,6 @@ from .context import Context as ClayContext
 # config parsing
 import toml
 
-# file IO nastyness
-from os.path import abspath, dirname, isfile
-from os import access, R_OK
-
 import motor.motor_asyncio as motor
 import logging
 
@@ -20,6 +16,9 @@ def get_config(path: str):
     return toml.load(path)
 
 class Claymore(commands.Bot):
+    conn: motor.AsyncIOMotorClient
+    db: motor.AsyncIOMotorDatabase
+
     async def get_prefix(self, msg):
         default = self.config['discord']['prefix']
         if msg.guild is None:
@@ -50,13 +49,13 @@ class Claymore(commands.Bot):
             command_prefix=self.get_prefix,
             case_insensitive=True,
             owner_id = int(self.config['discord']['owner']),
-            activity = discord.Activity(name = self.config['discord']['activity'])
+            activity = discord.Activity(name = self.config['discord']['activity']),
+            intents = discord.Intents.all()
         )
 
-        self.conn = motor.AsyncIOMotorClient(self.config['mongo']['url'])
+        self.conn = motor.AsyncIOMotorClient(self.config['mongo']['uri'])
 
         self.db = self.conn[self.config['mongo']['db']]
-
 
     async def close(self):
         self.conn.close()
