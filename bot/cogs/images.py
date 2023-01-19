@@ -49,5 +49,5 @@ class Images(Wheel):
         if len(parts) not in self.brain_range:
             return await ctx.send(f'There must be between `{self.brain_range.start}` and `{self.brain_range.stop}` fields')
 
-def setup(bot):
-    bot.add_cog(Images(bot))
+async def setup(bot):
+    await bot.add_cog(Images(bot))

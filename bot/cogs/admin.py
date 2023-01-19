@@ -55,5 +55,5 @@ class Admin(Wheel):
 
         await ctx.send(f'Banned user with id of `{user}`')
 
-def setup(bot):
-    bot.add_cog(Admin(bot))
+async def setup(bot):
+    await bot.add_cog(Admin(bot))

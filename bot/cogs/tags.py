@@ -87,5 +87,5 @@ class Tags(Wheel):
 
         await ctx.send('Removed all tags')
 
-def setup(bot):
-    bot.add_cog(Tags(bot))
+async def setup(bot):
+    await bot.add_cog(Tags(bot))

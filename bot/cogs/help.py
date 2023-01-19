@@ -81,6 +81,6 @@ class Help(Wheel):
 
         await ctx.send(f'Nothing found called {cmd}')
 
-def setup(bot):
+async def setup(bot):
     bot.remove_command('help')
-    bot.add_cog(Help(bot))
+    await bot.add_cog(Help(bot))

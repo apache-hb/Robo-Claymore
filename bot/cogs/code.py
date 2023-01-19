@@ -45,5 +45,5 @@ class Code(Wheel):
         await ctx.send(f'```cpp{out.decode("ascii")}```')
 
 
-def setup(bot):
-    bot.add_cog(Code(bot))
+async def setup(bot):
+    await bot.add_cog(Code(bot))

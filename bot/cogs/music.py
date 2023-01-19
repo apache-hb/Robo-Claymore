@@ -33,7 +33,7 @@ class Music(Wheel):
         except Exception as e:
             self.bot.log.error(str(e))
             self.bot.log.error('failed to initalize lavalink connection, disabling music module')
-            self.bot.remove_cog(self.__class__.__name__)
+            await self.bot.remove_cog(self.__class__.__name__)
         else:
             self.bot.log.info('initialized lavalink connection')
 
@@ -211,5 +211,5 @@ class Music(Wheel):
         except:
             pass
 
-def setup(bot):
-    bot.add_cog(Music(bot))
+async def setup(bot):
+    await bot.add_cog(Music(bot))

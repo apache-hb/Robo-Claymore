@@ -56,7 +56,7 @@ class Autorole(Wheel):
 
     @_autorole.group(
         name = 'random',
-        brief = 'confgiure autorole randomization for new members',
+        brief = 'configure autorole randomization for new members',
         invoke_without_command = True
     )
     async def _autorole_toggle(self, ctx, new: str):
@@ -114,5 +114,5 @@ class Autorole(Wheel):
         await self.db.autorole.remove({ 'id': ctx.guild.id })
         await ctx.send('Removed all autoroles')
 
-def setup(bot):
-    bot.add_cog(Autorole(bot))
+async def setup(bot):
+    await bot.add_cog(Autorole(bot))

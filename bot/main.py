@@ -7,6 +7,7 @@ import logging
 import sys
 import argparse
 import asyncio
+import traceback
 
 parser = argparse.ArgumentParser(description = 'discord bot')
 
@@ -30,8 +31,7 @@ def clean_path(path: str) -> str:
 
     return path.replace('bot.', '')
 
-
-async def main():
+def make_bot(config):
     # setup logging to log to stdout
     root = logging.getLogger()
     handler = logging.StreamHandler(sys.stdout)
@@ -40,18 +40,21 @@ async def main():
     handler.setFormatter(formatter)
     root.addHandler(handler)
 
-    # parse args    
-    args = parser.parse_args()
+    return Claymore(config)
 
-    bot = Claymore(args.config)
+async def main(bot, cogs):
+    bot.log.info(f'loading all cogs in `{cogs}`')
 
-    bot.log.info(f'loading all cogs in `{args.cogs}`')
-
-    for path in args.cogs.glob('*.py'):
+    for path in cogs.glob('*.py'):
         mod = clean_path(path)
-        await bot.load_extension(mod)
-
-    bot.run()
+        try:
+            await bot.load_extension(mod)
+        except Exception:
+            logging.exception(f'failed to load cog `{mod}`')
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    args = parser.parse_args()
+
+    bot = make_bot(args.config)
+    asyncio.run(main(bot, args.cogs))
+    bot.run()

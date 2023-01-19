@@ -3,9 +3,8 @@ from discord.ext import commands
 import discord
 from datetime import datetime
 import random
-from typing import Union
 from utils import json
-from mcstatus import MinecraftServer
+from mcstatus import JavaServer
 
 POLL_EMOTES = [
     '0⃣',
@@ -153,7 +152,7 @@ class Utils(Wheel):
     @commands.cooldown(1, 15.0, commands.BucketType.user)
     async def _mcstatus(self, ctx, ip: str):
         try:
-            server = MinecraftServer.lookup(ip)
+            server = JavaServer.lookup(ip)
             status = server.status()
             
             embed = ctx.make_embed(ip, status.description)
@@ -164,5 +163,5 @@ class Utils(Wheel):
         except Exception:
             await ctx.send(f'No server found at `{ip}`')
 
-def setup(bot):
-    bot.add_cog(Utils(bot))
+async def setup(bot):
+    await bot.add_cog(Utils(bot))

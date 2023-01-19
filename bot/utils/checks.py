@@ -1,4 +1,6 @@
-from emoji import UNICODE_EMOJI as uemoji
+from emoji import get_emoji_unicode_dict
+
+uemoji = get_emoji_unicode_dict('en')
 
 def emoji(em: str) -> bool:
     # check for custom discord emotes

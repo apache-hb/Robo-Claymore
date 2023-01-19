@@ -88,5 +88,5 @@ class Quotes(Wheel):
         await self.db.quotes.remove({ 'id': ctx.guild.id })
         await ctx.send('Removed all quotes')
 
-def setup(bot):
-    bot.add_cog(Quotes(bot))
+async def setup(bot):
+    await bot.add_cog(Quotes(bot))

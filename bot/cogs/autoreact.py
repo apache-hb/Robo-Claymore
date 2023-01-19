@@ -12,6 +12,9 @@ class AutoReact(Wheel):
         bot.add_listener(self.on_message, 'on_message')
 
     async def on_message(self, message):
+        if message.guild is None: # ignore DMs
+            return
+
         reacts = await self.db.autoreact.find_one({ 'id': message.guild.id })
 
         if reacts:
@@ -105,5 +108,5 @@ class AutoReact(Wheel):
 
         await ctx.send(f'Updated autoreacts and removed everything {react} reacts to')
 
-def setup(bot):
-    bot.add_cog(AutoReact(bot))
+async def setup(bot):
+    await bot.add_cog(AutoReact(bot))

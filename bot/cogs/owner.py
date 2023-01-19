@@ -70,5 +70,5 @@ class Owner(Wheel):
                 await ctx.send(f'failed to send `{user.name}` a message')
                 break
 
-def setup(bot):
-    bot.add_cog(Owner(bot))
+async def setup(bot):
+    await bot.add_cog(Owner(bot))
